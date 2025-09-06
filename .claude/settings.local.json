@@ -3,7 +3,10 @@
     "allow": [
       "Bash(mkdir:*)",
       "Bash(go mod init:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(npm install:*)",
+      "Bash(npx supabase:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []
