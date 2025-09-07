@@ -1,0 +1,10 @@
+- Create full per-site analytics for /siteler/{site}.
+
+- Track events: page_view, unique_visitor, session_start/end, action_click (by button), auth_login, auth_logout, dashboard_view, dashboard_action.
+- Capture dimensions: site/slug, timestamp, path, referrer, UTM (source/medium/campaign), device type, browser, OS, country/region (coarse).
+- Metrics: total views, unique visitors, sessions, avg session duration, bounce rate, action click-through (per button), primary action conversions, top referrers, new vs returning.
+- Realtime: live counters for active visitors and recent clicks.
+- Dashboard (owner-only): date range filters, site filter, charts (time series, top actions/referrers, device/browser breakdown, geo heatmap), table of recent events, export CSV.
+- Behavior: do not change button order; clicks are attributed to the saved order. No public analytics UI on /siteler/{site}.
+- Privacy: anonymize IP, no PII, respect DNT, lightweight and fast.
+- Reliability: queue+retry for event delivery; no impact on page performance.

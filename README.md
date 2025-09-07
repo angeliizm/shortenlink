@@ -1,185 +1,265 @@
-# SHORTENLINK
+# ShortenLink - URL Shortener
 
-A production-grade link shortener platform with advanced analytics, custom domains, and enterprise features.
+A modern, full-stack URL shortening service built with Next.js (TypeScript) and Supabase. Deploy seamlessly on Vercel with no Docker or backend infrastructure required.
 
 ## Features
 
-- 🚀 High-performance redirects (10k RPS, <50ms p95 latency)
-- 📊 Advanced analytics with real-time tracking
-- 🔒 Enterprise-grade security (OWASP ASVS L2)
-- 🌍 Custom domains with DNS verification
-- 📱 QR code generation
-- 🔑 API-first architecture with webhooks
-- 🛡️ Advanced anti-abuse protection
-- 📈 GDPR/KVKK compliant
+- 🔗 Create short links with custom slugs
+- 🔒 Password-protected links
+- ⏰ Expiring links with time limits
+- 📊 Click analytics and tracking
+- 🚀 Edge runtime for fast redirects
+- 🎨 Modern, responsive UI with Tailwind CSS
+- 🔐 Secure authentication with Supabase Auth
+- 📱 Mobile-friendly design
 
 ## Tech Stack
 
-- **Backend**: Go (Fiber framework)
-- **Database**: PostgreSQL + Redis
-- **Frontend**: Next.js + TypeScript + Tailwind CSS
-- **Infrastructure**: Docker + Cloudflare
-- **Monitoring**: Prometheus + OpenTelemetry
+- **Frontend & Backend**: Next.js 14 (App Router) with TypeScript
+- **Database & Auth**: Supabase (PostgreSQL)
+- **Styling**: Tailwind CSS + Radix UI components
+- **Deployment**: Vercel (optimized for edge runtime)
+- **Package Manager**: npm
 
 ## Quick Start
 
 ### Prerequisites
 
-- Docker & Docker Compose
-- Go 1.21+
-- Node.js 20+
-- PostgreSQL 15+
-- Redis 7+
+- Node.js 18+ and npm
+- Supabase account (free tier works)
+- Vercel account for deployment (optional)
 
 ### Development Setup
 
 1. Clone the repository:
 ```bash
 git clone https://github.com/yourusername/shortenlink.git
-cd shortenlink
+cd shortenlink/frontend
 ```
 
-2. Copy environment variables:
+2. Install dependencies:
 ```bash
-cp .env.example .env
+npm install
 ```
 
-3. Start services with Docker Compose:
+3. Set up Supabase (see detailed instructions below)
+
+4. Configure environment:
 ```bash
-docker-compose up -d
+cp .env.local.example .env.local
+# Edit .env.local with your Supabase credentials
 ```
 
-4. Run database migrations:
+5. Run development server:
 ```bash
-make migrate-up
+npm run dev
 ```
 
-5. Start the development servers:
-```bash
-# Backend
-cd backend && go run cmd/api/main.go
+Visit [http://localhost:3000](http://localhost:3000) to see the app.
 
-# Frontend (new terminal)
-cd frontend && npm run dev
+## Detailed Setup
+
+### Setting Up Supabase
+
+1. **Create a Supabase Project**
+   - Go to [supabase.com](https://supabase.com)
+   - Click "New Project"
+   - Choose your organization and set project details
+   - Save your database password securely
+
+2. **Run Database Migrations**
+   - Go to SQL Editor in Supabase Dashboard
+   - Copy contents of `frontend/supabase-migrations.sql`
+   - Run the SQL to create tables and policies
+
+3. **Configure Authentication**
+   - Go to Authentication → Providers
+   - Enable Email provider
+   - Configure email templates if needed
+
+4. **Get API Credentials**
+   - Go to Settings → API
+   - Copy your project URL and anon key
+   - Get service role key (keep this secret!)
+
+### Environment Variables
+
+Create `.env.local` in the frontend directory:
+
+```env
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Optional for production
+# NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
 ```
-
-6. Access the application:
-- Frontend: http://localhost:3000
-- API: http://localhost:8080
-- API Docs: http://localhost:8080/swagger
 
 ## Project Structure
 
 ```
-shortenlink/
-├── backend/           # Go API server
-│   ├── cmd/          # Application entrypoints
-│   ├── internal/     # Private application code
-│   ├── pkg/          # Public packages
-│   └── migrations/   # Database migrations
-├── frontend/         # Next.js application
-│   ├── app/          # App router pages
-│   ├── components/   # React components
-│   └── lib/          # Utilities
-├── docker/           # Docker configurations
-├── scripts/          # Utility scripts
-└── docs/            # Documentation
+frontend/
+├── app/                    # Next.js App Router
+│   ├── api/               # API route handlers
+│   │   ├── links/         # Link CRUD operations
+│   │   └── redirect/      # Redirect handler (edge)
+│   ├── dashboard/         # Protected dashboard
+│   ├── register/          # Sign up page
+│   └── test-supabase/     # Connection test page
+├── components/            # React components
+│   └── ui/               # Reusable UI components
+├── lib/                   # Utility functions
+│   └── supabase/         # Supabase clients
+├── hooks/                 # Custom React hooks
+└── public/               # Static assets
 ```
 
-## API Documentation
+## API Routes
 
-The API follows OpenAPI 3.1 specification. Full documentation available at `/swagger` when running the API server.
+All API endpoints are TypeScript-based Next.js Route Handlers:
 
-### Authentication
+### Links Management
+- `GET /api/links` - List user's links (requires auth)
+- `POST /api/links` - Create a new short link
+- `GET /api/links/[id]` - Get link details
+- `PATCH /api/links/[id]` - Update a link
+- `DELETE /api/links/[id]` - Delete a link
+
+### Redirect
+- `GET /api/redirect/[slug]` - Redirect to target URL (edge runtime)
+
+## Database Schema
+
+### Tables
+
+**profiles**
+- `id` (UUID, references auth.users)
+- `email` (unique)
+- `name` (optional)
+- `avatar_url` (optional)
+
+**links**
+- `id` (UUID)
+- `user_id` (references auth.users)
+- `slug` (unique)
+- `target_url`
+- `password` (optional)
+- `expires_at` (optional)
+
+**clicks**
+- `id` (UUID)
+- `link_id` (references links)
+- `clicked_at`
+- `ip_address`
+- `user_agent`
+- `referer`
+
+## Development Commands
 
 ```bash
-# Register
-curl -X POST http://localhost:8080/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"SecurePass123!"}'
+# Start development server
+npm run dev
 
-# Login
-curl -X POST http://localhost:8080/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"SecurePass123!"}'
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Run type checking
+npm run type-check
+
+# Run linting
+npm run lint
 ```
 
-### Create Short Link
+## Deployment on Vercel
 
-```bash
-curl -X POST http://localhost:8080/api/v1/links \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"target_url":"https://example.com/very/long/url"}'
-```
+1. **Push to GitHub**
+   ```bash
+   git add .
+   git commit -m "Ready for deployment"
+   git push origin main
+   ```
+
+2. **Import to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Click "New Project"
+   - Import your GitHub repository
+   - Set root directory to `frontend`
+
+3. **Configure Environment Variables**
+   Add these in Vercel dashboard:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+
+4. **Deploy**
+   - Click "Deploy"
+   - Wait for build to complete
+   - Your app is live!
 
 ## Testing
 
-```bash
-# Run all tests
-make test
+### Test Supabase Connection
+Visit `/test-supabase` to verify:
+- Database connection
+- Authentication status
+- API routes functionality
 
-# Run with coverage
-make test-coverage
+### Create a Test Link
+1. Sign up/login at your app
+2. Go to dashboard
+3. Click "Create Link"
+4. Enter target URL
+5. Optional: Set password, expiration, custom slug
+6. Copy the generated short URL
+7. Test redirect in new tab
 
-# Run e2e tests
-make test-e2e
+## Security Features
 
-# Run load tests
-make test-load
-```
+- Row Level Security (RLS) on all tables
+- Server-side authentication checks
+- Service role key never exposed to client
+- Password-protected links
+- Automatic HTTPS on Vercel
+- CORS handled by same-origin
 
-## Deployment
+## Troubleshooting
 
-### Production with Docker
+### Common Issues
 
-```bash
-# Build production images
-docker build -t shortenlink/api:latest ./backend
-docker build -t shortenlink/frontend:latest ./frontend
+**Supabase Connection Failed**
+- Check environment variables
+- Verify Supabase project is active
+- Run migrations in SQL editor
 
-# Deploy with docker-compose
-docker-compose -f docker-compose.prod.yml up -d
-```
+**Authentication Not Working**
+- Enable Email provider in Supabase
+- Check email confirmation settings
+- Verify environment variables
 
-### Kubernetes
+**Redirects Not Working**
+- Check if slug exists in database
+- Verify link hasn't expired
+- Check password if protected
 
-```bash
-# Apply configurations
-kubectl apply -f k8s/
-
-# Check deployment status
-kubectl get pods -n shortenlink
-```
-
-## Configuration
-
-Key environment variables:
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| DATABASE_URL | PostgreSQL connection string | - |
-| REDIS_URL | Redis connection string | - |
-| JWT_SECRET | JWT signing secret | - |
-| API_URL | Backend API URL | http://localhost:8080 |
-| NEXT_PUBLIC_API_URL | Frontend API URL | http://localhost:8080 |
-
-See `.env.example` for complete list.
+**Build Errors on Vercel**
+- Set root directory to `frontend`
+- Check all environment variables
+- Review build logs for details
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](docs/CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
-
-## Security
-
-For security concerns, please email security@shortenlink.com instead of using the issue tracker.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- Documentation: [https://docs.shortenlink.com](https://docs.shortenlink.com)
-- Issues: [GitHub Issues](https://github.com/yourusername/shortenlink/issues)
-- Discord: [Join our community](https://discord.gg/shortenlink)
+- Create an issue on GitHub for bugs or features
+- Check `/test-supabase` for connection diagnostics
+- Review Supabase logs for database issues
