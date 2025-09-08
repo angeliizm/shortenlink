@@ -4,7 +4,7 @@ import { useAuth } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shield, Sparkles } from 'lucide-react'
+import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shield, Sparkles, BarChart, Palette } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import CreateSiteDialog from '@/components/dashboard/CreateSiteDialog'
@@ -21,6 +21,7 @@ interface Site {
   created_at: string
   updated_at: string
 }
+
 
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading, logout } = useAuth()
@@ -56,7 +57,7 @@ export default function DashboardPage() {
       setSites(data || [])
       
       const totalSites = data?.length || 0
-      const activeSites = data?.filter(site => site.is_enabled).length || 0
+      const activeSites = data?.filter((site: any) => site.is_enabled).length || 0
       
       setStats({ totalSites, activeSites })
     } catch (error) {
@@ -81,6 +82,7 @@ export default function DashboardPage() {
       console.error('Error deleting site:', error)
     }
   }
+
 
   if (isLoading) {
     return (
@@ -261,13 +263,23 @@ export default function DashboardPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => window.open(`/siteler/${site.site_slug}`, '_blank')}
+                        title="View Site"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => router.push(`/dashboard/analytics/${site.site_slug}`)}
+                        title="Analytics"
+                      >
+                        <BarChart className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => router.push(`/dashboard/sites/${site.id}/edit`)}
+                        title="Edit Site"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -276,6 +288,7 @@ export default function DashboardPage() {
                         size="sm"
                         onClick={() => setDeleteTarget(site)}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        title="Delete Site"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -301,6 +314,7 @@ export default function DashboardPage() {
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         onConfirm={handleDeleteSite}
       />
+      
     </div>
   )
 }

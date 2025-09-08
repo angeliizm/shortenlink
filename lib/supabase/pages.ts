@@ -7,6 +7,8 @@ export async function getPageConfig(slug: string): Promise<PageConfig | null> {
   const headersList = headers()
   const host = headersList.get('host') || ''
   
+  let pageData: any = null
+  
   // Check if accessing via custom domain first
   if (host && !host.includes('localhost') && !host.includes('vercel')) {
     const { data: domainData } = await supabase.rpc('get_page_by_domain', { 
@@ -14,25 +16,44 @@ export async function getPageConfig(slug: string): Promise<PageConfig | null> {
     })
     
     if (domainData) {
-      return transformPageData(domainData)
+      pageData = domainData
     }
   }
   
   // Otherwise, look up by slug
-  const { data, error } = await supabase.rpc('get_page_by_slug', { 
-    site_slug: slug 
-  })
-  
-  if (error || !data) {
-    return null
+  if (!pageData) {
+    const { data, error } = await supabase.rpc('get_page_by_slug', { 
+      site_slug: slug 
+    })
+    
+    if (error || !data) {
+      return null
+    }
+    
+    pageData = data
   }
   
-  return transformPageData(data)
+  // Fetch background preferences
+  const { data: bgPrefs } = await supabase
+    .from('background_preferences')
+    .select('*')
+    .eq('site_id', pageData.id)
+    .single()
+  
+  // Fetch title style preferences
+  const { data: titlePrefs } = await supabase
+    .from('title_style_preferences')
+    .select('*')
+    .eq('site_id', pageData.id)
+    .single()
+  
+  return transformPageData(pageData, bgPrefs, titlePrefs)
 }
 
-function transformPageData(data: any): PageConfig {
+function transformPageData(data: any, bgPrefs?: any, titlePrefs?: any): PageConfig {
   return {
     id: data.id,
+    slug: data.site_slug,  // Added for analytics tracking
     siteSlug: data.site_slug,
     title: data.title,
     brandColor: data.brand_color,
@@ -41,6 +62,15 @@ function transformPageData(data: any): PageConfig {
     meta: data.meta,
     isEnabled: data.is_enabled,
     actions: data.actions || [],
-    customDomain: data.custom_domain
+    customDomain: data.custom_domain,
+    userId: data.user_id,
+    backgroundPreference: bgPrefs ? {
+      presetId: bgPrefs.preset_id,
+      controlValues: bgPrefs.control_values || {}
+    } : null,
+    titleStylePreference: titlePrefs ? {
+      presetId: titlePrefs.preset_id,
+      customSettings: titlePrefs.custom_settings || {}
+    } : null
   }
 }

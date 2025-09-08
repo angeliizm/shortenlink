@@ -16,6 +16,7 @@ export interface PageMeta {
 
 export interface PageConfig {
   id: string
+  slug: string  // For analytics tracking
   siteSlug: string
   title: string
   brandColor: string
@@ -25,4 +26,13 @@ export interface PageConfig {
   isEnabled: boolean
   actions: PageAction[]
   customDomain?: string
+  userId?: string
+  backgroundPreference?: {
+    presetId: string
+    controlValues: Record<string, string | number>
+  } | null
+  titleStylePreference?: {
+    presetId: string
+    customSettings?: Record<string, any>
+  } | null
 }

@@ -12,7 +12,11 @@ import { Switch } from '@/components/ui/switch'
 import { PresetSelector } from '@/components/ui/preset-selector'
 import { defaultPresetId } from '@/lib/button-presets'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical } from 'lucide-react'
+import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type } from 'lucide-react'
+import { BackgroundPreviewChip } from '@/components/dashboard/BackgroundPreviewChip'
+import { BackgroundSelector } from '@/components/dashboard/BackgroundSelector'
+import { backgroundPresets, applyPresetControls } from '@/lib/background-presets'
+import { TitleStyleSelector } from '@/components/title-style-selector'
 
 interface PageProps {
   params: { id: string }
@@ -52,6 +56,13 @@ export default function EditSitePage({ params }: PageProps) {
   const [deletedActionIds, setDeletedActionIds] = useState<string[]>([])
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+  
+  // Background preferences state
+  const [backgroundPreferences, setBackgroundPreferences] = useState<Record<string, any>>({})
+  const [backgroundSelectorOpen, setBackgroundSelectorOpen] = useState(false)
+  
+  // Title style preset state
+  const [titleStylePresetId, setTitleStylePresetId] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     fetchSiteData()
@@ -67,7 +78,7 @@ export default function EditSitePage({ params }: PageProps) {
         .select('*')
         .eq('id', params.id)
         .eq('owner_id', user.id)
-        .single()
+        .single() as { data: any, error: any }
       
       if (pageError || !page) {
         setError('Site not found or you do not have permission to edit it')
@@ -99,13 +110,42 @@ export default function EditSitePage({ params }: PageProps) {
         .from('page_actions')
         .select('*')
         .eq('page_id', params.id)
-        .order('sort_order')
+        .order('sort_order') as { data: any[], error: any }
       
       if (!actionsError && actionsData) {
         setActions(actionsData.map(action => ({
           ...action,
           preset: action.preset || defaultPresetId
         })))
+      }
+      
+      // Fetch background preferences
+      const { data: bgPrefs, error: bgError } = await supabase
+        .from('background_preferences')
+        .select('*')
+        .eq('site_id', params.id)
+        .single() as { data: any, error: any }
+      
+      if (!bgError && bgPrefs) {
+        setBackgroundPreferences({ [params.id]: bgPrefs })
+      }
+
+      // Fetch title style preference (optional table)
+      let titlePref: any = null
+      try {
+        const { data } = await supabase
+          .from('title_style_preferences')
+          .select('preset_id')
+          .eq('site_id', params.id)
+          .single()
+        titlePref = data
+      } catch (e) {
+        titlePref = null
+      }
+      if (titlePref?.preset_id) {
+        setTitleStylePresetId(titlePref.preset_id)
+      } else {
+        setTitleStylePresetId(undefined)
       }
     } catch (err) {
       setError('Failed to load site data')
@@ -143,7 +183,7 @@ export default function EditSitePage({ params }: PageProps) {
       }
 
       // Update page
-      const { error: pageError } = await supabase
+      const { error: pageError } = await (supabase as any)
         .from('pages')
         .update({
           title: formData.title,
@@ -171,10 +211,11 @@ export default function EditSitePage({ params }: PageProps) {
       }
       
       // Update/create actions
-      for (const [index, action] of actions.entries()) {
+      for (let index = 0; index < actions.length; index++) {
+        const action = actions[index]
         if (action.id) {
           // Update existing action
-          const { error: updateError } = await supabase
+          const { error: updateError } = await (supabase as any)
             .from('page_actions')
             .update({
               label: action.label,
@@ -190,7 +231,7 @@ export default function EditSitePage({ params }: PageProps) {
           if (updateError) throw updateError
         } else {
           // Create new action
-          const { error: insertError } = await supabase
+          const { error: insertError } = await (supabase as any)
             .from('page_actions')
             .insert({
               page_id: params.id,
@@ -249,6 +290,60 @@ export default function EditSitePage({ params }: PageProps) {
       updated.splice(toIndex, 0, moved)
       return updated.map((a, idx) => ({ ...a, sort_order: idx }))
     })
+  }
+
+  const handleBackgroundSave = async (presetId: string, controls: Record<string, string | number>) => {
+    try {
+      if (presetId === '') {
+        // Remove background preference
+        const { error } = await supabase
+          .from('background_preferences')
+          .delete()
+          .eq('site_id', params.id)
+        
+        if (error) throw error
+        setBackgroundPreferences({})
+      } else {
+        // Upsert background preference
+        const { error } = await (supabase as any)
+          .from('background_preferences')
+          .upsert({
+            site_id: params.id,
+            preset_id: presetId,
+            control_values: controls
+          }, {
+            onConflict: 'site_id'
+          })
+        
+        if (error) throw error
+        setBackgroundPreferences({
+          [params.id]: {
+            site_id: params.id,
+            preset_id: presetId,
+            control_values: controls
+          }
+        })
+      }
+    } catch (err: any) {
+      throw new Error(err.message || 'Failed to save background preference')
+    }
+  }
+  
+  const handleTitleStyleSave = async (presetId: string) => {
+    const response = await fetch('/api/title-style-preferences', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        siteId: params.id,
+        presetId,
+      })
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to save title style')
+    }
+    
+    setTitleStylePresetId(presetId)
   }
 
   if (isLoading) {
@@ -327,7 +422,7 @@ export default function EditSitePage({ params }: PageProps) {
                       site_slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')
                     })}
                     placeholder="my-site"
-                    pattern="^[a-z0-9-]+$"
+                    pattern="[a-z0-9-]+"
                     required
                   />
                   <p className="text-xs text-gray-500">/siteler/{formData.site_slug}</p>
@@ -361,7 +456,7 @@ export default function EditSitePage({ params }: PageProps) {
                       value={formData.brand_color}
                       onChange={(e) => setFormData({ ...formData, brand_color: e.target.value })}
                       placeholder="#3B82F6"
-                      pattern="^#[0-9A-Fa-f]{6}$"
+                      pattern="#[0-9A-Fa-f]{6}"
                     />
                   </div>
                 </div>
@@ -380,7 +475,7 @@ export default function EditSitePage({ params }: PageProps) {
                       value={formData.accent_color}
                       onChange={(e) => setFormData({ ...formData, accent_color: e.target.value })}
                       placeholder="#EFF6FF"
-                      pattern="^#[0-9A-Fa-f]{6}$"
+                      pattern="#[0-9A-Fa-f]{6}"
                     />
                   </div>
                 </div>
@@ -486,6 +581,65 @@ export default function EditSitePage({ params }: PageProps) {
             </CardContent>
           </Card>
 
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="h-5 w-5" />
+                Background Settings
+              </CardTitle>
+              <CardDescription>
+                Customize the background appearance of your site
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <BackgroundPreviewChip
+                    presetId={backgroundPreferences[params.id]?.preset_id}
+                    controlValues={backgroundPreferences[params.id]?.control_values}
+                  />
+                  <div>
+                    <p className="text-sm font-medium">
+                      {backgroundPreferences[params.id]?.preset_id 
+                        ? `Custom background applied` 
+                        : 'Using default background'
+                      }
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Click to change background style
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setBackgroundSelectorOpen(true)}
+                >
+                  <Palette className="h-4 w-4 mr-2" />
+                  Change Background
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="mb-6">
+            <CardContent className="pt-6">
+              <TitleStyleSelector
+                siteId={params.id}
+                currentTitle={formData.title}
+                currentDescription={formData.description}
+                currentPresetId={titleStylePresetId}
+                backgroundStyle={backgroundPreferences[params.id]
+                  ? applyPresetControls(
+                      backgroundPresets.find(p => p.id === backgroundPreferences[params.id].preset_id) || backgroundPresets[0],
+                      backgroundPreferences[params.id]?.control_values || {}
+                    )
+                  : undefined}
+                onSave={handleTitleStyleSave}
+              />
+            </CardContent>
+          </Card>
+
           {error && (
             <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">
               {error}
@@ -512,6 +666,20 @@ export default function EditSitePage({ params }: PageProps) {
             </Button>
           </div>
         </form>
+
+        {/* Background Selector Dialog */}
+        {backgroundSelectorOpen && (
+          <BackgroundSelector
+            siteId={params.id}
+            currentPresetId={backgroundPreferences[params.id]?.preset_id}
+            currentControls={backgroundPreferences[params.id]?.control_values}
+            onSave={async (presetId, controls) => {
+              await handleBackgroundSave(presetId, controls)
+              setBackgroundSelectorOpen(false)
+            }}
+            onClose={() => setBackgroundSelectorOpen(false)}
+          />
+        )}
       </main>
     </div>
   )

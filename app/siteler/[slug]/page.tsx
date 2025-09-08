@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPageConfig } from '@/lib/supabase/pages'
 import LandingPageClient from './landing-page-client'
+import { createClient } from '@/lib/supabase/server'
 
 interface PageProps {
   params: { slug: string }
@@ -41,5 +42,10 @@ export default async function Page({ params }: PageProps) {
     notFound()
   }
 
-  return <LandingPageClient config={config} />
+  // Check if current user is the owner
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isOwner = user?.id === config.userId
+
+  return <LandingPageClient config={config} isOwner={isOwner} />
 }

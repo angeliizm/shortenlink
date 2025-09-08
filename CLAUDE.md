@@ -8,3 +8,4 @@
 - Behavior: do not change button order; clicks are attributed to the saved order. No public analytics UI on /siteler/{site}.
 - Privacy: anonymize IP, no PII, respect DNT, lightweight and fast.
 - Reliability: queue+retry for event delivery; no impact on page performance.
+- dont ever run server, told me if needed.
