@@ -2,6 +2,8 @@
 
 A modern, full-stack URL shortening service built with Next.js (TypeScript) and Supabase. Deploy seamlessly on Vercel with no Docker or backend infrastructure required.
 
+<!-- Updated for deployment test -->
+
 ## Features
 
 - 🔗 Create short links with custom slugs
