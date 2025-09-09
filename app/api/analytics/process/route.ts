@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 // This endpoint should be called periodically (e.g., via cron job)
 export async function POST(request: NextRequest) {
   try {
