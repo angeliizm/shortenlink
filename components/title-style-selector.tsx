@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Type, Smartphone, Monitor, RotateCcw, Check } from 'lucide-react'
-import { titleStylePresets, getTitleStyles, getDescriptionStyles, getAccentElement, type TitleStylePreset } from '@/lib/title-style-presets.tsx'
+import { titleStylePresets, getTitleStyles, getDescriptionStyles, getAccentElement, type TitleStylePreset } from '@/lib/title-style-presets'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
 

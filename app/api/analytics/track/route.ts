@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     // Insert event into database
     const { error } = await supabase
       .from('analytics_events')
-      .insert(eventData);
+      .insert(eventData as any);
 
     if (error) {
       // If insert fails, add to queue for retry
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
         .insert({
           event_data: eventData,
           status: 'pending'
-        });
+        } as any);
       
       console.error('Failed to insert analytics event, queued for retry:', error);
     }
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
             os: event.os,
             country: event.country,
             region: event.region,
-          });
+          } as any);
       }
     }
 

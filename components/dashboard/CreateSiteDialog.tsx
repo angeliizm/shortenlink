@@ -90,11 +90,13 @@ export default function CreateSiteDialog({ open, onOpenChange, onSuccess }: Crea
           is_enabled: formData.is_enabled,
           owner_id: user.id,
           meta: formData.description ? { description: formData.description } : {}
-        })
+        } as any)
         .select()
-        .single()
+        .single() as { data: { id: string } | null; error: any }
       
       if (pageError) throw pageError
+      
+      if (!page) throw new Error('Failed to create page')
       
       // Create actions if any
       if (actions.length > 0 && page) {
@@ -110,7 +112,7 @@ export default function CreateSiteDialog({ open, onOpenChange, onSuccess }: Crea
         
         const { error: actionsError } = await supabase
           .from('page_actions')
-          .insert(actionsToInsert)
+          .insert(actionsToInsert as any)
         
         if (actionsError) throw actionsError
       }

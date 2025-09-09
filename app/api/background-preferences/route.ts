@@ -43,9 +43,13 @@ export async function POST(request: NextRequest) {
     .from('pages')
     .select('user_id')
     .eq('id', siteId)
-    .single()
+    .single() as { data: { user_id: string } | null; error: any }
 
-  if (!site || site.user_id !== user.id) {
+  if (!site) {
+    return NextResponse.json({ error: 'Site not found' }, { status: 404 })
+  }
+
+  if (site.user_id !== user.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
 
@@ -71,7 +75,7 @@ export async function POST(request: NextRequest) {
       site_id: siteId,
       preset_id: presetId,
       control_values: controlValues || {},
-    }, {
+    } as any, {
       onConflict: 'site_id'
     })
     .select()

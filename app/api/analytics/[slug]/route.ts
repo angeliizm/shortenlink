@@ -1,6 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+type PageData = {
+  owner_id: string;
+  site_slug: string;
+};
+
+type AnalyticsMetrics = {
+  page_views: number;
+  unique_visitors: number;
+  sessions: number;
+  total_session_duration: number;
+  bounces: number;
+  hour: string;
+};
+
+type AnalyticsEvent = {
+  event_type: string;
+  visitor_id: string;
+  session_id: string;
+  action_index?: number;
+  action_type?: string;
+  referrer?: string;
+  device_type?: string;
+  browser?: string;
+  country?: string;
+  timestamp: string;
+};
+
+type AnalyticsSession = {
+  id: string;
+  duration_seconds: number;
+  bounce: boolean;
+  started_at: string;
+};
+
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -39,14 +73,19 @@ export async function GET(
         .from('pages')
         .select('owner_id, site_slug')
         .eq('site_slug', slug)
-        .single();
+        .single() as { data: PageData | null; error: any };
 
       if (pageError) {
         console.log(`[Analytics API] Error fetching page: ${pageError.message}`);
         return NextResponse.json({ error: 'Site not found' }, { status: 404 });
       }
 
-      if (!page || page.owner_id !== user.id) {
+      if (!page) {
+        console.log('[Analytics API] Page not found');
+        return NextResponse.json({ error: 'Site not found' }, { status: 404 });
+      }
+
+      if (page.owner_id !== user.id) {
         console.log('[Analytics API] User does not own this site');
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
@@ -67,7 +106,7 @@ export async function GET(
         .from('analytics_realtime')
         .select('*')
         .eq('site_slug', slug)
-        .gte('last_seen', fiveMinutesAgo);
+        .gte('last_seen', fiveMinutesAgo) as { data: any[] | null; error: any };
 
       if (error) {
         console.log(`[Analytics API] Realtime query error: ${error.message}`);
@@ -94,7 +133,7 @@ export async function GET(
         .eq('site_slug', slug)
         .gte('hour', defaultStartDate)
         .lte('hour', defaultEndDate)
-        .order('hour', { ascending: false });
+        .order('hour', { ascending: false }) as { data: AnalyticsMetrics[] | null; error: any };
 
       let totals = {
         pageViews: 0,
@@ -122,7 +161,7 @@ export async function GET(
           .select('*')
           .eq('site_slug', slug)
           .gte('timestamp', defaultStartDate)
-          .lte('timestamp', defaultEndDate);
+          .lte('timestamp', defaultEndDate) as { data: AnalyticsEvent[] | null; error: any };
 
         if (events && events.length > 0) {
           console.log(`[Analytics API] Found ${events.length} raw events`);
@@ -132,12 +171,12 @@ export async function GET(
           totals.sessions = new Set(events.map(e => e.session_id)).size;
           
           // Get session data for duration and bounce rate
-          const sessionIds = [...new Set(events.map(e => e.session_id).filter(Boolean))];
+          const sessionIds = Array.from(new Set(events.map(e => e.session_id).filter(Boolean)));
           if (sessionIds.length > 0) {
             const { data: sessions } = await supabase
               .from('analytics_sessions')
               .select('*')
-              .in('id', sessionIds);
+              .in('id', sessionIds) as { data: AnalyticsSession[] | null; error: any };
             
             if (sessions) {
               totals.totalDuration = sessions.reduce((sum, s) => sum + (s.duration_seconds || 0), 0);
@@ -181,7 +220,7 @@ export async function GET(
         .eq('site_slug', slug)
         .eq('event_type', 'action_click')
         .gte('timestamp', defaultStartDate)
-        .lte('timestamp', defaultEndDate);
+        .lte('timestamp', defaultEndDate) as { data: any[] | null; error: any };
 
       const actionTotals: Record<string, number> = {};
       
@@ -209,7 +248,7 @@ export async function GET(
         .eq('site_slug', slug)
         .gte('timestamp', defaultStartDate)
         .lte('timestamp', defaultEndDate)
-        .not('referrer', 'is', null);
+        .not('referrer', 'is', null) as { data: any[] | null; error: any };
 
       const referrerCounts: Record<string, number> = {};
       
@@ -240,7 +279,7 @@ export async function GET(
         .select('device_type, browser')
         .eq('site_slug', slug)
         .gte('timestamp', defaultStartDate)
-        .lte('timestamp', defaultEndDate);
+        .lte('timestamp', defaultEndDate) as { data: any[] | null; error: any };
 
       const deviceTotals: Record<string, number> = {};
       const browserTotals: Record<string, number> = {};
@@ -273,7 +312,7 @@ export async function GET(
         .eq('site_slug', slug)
         .gte('timestamp', defaultStartDate)
         .lte('timestamp', defaultEndDate)
-        .not('country', 'is', null);
+        .not('country', 'is', null) as { data: any[] | null; error: any };
 
       const countryTotals: Record<string, number> = {};
       
@@ -302,7 +341,7 @@ export async function GET(
         .gte('timestamp', defaultStartDate)
         .lte('timestamp', defaultEndDate)
         .order('timestamp', { ascending: false })
-        .limit(100);
+        .limit(100) as { data: any[] | null; error: any };
 
       console.log(`[Analytics API] Found ${events?.length || 0} recent events`);
 
@@ -322,34 +361,34 @@ export async function GET(
       { data: realtime },
       { data: sessions }
     ] = await Promise.all([
-      supabase
+      (supabase
         .from('analytics_events')
         .select('*')
         .eq('site_slug', slug)
         .gte('timestamp', defaultStartDate)
         .lte('timestamp', defaultEndDate)
         .order('timestamp', { ascending: false })
-        .limit(100),
-      supabase
+        .limit(100)) as unknown as Promise<{ data: any[] | null; error: any }>,
+      (supabase
         .from('analytics_metrics_hourly')
         .select('*')
         .eq('site_slug', slug)
         .gte('hour', defaultStartDate)
         .lte('hour', defaultEndDate)
-        .order('hour', { ascending: false }),
-      supabase
+        .order('hour', { ascending: false })) as unknown as Promise<{ data: any[] | null; error: any }>,
+      (supabase
         .from('analytics_realtime')
         .select('*')
         .eq('site_slug', slug)
-        .gte('last_seen', new Date(Date.now() - 5 * 60 * 1000).toISOString()),
-      supabase
+        .gte('last_seen', new Date(Date.now() - 5 * 60 * 1000).toISOString())) as unknown as Promise<{ data: any[] | null; error: any }>,
+      (supabase
         .from('analytics_sessions')
         .select('*')
         .eq('site_slug', slug)
         .gte('started_at', defaultStartDate)
         .lte('started_at', defaultEndDate)
         .order('started_at', { ascending: false })
-        .limit(50)
+        .limit(50)) as unknown as Promise<{ data: any[] | null; error: any }>
     ]);
 
     console.log(`[Analytics API] Returning all data - Events: ${events?.length}, Metrics: ${metrics?.length}, Realtime: ${realtime?.length}, Sessions: ${sessions?.length}`);

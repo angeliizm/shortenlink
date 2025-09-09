@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { format } from 'date-fns';
 
+type PageData = {
+  owner_id: string;
+  site_slug: string;
+};
+
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -29,9 +34,13 @@ export async function GET(
       .from('pages')
       .select('owner_id, site_slug')
       .eq('site_slug', slug)
-      .single();
+      .single() as { data: PageData | null; error: any };
 
-    if (!page || page.owner_id !== user.id) {
+    if (!page) {
+      return NextResponse.json({ error: 'Site not found' }, { status: 404 });
+    }
+
+    if (page.owner_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -49,7 +58,7 @@ export async function GET(
       query = query.lte('timestamp', endDate);
     }
 
-    const { data: events } = await query.limit(10000);
+    const { data: events } = await query.limit(10000) as { data: any[] | null; error: any };
 
     // Create CSV content
     const csvHeaders = [

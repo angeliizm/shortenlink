@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     // Batch insert events
     const { error } = await supabase
       .from('analytics_events')
-      .insert(preparedEvents);
+      .insert(preparedEvents as any);
 
     if (error) {
       // If batch insert fails, queue all events for retry
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
       await supabase
         .from('analytics_event_queue')
-        .insert(queuedEvents);
+        .insert(queuedEvents as any);
       
       console.error('Failed to insert analytics batch, queued for retry:', error);
     }
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
             os: event.os,
             country: event.country,
             region: event.region,
-          });
+          } as any);
       }
     }
 

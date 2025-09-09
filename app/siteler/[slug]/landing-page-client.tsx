@@ -7,7 +7,7 @@ import { getPresetById, defaultPresetId } from '@/lib/button-presets'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { BackgroundPicker } from '@/components/background-picker'
 import { backgroundPresets, applyPresetControls, type BackgroundPreset } from '@/lib/background-presets'
-import { titleStylePresets, getTitleStyles, getDescriptionStyles, getAccentElement } from '@/lib/title-style-presets.tsx'
+import { titleStylePresets, getTitleStyles, getDescriptionStyles, getAccentElement } from '@/lib/title-style-presets'
 import { Palette } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 

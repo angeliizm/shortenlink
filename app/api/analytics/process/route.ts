@@ -79,7 +79,7 @@ async function processQueuedEvents(supabase: any) {
         .update({ 
           status: 'pending',
           retry_count: queuedEvent.retry_count + 1,
-          error_message: error.message
+          error_message: error instanceof Error ? error.message : String(error)
         })
         .eq('id', queuedEvent.id);
     }
@@ -119,7 +119,7 @@ async function aggregateHourlyMetrics(supabase: any) {
     .lt('timestamp', currentHour.toISOString())
     .limit(1000);
 
-  const uniqueSites = [...new Set(sites?.map(s => s.site_slug) || [])];
+  const uniqueSites = Array.from(new Set(sites?.map((s: any) => s.site_slug) || []));
 
   for (const site of uniqueSites) {
     // Get all events for this site in the previous hour
@@ -128,14 +128,14 @@ async function aggregateHourlyMetrics(supabase: any) {
       .select('*')
       .eq('site_slug', site)
       .gte('timestamp', previousHour.toISOString())
-      .lt('timestamp', currentHour.toISOString());
+      .lt('timestamp', currentHour.toISOString()) as { data: any[] | null; error: any };
 
     if (!events || events.length === 0) {
       continue;
     }
 
     // Calculate metrics
-    const metrics = {
+    const metrics: any = {
       site_slug: site,
       hour: previousHour.toISOString(),
       page_views: events.filter(e => e.event_type === 'page_view').length,
@@ -186,12 +186,12 @@ async function aggregateHourlyMetrics(supabase: any) {
     });
 
     // Get session metrics
-    const sessionIds = [...new Set(events.map(e => e.session_id).filter(Boolean))];
+    const sessionIds = Array.from(new Set(events.map(e => e.session_id).filter(Boolean)));
     if (sessionIds.length > 0) {
       const { data: sessions } = await supabase
         .from('analytics_sessions')
         .select('*')
-        .in('id', sessionIds);
+        .in('id', sessionIds) as { data: any[] | null; error: any };
 
       if (sessions) {
         metrics.bounces = sessions.filter(s => s.bounce).length;

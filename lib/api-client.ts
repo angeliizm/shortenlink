@@ -25,7 +25,7 @@ class ApiClient {
     
     // Add auth header if token exists and not skipped
     const token = this.getAccessToken()
-    const headers: HeadersInit = {
+    const headers: any = {
       'Content-Type': 'application/json',
       ...fetchOptions.headers,
     }

@@ -13,7 +13,7 @@ export async function getPageConfig(slug: string): Promise<PageConfig | null> {
   if (host && !host.includes('localhost') && !host.includes('vercel')) {
     const { data: domainData } = await supabase.rpc('get_page_by_domain', { 
       hostname: host 
-    })
+    } as any)
     
     if (domainData) {
       pageData = domainData
@@ -22,9 +22,9 @@ export async function getPageConfig(slug: string): Promise<PageConfig | null> {
   
   // Otherwise, look up by slug
   if (!pageData) {
-    const { data, error } = await supabase.rpc('get_page_by_slug', { 
-      site_slug: slug 
-    })
+    const { data, error } = await supabase.rpc('get_page_by_slug', {
+      site_slug: slug
+    } as any)
     
     if (error || !data) {
       return null
