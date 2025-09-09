@@ -47,7 +47,7 @@ export const titleStylePresets: TitleStylePreset[] = [
   {
     id: 'clean-minimal',
     name: 'Clean Minimal',
-    description: 'Simple, elegant typography with lots of white space',
+    description: 'Perfect for modern SaaS, portfolios, and professional services. Features clean Inter typography with generous spacing.',
     styles: {
       titleFontFamily: 'Inter, -apple-system, sans-serif',
       titleFontSize: '3.5rem',
@@ -82,7 +82,7 @@ export const titleStylePresets: TitleStylePreset[] = [
   {
     id: 'bold-impact',
     name: 'Bold Impact',
-    description: 'Strong, attention-grabbing headlines with contrast',
+    description: 'Ideal for agencies, events, and bold brands. Ultra-bold Montserrat headlines with striking red accents.',
     styles: {
       titleFontFamily: 'Montserrat, sans-serif',
       titleFontSize: '4.5rem',
@@ -119,7 +119,7 @@ export const titleStylePresets: TitleStylePreset[] = [
   {
     id: 'modern-gradient',
     name: 'Modern Gradient',
-    description: 'Subtle color transitions in text, contemporary feel',
+    description: 'Great for tech startups and creative agencies. Features beautiful gradient text effects and subtle backgrounds.',
     styles: {
       titleFontFamily: 'Poppins, sans-serif',
       titleFontSize: '3.75rem',
@@ -155,8 +155,8 @@ export const titleStylePresets: TitleStylePreset[] = [
   },
   {
     id: 'classic-serif',
-    name: 'Classic Serif',
-    description: 'Traditional, trustworthy, editorial-style fonts',
+    name: 'Classic Editorial',
+    description: 'Perfect for blogs, magazines, and content-focused sites. Elegant Playfair Display with readable serif body text.',
     styles: {
       titleFontFamily: 'Playfair Display, serif',
       titleFontSize: '4rem',
@@ -192,7 +192,7 @@ export const titleStylePresets: TitleStylePreset[] = [
   {
     id: 'tech-startup',
     name: 'Tech Startup',
-    description: 'Clean sans-serif, modern spacing, professional',
+    description: 'Optimized for SaaS and tech companies. Modern Outfit typography with blue accents and glass morphism effects.',
     styles: {
       titleFontFamily: 'Outfit, sans-serif',
       titleFontSize: '3.5rem',
@@ -227,8 +227,8 @@ export const titleStylePresets: TitleStylePreset[] = [
   },
   {
     id: 'creative-playful',
-    name: 'Creative Playful',
-    description: 'Fun fonts, colorful accents, personality-driven',
+    name: 'Creative & Fun',
+    description: 'Perfect for creative agencies, personal brands, and artistic portfolios. Playful Fredoka with vibrant highlights.',
     styles: {
       titleFontFamily: 'Fredoka, sans-serif',
       titleFontSize: '3.75rem',
@@ -264,7 +264,7 @@ export const titleStylePresets: TitleStylePreset[] = [
   {
     id: 'luxury-premium',
     name: 'Luxury Premium',
-    description: 'Sophisticated typography, gold accents, high-end feel',
+    description: 'Ideal for high-end brands, luxury services, and premium products. Sophisticated serif with gold accents.',
     styles: {
       titleFontFamily: 'Cormorant Garamond, serif',
       titleFontSize: '4.5rem',
@@ -300,8 +300,8 @@ export const titleStylePresets: TitleStylePreset[] = [
   },
   {
     id: 'newsletter-style',
-    name: 'Newsletter Style',
-    description: 'Email-friendly, readable, conversion-focused',
+    name: 'Email Newsletter',
+    description: 'Optimized for newsletters and email campaigns. Readable Merriweather with excellent conversion rates.',
     styles: {
       titleFontFamily: 'Merriweather, serif',
       titleFontSize: '2.75rem',
@@ -335,8 +335,8 @@ export const titleStylePresets: TitleStylePreset[] = [
   },
   {
     id: 'social-media',
-    name: 'Social Media',
-    description: 'Instagram-ready, shareable, trendy typography',
+    name: 'Social Ready',
+    description: 'Designed for social media sharing and viral content. Bold Bebas Neue with Instagram-style gradients.',
     styles: {
       titleFontFamily: 'Bebas Neue, sans-serif',
       titleFontSize: '5rem',
@@ -372,8 +372,8 @@ export const titleStylePresets: TitleStylePreset[] = [
   },
   {
     id: 'corporate-formal',
-    name: 'Corporate Formal',
-    description: 'Business-appropriate, conservative, reliable',
+    name: 'Corporate Professional',
+    description: 'Perfect for corporate websites, law firms, and professional services. Clean Roboto with conservative styling.',
     styles: {
       titleFontFamily: 'Roboto, sans-serif',
       titleFontSize: '3rem',
@@ -403,6 +403,151 @@ export const titleStylePresets: TitleStylePreset[] = [
     },
     preview: {
       googleFonts: ['Roboto:400,500']
+    }
+  },
+  {
+    id: 'magazine-editorial',
+    name: 'Magazine Editorial',
+    description: 'Inspired by high-end magazines and editorial design. Perfect for content publishers and media companies.',
+    styles: {
+      titleFontFamily: 'Abril Fatface, serif',
+      titleFontSize: '3.25rem',
+      titleFontSizeMobile: '2.125rem',
+      titleFontWeight: '400',
+      titleColor: '#1a202c',
+      titleLineHeight: '1.1',
+      titleLetterSpacing: '-0.02em',
+      
+      descriptionFontFamily: 'Source Sans Pro, sans-serif',
+      descriptionFontSize: '1.125rem',
+      descriptionFontSizeMobile: '1rem',
+      descriptionFontWeight: '400',
+      descriptionColor: '#4a5568',
+      descriptionLineHeight: '1.7',
+      descriptionLetterSpacing: '0',
+      descriptionMaxWidth: '38rem',
+      
+      textAlign: 'left',
+      titleMarginBottom: '1.5rem',
+      descriptionMarginTop: '1rem',
+      containerPadding: '3.5rem 2rem',
+      containerPaddingMobile: '2.5rem 1.5rem',
+      
+      accentElement: 'bracket',
+      accentColor: '#e53e3e',
+      backgroundTreatment: 'none'
+    },
+    preview: {
+      googleFonts: ['Abril Fatface:400', 'Source Sans Pro:400']
+    }
+  },
+  {
+    id: 'modern-sans',
+    name: 'Modern Sans',
+    description: 'Contemporary sans-serif perfect for design studios and modern businesses. Features Space Grotesk typography.',
+    styles: {
+      titleFontFamily: 'Space Grotesk, sans-serif',
+      titleFontSize: '3.75rem',
+      titleFontSizeMobile: '2.375rem',
+      titleFontWeight: '700',
+      titleColor: '#2d3748',
+      titleLineHeight: '1.1',
+      titleLetterSpacing: '-0.03em',
+      
+      descriptionFontFamily: 'Inter, sans-serif',
+      descriptionFontSize: '1.125rem',
+      descriptionFontSizeMobile: '1rem',
+      descriptionFontWeight: '400',
+      descriptionColor: '#718096',
+      descriptionLineHeight: '1.6',
+      descriptionLetterSpacing: '0',
+      descriptionMaxWidth: '40rem',
+      
+      textAlign: 'center',
+      titleMarginBottom: '1.75rem',
+      descriptionMarginTop: '1rem',
+      containerPadding: '4rem 2rem',
+      containerPaddingMobile: '3rem 1.5rem',
+      
+      accentElement: 'dot',
+      accentColor: '#38b2ac',
+      backgroundTreatment: 'none'
+    },
+    preview: {
+      googleFonts: ['Space Grotesk:700', 'Inter:400']
+    }
+  },
+  {
+    id: 'elegant-script',
+    name: 'Elegant Script',
+    description: 'Sophisticated script headings for luxury brands, weddings, and premium services. Features Dancing Script.',
+    styles: {
+      titleFontFamily: 'Dancing Script, cursive',
+      titleFontSize: '4.5rem',
+      titleFontSizeMobile: '2.75rem',
+      titleFontWeight: '700',
+      titleColor: '#2d3748',
+      titleLineHeight: '1.2',
+      titleLetterSpacing: '0.01em',
+      
+      descriptionFontFamily: 'Lora, serif',
+      descriptionFontSize: '1.125rem',
+      descriptionFontSizeMobile: '1rem',
+      descriptionFontWeight: '400',
+      descriptionColor: '#4a5568',
+      descriptionLineHeight: '1.75',
+      descriptionLetterSpacing: '0',
+      descriptionMaxWidth: '42rem',
+      
+      textAlign: 'center',
+      titleMarginBottom: '2rem',
+      descriptionMarginTop: '1.25rem',
+      containerPadding: '4.5rem 2rem',
+      containerPaddingMobile: '3rem 1.5rem',
+      
+      accentElement: 'underline',
+      accentColor: '#d69e2e',
+      backgroundTreatment: 'subtle-gradient'
+    },
+    preview: {
+      googleFonts: ['Dancing Script:700', 'Lora:400']
+    }
+  },
+  {
+    id: 'geometric-modern',
+    name: 'Geometric Modern',
+    description: 'Sharp, geometric typography perfect for architecture firms, design agencies, and tech companies.',
+    styles: {
+      titleFontFamily: 'Orbitron, sans-serif',
+      titleFontSize: '3.25rem',
+      titleFontSizeMobile: '2rem',
+      titleFontWeight: '900',
+      titleColor: '#1a202c',
+      titleLineHeight: '1.1',
+      titleLetterSpacing: '0.02em',
+      titleTextTransform: 'uppercase',
+      
+      descriptionFontFamily: 'Nunito Sans, sans-serif',
+      descriptionFontSize: '1rem',
+      descriptionFontSizeMobile: '0.875rem',
+      descriptionFontWeight: '400',
+      descriptionColor: '#718096',
+      descriptionLineHeight: '1.6',
+      descriptionLetterSpacing: '0.01em',
+      descriptionMaxWidth: '36rem',
+      
+      textAlign: 'left',
+      titleMarginBottom: '1.5rem',
+      descriptionMarginTop: '1rem',
+      containerPadding: '4rem 2rem',
+      containerPaddingMobile: '3rem 1.5rem',
+      
+      accentElement: 'bracket',
+      accentColor: '#4299e1',
+      backgroundTreatment: 'blur-card'
+    },
+    preview: {
+      googleFonts: ['Orbitron:900', 'Nunito Sans:400']
     }
   }
 ]

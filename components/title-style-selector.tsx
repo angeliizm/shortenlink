@@ -255,7 +255,7 @@ export function TitleStyleSelector({
               {/* Preset Name */}
               <div>
                 <p className="text-xs font-medium text-gray-900">{preset.name}</p>
-                <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-2">
+                <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-3 leading-relaxed">
                   {preset.description}
                 </p>
               </div>
