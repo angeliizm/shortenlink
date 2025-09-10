@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { PageConfig } from '@/lib/types/page'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getPresetById, defaultPresetId } from '@/lib/button-presets'
+import { getProfilePresetById, defaultProfilePresetId } from '@/lib/profile-presets'
+import { getTitleFontPresetById, defaultTitleFontPresetId } from '@/lib/title-font-presets'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { BackgroundPicker } from '@/components/background-picker'
 import { backgroundPresets, applyPresetControls, type BackgroundPreset } from '@/lib/background-presets'
@@ -28,6 +30,31 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
     controls: Record<string, string | number>
   } | null>(null)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  const [profilePresetId, setProfilePresetId] = useState<string>(defaultProfilePresetId)
+  const [titleFontPresetId, setTitleFontPresetId] = useState<string>(defaultTitleFontPresetId)
+  const [titleColor, setTitleColor] = useState<string>('#1f2937')
+  const [avatarUrl, setAvatarUrl] = useState<string>('')
+  
+  // Listen for preset changes from edit page (if same site)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === `profile-preset-${config.id}` && e.newValue && getProfilePresetById(e.newValue)) {
+        setProfilePresetId(e.newValue)
+      }
+      if (e.key === `title-font-preset-${config.id}` && e.newValue && getTitleFontPresetById(e.newValue)) {
+        setTitleFontPresetId(e.newValue)
+      }
+      if (e.key === `title-color-${config.id}` && e.newValue) {
+        setTitleColor(e.newValue)
+      }
+      if (e.key === `avatar-url-${config.id}` && e.newValue) {
+        setAvatarUrl(e.newValue)
+      }
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [config.id])
   const [titleStylePreset, setTitleStylePreset] = useState(titleStylePresets[0])
   const { trackPageView, trackActionClick } = useAnalytics()
   const supabase = createClient()
@@ -75,6 +102,31 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [config.slug, config.backgroundPreference, config.titleStylePreference, titleStylePreset, trackPageView])
+
+  // Load presets from localStorage (temporary solution)
+  useEffect(() => {
+    if (config.id) {
+      const savedProfilePreset = localStorage.getItem(`profile-preset-${config.id}`)
+      if (savedProfilePreset && getProfilePresetById(savedProfilePreset)) {
+        setProfilePresetId(savedProfilePreset)
+      }
+      
+      const savedTitleFontPreset = localStorage.getItem(`title-font-preset-${config.id}`)
+      if (savedTitleFontPreset && getTitleFontPresetById(savedTitleFontPreset)) {
+        setTitleFontPresetId(savedTitleFontPreset)
+      }
+
+      const savedTitleColor = localStorage.getItem(`title-color-${config.id}`)
+      if (savedTitleColor) {
+        setTitleColor(savedTitleColor)
+      }
+
+      const savedAvatarUrl = localStorage.getItem(`avatar-url-${config.id}`)
+      if (savedAvatarUrl) {
+        setAvatarUrl(savedAvatarUrl)
+      }
+    }
+  }, [config.id])
 
 
   const handleSaveBackground = async (presetId: string, controls: Record<string, string | number>) => {
@@ -149,13 +201,12 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
 
   return (
     <>
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        
-        * {
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
+       <style jsx global>{`
+         * {
+           -webkit-font-smoothing: antialiased;
+           -moz-osx-font-smoothing: grayscale;
+           font-family: 'Helvetica', 'Arial', sans-serif;
+         }
         
         .title-gradient {
           background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #667eea 100%);
@@ -192,7 +243,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             line-height: 1.65 !important;
           }
           .content-container {
-            padding: ${titleStylePreset.styles.containerPaddingMobile} !important;
+            /* padding removed - now handled by profile card styles */
           }
           .action-button {
             font-size: 16px !important;
@@ -241,6 +292,19 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         
         .button-shine:hover::before {
           transform: translateX(100%);
+        }
+        
+        @keyframes rotate-dash {
+          0% {
+            border-style: dashed;
+            border-dasharray: 12px 6px;
+            border-dashoffset: 0;
+          }
+          100% {
+            border-style: dashed;
+            border-dasharray: 12px 6px;
+            border-dashoffset: 18px;
+          }
         }
         ${animationCSS || ''}
         ${animationClass ? `.${animationClass} {
@@ -341,81 +405,137 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           </motion.button>
         )}
 
-      {/* Profile Card - Modern Design */}
-      <motion.div 
-        className="relative z-10 w-full max-w-md mx-auto mb-4"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
-      >
-        <div className="relative">
-          {/* Profile Card Container */}
-          <div 
-            className="relative overflow-hidden rounded-3xl p-8 text-center"
-            style={{
-              background: `linear-gradient(135deg, ${config.brandColor}15 0%, ${config.accentColor || '#ffffff'}20 100%)`,
-              backdropFilter: 'blur(20px)',
-              border: `1px solid ${config.brandColor}30`,
-              boxShadow: `0 20px 40px ${config.brandColor}20, 0 0 0 1px ${config.brandColor}10`
-            }}
+      {/* Profile Card - Dynamic Preset Design */}
+      {(() => {
+        const profilePreset = getProfilePresetById(profilePresetId) || getProfilePresetById(defaultProfilePresetId)!
+        const styles = profilePreset.styles
+        
+        return (
+          <motion.div 
+            className="relative z-10 w-full max-w-md mx-auto mb-4"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
           >
-            {/* Profile Avatar */}
-            <motion.div 
-              className="relative mx-auto mb-6 w-24 h-24 rounded-full overflow-hidden"
-              style={{
-                background: `linear-gradient(135deg, ${config.brandColor} 0%, ${config.accentColor || '#ffffff'} 100%)`,
-                boxShadow: `0 10px 30px ${config.brandColor}40`
-              }}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <div className="w-full h-full flex items-center justify-center">
-                <svg 
-                  className="w-12 h-12 text-white" 
-                  fill="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
-              </div>
-            </motion.div>
-
-            {/* Name/Title */}
-            <motion.h1 
-              className="text-2xl font-bold mb-2"
-              style={{ color: config.brandColor }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {config.title}
-            </motion.h1>
-
-            {/* Description */}
-            {config.meta?.description && (
-              <motion.p 
-                className="text-gray-600 text-sm leading-relaxed"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            <div className="relative">
+              {/* Profile Card Container */}
+              <div 
+                className="relative overflow-hidden text-center"
+                style={{
+                  padding: styles.containerPadding,
+                  borderRadius: styles.containerBorderRadius,
+                  background: styles.containerBackground,
+                  border: styles.containerBorder,
+                  boxShadow: styles.containerShadow
+                }}
               >
-                {config.meta.description}
-              </motion.p>
-            )}
+                 {/* Profile Avatar */}
+                 <motion.div 
+                   className="relative mx-auto overflow-hidden"
+                   style={{
+                     width: styles.avatarSize,
+                     height: styles.avatarSize,
+                     borderRadius: styles.avatarBorderRadius,
+                     border: styles.avatarBorder,
+                     boxShadow: styles.avatarShadow,
+                     background: styles.avatarBackground,
+                     marginBottom: '16px'
+                   }}
+                   initial={{ scale: 0 }}
+                   animate={{ scale: 1 }}
+                   transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                 >
+                   {avatarUrl ? (
+                     <img
+                       src={avatarUrl}
+                       alt="Profile Avatar"
+                       className="w-full h-full object-cover"
+                     />
+                   ) : (
+                     <div className="w-full h-full flex items-center justify-center">
+                       <svg 
+                         className="w-8 h-8 text-white" 
+                         fill="currentColor" 
+                         viewBox="0 0 24 24"
+                       >
+                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                       </svg>
+                     </div>
+                   )}
+                 </motion.div>
 
-            {/* Decorative Elements */}
-            <div className="absolute top-4 right-4 w-2 h-2 rounded-full opacity-60" style={{ backgroundColor: config.brandColor }} />
-            <div className="absolute bottom-4 left-4 w-1 h-1 rounded-full opacity-40" style={{ backgroundColor: config.brandColor }} />
-          </div>
-        </div>
-      </motion.div>
+                {/* Name/Title */}
+                {(() => {
+                  const titleFontPreset = getTitleFontPresetById(titleFontPresetId) || getTitleFontPresetById(defaultTitleFontPresetId)!
+                  
+                  return (
+                     <motion.h1 
+                       style={{ 
+                         fontSize: styles.titleFontSize,
+                         fontWeight: titleFontPreset.fontWeight,
+                         color: titleColor,
+                         margin: styles.titleMargin,
+                         letterSpacing: titleFontPreset.letterSpacing,
+                         fontFamily: titleFontPreset.fontFamily
+                       }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {config.title}
+                    </motion.h1>
+                  )
+                })()}
+
+                {/* Description */}
+                {config.meta?.description && (
+                  <motion.p 
+                    style={{ 
+                      fontSize: styles.descriptionFontSize,
+                      color: styles.descriptionColor,
+                      margin: styles.descriptionMargin,
+                      lineHeight: styles.descriptionLineHeight,
+                      fontFamily: 'Helvetica, Arial, sans-serif'
+                    }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    {config.meta.description}
+                  </motion.p>
+                )}
+
+                {/* Decorative Elements */}
+                {styles.showDecorativeElements && (
+                  <>
+                    <div 
+                      className="absolute top-4 right-4 rounded-full opacity-60" 
+                      style={{ 
+                        width: styles.decorativeSize,
+                        height: styles.decorativeSize,
+                        backgroundColor: styles.decorativeColor 
+                      }} 
+                    />
+                    <div 
+                      className="absolute bottom-4 left-4 rounded-full opacity-40" 
+                      style={{ 
+                        width: `${parseInt(styles.decorativeSize) / 2}px`,
+                        height: `${parseInt(styles.decorativeSize) / 2}px`,
+                        backgroundColor: styles.decorativeColor 
+                      }} 
+                    />
+                  </>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )
+      })()}
 
       {/* Enhanced Main Content Container */}
       <motion.div 
-        className="relative z-10 w-full max-w-3xl mx-auto content-container px-6 sm:px-8 lg:px-12"
+        className="relative z-10 w-full max-w-3xl mx-auto content-container"
         style={{
-          padding: titleStylePreset.styles.containerPadding,
           textAlign: titleStylePreset.styles.textAlign,
         }}
         initial={{ opacity: 0, y: 30 }}
@@ -438,11 +558,11 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             {/* Background decoration */}
             <div className="absolute inset-0 bg-gradient-to-r from-purple-50 via-transparent to-pink-50 rounded-xl blur-2xl opacity-40" />
             
-            <p className="relative text-lg md:text-xl lg:text-2xl text-gray-800 text-center font-semibold leading-relaxed tracking-tight">
-              <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                {displayText}
-              </span>
-            </p>
+             <p className="relative text-lg md:text-xl lg:text-2xl text-gray-800 text-center font-semibold leading-relaxed tracking-tight" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>
+               <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                 {displayText}
+               </span>
+             </p>
             
             {/* Subtle quote marks for emphasis */}
             <div className="absolute -left-4 -top-2 text-4xl text-purple-200 font-serif opacity-50">"</div>
@@ -464,16 +584,16 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
               
               <p 
                 className="description-styled leading-relaxed description-balance relative z-10 text-gray-600"
-                style={{
-                  ...getDescriptionStyles(titleStylePreset),
-                  fontFamily: titleStylePreset.styles.descriptionFontFamily || 'Inter, sans-serif',
-                  fontSize: `clamp(1rem, 2vw, ${titleStylePreset.styles.descriptionFontSize})`,
-                  maxWidth: '650px',
-                  margin: '0 auto',
-                  lineHeight: '1.8',
-                  letterSpacing: '0.01em',
-                  fontWeight: 450
-                }}
+                 style={{
+                   ...getDescriptionStyles(titleStylePreset),
+                   fontFamily: 'Helvetica, Arial, sans-serif',
+                   fontSize: `clamp(1rem, 2vw, ${titleStylePreset.styles.descriptionFontSize})`,
+                   maxWidth: '650px',
+                   margin: '0 auto',
+                   lineHeight: '1.8',
+                   letterSpacing: '0.01em',
+                   fontWeight: 450
+                 }}
               >
                 {/* Highlight first sentence for SEO emphasis */}
                 {config.meta?.description?.split('. ').map((sentence, index) => (
@@ -517,7 +637,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         {/* Enhanced Action Buttons Container */}
         {sortedActions.length > 0 && (
           <motion.div 
-            className="w-full max-w-md mx-auto mt-4 space-y-4"
+            className="w-full max-w-md mx-auto mt-4 space-y-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
@@ -542,24 +662,29 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   href={action.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`
-                    action-button relative block w-full text-center font-semibold
-                    transition-all duration-300 ease-out overflow-hidden button-shine
-                    py-4 px-7 rounded-2xl
-                    hover:shadow-xl hover:shadow-black/10
-                    transform-gpu
-                    backdrop-blur-sm
-                    group
-                  `}
-                  style={{
-                    ...backgroundStyle,
-                    color: styles.color,
-                    border: styles.borderWidth ? `${styles.borderWidth} solid ${styles.borderColor || 'transparent'}` : 'none',
-                    fontSize: '17px',
-                    letterSpacing: '-0.01em',
-                    position: 'relative',
-                    isolation: 'isolate'
-                  }}
+                   className={`
+                     action-button relative block w-full text-center font-semibold
+                     transition-all duration-300 ease-out overflow-visible
+                     py-5 px-8 rounded-xl
+                     hover:shadow-xl hover:shadow-purple-200/30
+                     transform-gpu
+                     group
+                   `}
+                   style={{
+                     backgroundColor: styles.gradient ? 'transparent' : styles.backgroundColor,
+                     backgroundImage: styles.gradient ? styles.backgroundColor : 'none',
+                     color: styles.color,
+                     borderColor: 'transparent', // Kenarlık yok
+                     borderWidth: '0px',
+                     borderStyle: 'none',
+                     borderRadius: '12px', // Sabit radius
+                     fontSize: '16px',
+                     letterSpacing: '-0.01em',
+                     position: 'relative',
+                     isolation: 'isolate',
+                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', // Sabit gölge
+                     fontFamily: 'Helvetica, Arial, sans-serif'
+                   }}
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ 
@@ -581,7 +706,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   }}
                   onMouseEnter={(e) => {
                     if (styles.hoverBackgroundColor) {
-                      if (styles.hoverBackgroundColor.includes('gradient')) {
+                      if (preset.styles.gradient) {
                         e.currentTarget.style.backgroundImage = styles.hoverBackgroundColor
                         e.currentTarget.style.backgroundColor = 'transparent'
                       } else {
@@ -592,14 +717,18 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     if (styles.hoverTextColor) {
                       e.currentTarget.style.color = styles.hoverTextColor
                     }
-                    if (styles.hoverBorderColor && styles.borderWidth) {
-                      e.currentTarget.style.borderColor = styles.hoverBorderColor
+                    // Kenarlık yok
+                    e.currentTarget.style.borderColor = 'transparent'
+                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'
+                    e.currentTarget.style.boxShadow = styles.shadow ? `${styles.shadow}, 0 10px 25px -5px rgba(0, 0, 0, 0.15)` : `0 10px 25px -5px ${styles.color}40, 0 10px 10px -5px rgba(0, 0, 0, 0.04)`
+                    // Update dashed border opacity for all buttons
+                    const dashedBorder = e.currentTarget.querySelector('.dashed-border-static') as HTMLElement
+                    if (dashedBorder) {
+                      dashedBorder.style.opacity = '1'
                     }
-                    e.currentTarget.style.transform = 'translateY(-2px)'
-                    e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
                   }}
                   onMouseLeave={(e) => {
-                    if (styles.backgroundColor.includes('gradient')) {
+                    if (preset.styles.gradient) {
                       e.currentTarget.style.backgroundImage = styles.backgroundColor
                       e.currentTarget.style.backgroundColor = 'transparent'
                     } else {
@@ -607,23 +736,52 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                       e.currentTarget.style.backgroundImage = 'none'
                     }
                     e.currentTarget.style.color = styles.color
-                    if (styles.borderColor && styles.borderWidth) {
-                      e.currentTarget.style.borderColor = styles.borderColor
+                    // Kenarlık yok
+                    e.currentTarget.style.borderColor = 'transparent'
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)'
+                    e.currentTarget.style.boxShadow = styles.shadow || '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                    // Reset dashed border opacity for all buttons
+                    const dashedBorder = e.currentTarget.querySelector('.dashed-border-static') as HTMLElement
+                    if (dashedBorder) {
+                      dashedBorder.style.opacity = '0.5'
                     }
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = 'none'
                   }}
                 >
+                  {/* Sabit dış çizikli kenarlık - tüm butonlarda görünür */}
+                  <span 
+                    className="absolute -inset-[6px] rounded-2xl pointer-events-none dashed-border-static"
+                    style={{
+                      border: '2px dashed #E5E7EB',
+                      opacity: 0.5,
+                      transition: 'all 0.3s ease'
+                    }}
+                  />
+                  
+                  {/* Animated dashed border on hover */}
+                  <span 
+                    className="absolute -inset-[6px] rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100"
+                    style={{
+                      border: '2px dashed #E5E7EB',
+                      animation: 'rotate-dash 8s linear infinite',
+                      transition: 'opacity 0.3s ease'
+                    }}
+                  />
+                  
                   {/* Button content with icon */}
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    <span>{action.label}</span>
+                  <span className="relative z-10 flex items-center justify-center gap-3">
+                    {/* Trophy/Icon placeholder */}
+                    <div className="w-5 h-5 flex items-center justify-center">
+                      <svg 
+                        className="w-4 h-4" 
+                        fill="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    </div>
+                    <span className="font-medium">{action.label}</span>
                     <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                   </span>
-                  
-                  {/* Subtle gradient overlay */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                  </div>
                 </motion.a>
               )
             })}

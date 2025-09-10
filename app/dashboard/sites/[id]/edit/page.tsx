@@ -11,12 +11,16 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { PresetSelector } from '@/components/ui/preset-selector'
 import { defaultPresetId } from '@/lib/button-presets'
+import { profilePresets, defaultProfilePresetId } from '@/lib/profile-presets'
+import { titleFontPresets, defaultTitleFontPresetId } from '@/lib/title-font-presets'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type } from 'lucide-react'
+import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type, User } from 'lucide-react'
 import { BackgroundPreviewChip } from '@/components/dashboard/BackgroundPreviewChip'
 import { BackgroundSelector } from '@/components/dashboard/BackgroundSelector'
+import { TitleFontSelector } from '@/components/dashboard/TitleFontSelector'
+import { ProfileCardSelector } from '@/components/dashboard/ProfileCardSelector'
+import { AvatarUploader } from '@/components/dashboard/AvatarUploader'
 import { backgroundPresets, applyPresetControls } from '@/lib/background-presets'
-import { TitleStyleSelector } from '@/components/title-style-selector'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -34,7 +38,7 @@ interface Action {
 
 export default function EditSitePage({ params }: PageProps) {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
   const supabase = createClient()
   const urlParams = useParams()
   
@@ -63,25 +67,43 @@ export default function EditSitePage({ params }: PageProps) {
   const [backgroundPreferences, setBackgroundPreferences] = useState<Record<string, any>>({})
   const [backgroundSelectorOpen, setBackgroundSelectorOpen] = useState(false)
   
-  // Title style preset state
-  const [titleStylePresetId, setTitleStylePresetId] = useState<string | undefined>(undefined)
+  // Modal states
+  const [titleFontSelectorOpen, setTitleFontSelectorOpen] = useState(false)
+  const [profileCardSelectorOpen, setProfileCardSelectorOpen] = useState(false)
+  
+  // Title font preset state
+  const [titleStylePresetId, setTitleStylePresetId] = useState<string>(defaultTitleFontPresetId)
+  const [titleColor, setTitleColor] = useState<string>('#1f2937')
+  
+  // Profile preset state
+  const [profilePresetId, setProfilePresetId] = useState<string>(defaultProfilePresetId)
+  const [avatarUrl, setAvatarUrl] = useState<string>('')
 
   useEffect(() => {
     const initializeParams = async () => {
-      const resolvedParams = await params
-      setSiteId(resolvedParams.id)
+      try {
+        const resolvedParams = await params
+        setSiteId(resolvedParams.id)
+      } catch (error) {
+        console.error('Failed to resolve params:', error)
+        setError('Failed to load page parameters')
+        setIsLoading(false)
+      }
     }
     initializeParams()
   }, [params])
 
   useEffect(() => {
-    if (siteId) {
-      fetchSiteData()
+    if (siteId && user) {
+    fetchSiteData()
     }
-  }, [siteId])
+  }, [siteId, user])
 
   const fetchSiteData = async () => {
-    if (!user) return
+    if (!user || !siteId) {
+      setIsLoading(false)
+      return
+    }
     
     try {
       // Fetch page data
@@ -142,22 +164,32 @@ export default function EditSitePage({ params }: PageProps) {
         setBackgroundPreferences({ [siteId]: bgPrefs })
       }
 
-      // Fetch title style preference (optional table)
-      let titlePref: any = null
-      try {
-        const { data } = await supabase
-          .from('title_style_preferences')
-          .select('preset_id')
-          .eq('site_id', siteId)
-          .single()
-        titlePref = data
-      } catch (e) {
-        titlePref = null
+      // Load title font preset from localStorage
+      const savedTitlePreset = localStorage.getItem(`title-font-preset-${siteId}`)
+      if (savedTitlePreset && titleFontPresets.find(p => p.id === savedTitlePreset)) {
+        setTitleStylePresetId(savedTitlePreset)
       }
-      if (titlePref?.preset_id) {
-        setTitleStylePresetId(titlePref.preset_id)
+
+      // Load title color from localStorage
+      const savedTitleColor = localStorage.getItem(`title-color-${siteId}`)
+      if (savedTitleColor) {
+        setTitleColor(savedTitleColor)
       } else {
-        setTitleStylePresetId(undefined)
+        setTitleStylePresetId(defaultTitleFontPresetId)
+      }
+
+      // Load avatar URL from localStorage
+      const savedAvatarUrl = localStorage.getItem(`avatar-url-${siteId}`)
+      if (savedAvatarUrl) {
+        setAvatarUrl(savedAvatarUrl)
+      }
+      
+      // Load profile preset from localStorage
+      const savedProfilePreset = localStorage.getItem(`profile-preset-${siteId}`)
+      if (savedProfilePreset && profilePresets.find(p => p.id === savedProfilePreset)) {
+        setProfilePresetId(savedProfilePreset)
+      } else {
+        setProfilePresetId(defaultProfilePresetId)
       }
     } catch (err) {
       setError('Failed to load site data')
@@ -174,7 +206,7 @@ export default function EditSitePage({ params }: PageProps) {
     if (!user) return
     
     // Validate slug
-    if (!/^[a-z0-9-]+$/.test(formData.site_slug)) {
+    if (!/^[a-z0-9\-]+$/.test(formData.site_slug)) {
       setError('Slug can only contain lowercase letters, numbers, and hyphens')
       return
     }
@@ -341,24 +373,36 @@ export default function EditSitePage({ params }: PageProps) {
     }
   }
   
-  const handleTitleStyleSave = async (presetId: string) => {
-    const response = await fetch('/api/title-style-preferences', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        siteId: siteId,
-        presetId,
-      })
-    })
-    
-    if (!response.ok) {
-      throw new Error('Failed to save title style')
-    }
-    
+  const handleTitleStyleSave = async (presetId: string, color: string) => {
+    // Save to localStorage for immediate preview
     setTitleStylePresetId(presetId)
+    setTitleColor(color)
+    
+    if (siteId) {
+      localStorage.setItem(`title-font-preset-${siteId}`, presetId)
+      localStorage.setItem(`title-color-${siteId}`, color)
+    }
   }
 
-  if (isLoading) {
+  const handleProfileStyleSave = async (presetId: string) => {
+    // Temporarily disable saving to database due to API issues
+    // Just update the UI state and localStorage for now
+    setProfilePresetId(presetId)
+    
+    // Save to localStorage for immediate preview
+    if (siteId) {
+      localStorage.setItem(`profile-preset-${siteId}`, presetId)
+    }
+  }
+
+  const handleAvatarChange = (url: string) => {
+    setAvatarUrl(url)
+    if (siteId) {
+      localStorage.setItem(`avatar-url-${siteId}`, url)
+    }
+  }
+
+  if (isLoading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-neutral-50 to-neutral-100">
         <div className="text-center">
@@ -431,10 +475,10 @@ export default function EditSitePage({ params }: PageProps) {
                     value={formData.site_slug}
                     onChange={(e) => setFormData({ 
                       ...formData, 
-                      site_slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')
+                      site_slug: e.target.value.toLowerCase().replace(/[^a-z0-9\-]/g, '')
                     })}
                     placeholder="my-site"
-                    pattern="[a-z0-9-]+"
+                    pattern="[a-z0-9\-]+"
                     required
                   />
                   <p className="text-xs text-gray-500">/{formData.site_slug}</p>
@@ -614,20 +658,124 @@ export default function EditSitePage({ params }: PageProps) {
           </Card>
 
           <Card className="mb-6">
-            <CardContent className="pt-6">
-              <TitleStyleSelector
-                siteId={siteId}
-                currentTitle={formData.title}
-                currentDescription={formData.description}
-                currentPresetId={titleStylePresetId}
-                backgroundStyle={backgroundPreferences[siteId]
-                  ? applyPresetControls(
-                      backgroundPresets.find(p => p.id === backgroundPreferences[siteId].preset_id) || backgroundPresets[0],
-                      backgroundPreferences[siteId]?.control_values || {}
-                    )
-                  : undefined}
-                onSave={handleTitleStyleSave}
-              />
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Type className="h-5 w-5" />
+                Title Font Style
+              </CardTitle>
+              <CardDescription>
+                Customize the font style of your site title
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-16 rounded-lg border border-gray-200 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                    <span
+                      style={{
+                        fontFamily: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontFamily || 'Helvetica',
+                        fontSize: '10px',
+                        fontWeight: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontWeight || '600',
+                        color: titleColor,
+                        letterSpacing: titleFontPresets.find(p => p.id === titleStylePresetId)?.letterSpacing || '-0.02em'
+                      }}
+                    >
+                      Aa
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {titleFontPresets.find(p => p.id === titleStylePresetId)?.name || 'Modern Sans'}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Click to change font style
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setTitleFontSelectorOpen(true)}
+                >
+                  <Type className="h-4 w-4 mr-2" />
+                  Change Font
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Profile Card Style
+              </CardTitle>
+              <CardDescription>
+                Customize the design style and avatar of your profile card
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Avatar Upload Section */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Profile Avatar</h4>
+                <AvatarUploader
+                  siteId={siteId}
+                  currentAvatarUrl={avatarUrl}
+                  onAvatarChange={handleAvatarChange}
+                />
+              </div>
+
+              {/* Style Selection Section */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Card Style</h4>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-16 h-16 rounded-lg border border-gray-200 relative overflow-hidden"
+                      style={{
+                        background: profilePresets.find(p => p.id === profilePresetId)?.styles.containerBackground || 'rgba(255, 255, 255, 0.95)',
+                        borderRadius: '8px',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                      }}
+                    >
+                      {/* Mini avatar preview */}
+                      <div
+                        className="absolute top-1 left-1/2 transform -translate-x-1/2"
+                        style={{
+                          width: '12px',
+                          height: '12px',
+                          borderRadius: profilePresets.find(p => p.id === profilePresetId)?.styles.avatarBorderRadius || '50%',
+                          background: profilePresets.find(p => p.id === profilePresetId)?.styles.avatarBackground || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                        }}
+                      />
+                      {/* Mini title preview */}
+                      <div
+                        className="absolute bottom-1 left-1 right-1 h-1 rounded"
+                        style={{
+                          background: profilePresets.find(p => p.id === profilePresetId)?.styles.titleColor || '#1f2937',
+                          opacity: 0.7
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">
+                        {profilePresets.find(p => p.id === profilePresetId)?.name || 'Minimal Clean'}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Click to change card style
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setProfileCardSelectorOpen(true)}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Change Style
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -669,6 +817,28 @@ export default function EditSitePage({ params }: PageProps) {
               setBackgroundSelectorOpen(false)
             }}
             onClose={() => setBackgroundSelectorOpen(false)}
+          />
+        )}
+
+        {/* Title Font Selector Dialog */}
+        {titleFontSelectorOpen && (
+          <TitleFontSelector
+            siteId={siteId}
+            currentPresetId={titleStylePresetId}
+            currentTitle={formData.title}
+            currentColor={titleColor}
+            onSave={handleTitleStyleSave}
+            onClose={() => setTitleFontSelectorOpen(false)}
+          />
+        )}
+
+        {/* Profile Card Selector Dialog */}
+        {profileCardSelectorOpen && (
+          <ProfileCardSelector
+            siteId={siteId}
+            currentPresetId={profilePresetId}
+            onSave={handleProfileStyleSave}
+            onClose={() => setProfileCardSelectorOpen(false)}
           />
         )}
       </main>
