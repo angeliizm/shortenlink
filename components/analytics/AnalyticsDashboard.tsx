@@ -742,6 +742,8 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
               </CardContent>
             </Card>
           </TabsContent>
+        </Tabs>
+      )}
       </div>
     </div>
   );
