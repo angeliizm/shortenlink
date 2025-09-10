@@ -150,21 +150,46 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   return (
     <>
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         
         * {
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
         
+        .title-gradient {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #667eea 100%);
+          background-size: 200% 200%;
+          animation: gradient-shift 8s ease infinite;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        
+        @keyframes gradient-shift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        
+        .title-shadow {
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1),
+                       0 5px 20px rgba(0, 0, 0, 0.05),
+                       0 8px 40px rgba(0, 0, 0, 0.03);
+        }
+        
+        .description-balance {
+          text-wrap: balance;
+        }
+        
         @media (max-width: 768px) {
           .title-styled {
             font-size: ${titleStylePreset.styles.titleFontSizeMobile} !important;
-            line-height: 1.2 !important;
+            line-height: 1.15 !important;
           }
           .description-styled {
             font-size: ${titleStylePreset.styles.descriptionFontSizeMobile} !important;
-            line-height: 1.6 !important;
+            line-height: 1.65 !important;
           }
           .content-container {
             padding: ${titleStylePreset.styles.containerPaddingMobile} !important;
@@ -173,14 +198,20 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             font-size: 16px !important;
             padding: 16px 24px !important;
           }
+          .title-gradient {
+            font-size: 2.5rem !important;
+          }
         }
         
         @media (max-width: 480px) {
           .title-styled {
-            font-size: calc(${titleStylePreset.styles.titleFontSizeMobile} * 0.9) !important;
+            font-size: calc(${titleStylePreset.styles.titleFontSizeMobile} * 0.85) !important;
           }
           .description-styled {
-            font-size: calc(${titleStylePreset.styles.descriptionFontSizeMobile} * 0.95) !important;
+            font-size: calc(${titleStylePreset.styles.descriptionFontSizeMobile} * 0.9) !important;
+          }
+          .title-gradient {
+            font-size: 2rem !important;
           }
         }
         
@@ -324,83 +355,199 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           ease: [0.22, 1, 0.36, 1]
         }}
       >
-        <div className="relative mb-8">
+        <div className="relative mb-10">
+          {/* SEO Badge for better visibility */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100"
+          >
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+            </span>
+            <span className="text-xs font-medium text-purple-700">Live</span>
+          </motion.div>
+          
           {/* Enhanced Accent Element */}
           {titleStylePreset.styles.accentElement === 'bracket' && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: '4px' }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {getAccentElement(titleStylePreset)}
-            </motion.div>
+              className="absolute left-0 top-1/2 -translate-y-1/2 h-16 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"
+            />
           )}
           
-          {/* Enhanced Title with better typography */}
-          <motion.h1 
-            className="title-styled font-bold tracking-tight"
-            style={{
-              ...getTitleStyles(titleStylePreset),
-              lineHeight: '1.1',
-              letterSpacing: '-0.02em'
-            }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ 
-              duration: 0.6, 
-              delay: 0.1, 
-              ease: [0.22, 1, 0.36, 1]
-            }}
-          >
-            {config.title}
-          </motion.h1>
+          {/* Premium Enhanced Title */}
+          <motion.div className="relative">
+            <motion.h1 
+              className={`title-styled font-extrabold tracking-tight ${
+                titleStylePreset.id === 'modern-gradient' ? 'title-gradient' : 'title-shadow'
+              }`}
+              style={{
+                ...getTitleStyles(titleStylePreset),
+                fontFamily: titleStylePreset.styles.titleFontFamily || 'Plus Jakarta Sans, Inter, sans-serif',
+                fontSize: `clamp(2.5rem, 5vw + 1rem, ${titleStylePreset.styles.titleFontSize})`,
+                lineHeight: '1.05',
+                letterSpacing: '-0.03em',
+                fontWeight: 800,
+                position: 'relative',
+                zIndex: 1
+              }}
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ 
+                duration: 0.7, 
+                delay: 0.1, 
+                ease: [0.22, 1, 0.36, 1]
+              }}
+            >
+              {/* Split text for better animation */}
+              {config.title.split(' ').map((word, index) => (
+                <motion.span
+                  key={index}
+                  className="inline-block"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: 0.15 + index * 0.05,
+                    ease: [0.22, 1, 0.36, 1]
+                  }}
+                >
+                  {word}{' '}
+                </motion.span>
+              ))}
+            </motion.h1>
+            
+            {/* Subtle glow effect behind title */}
+            <div 
+              className="absolute inset-0 blur-3xl opacity-20"
+              style={{
+                background: `radial-gradient(ellipse at center, ${config.brandColor}40 0%, transparent 70%)`
+              }}
+            />
+          </motion.div>
           
           {/* Enhanced Accent Element animations */}
-          {(titleStylePreset.styles.accentElement === 'underline' || 
-            titleStylePreset.styles.accentElement === 'dot') && (
+          {titleStylePreset.styles.accentElement === 'underline' && (
             <motion.div
-              initial={{ opacity: 0, scale: 0, x: '-50%' }}
-              animate={{ opacity: 1, scale: 1, x: '-50%' }}
-              transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {getAccentElement(titleStylePreset)}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="h-1 w-24 mx-auto mt-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full origin-left"
+              style={{
+                background: titleStylePreset.styles.accentColor || 'linear-gradient(to right, #667eea, #764ba2)'
+              }}
+            />
+          )}
+          
+          {titleStylePreset.styles.accentElement === 'dot' && (
+            <motion.div className="flex gap-2 justify-center mt-4">
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className="w-2 h-2 rounded-full"
+                  style={{ background: titleStylePreset.styles.accentColor || config.brandColor }}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{
+                    duration: 0.4,
+                    delay: 0.3 + i * 0.1,
+                    ease: [0.22, 1, 0.36, 1]
+                  }}
+                />
+              ))}
             </motion.div>
           )}
         </div>
 
-        {/* Enhanced Display Text */}
+        {/* Premium Display Text with visual hierarchy */}
         {displayText && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-6"
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-8 relative"
           >
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-700/90 text-center font-medium leading-relaxed">
-              {displayText}
+            {/* Background decoration */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-50 via-transparent to-pink-50 rounded-xl blur-2xl opacity-40" />
+            
+            <p className="relative text-lg md:text-xl lg:text-2xl text-gray-800 text-center font-semibold leading-relaxed tracking-tight">
+              <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                {displayText}
+              </span>
             </p>
+            
+            {/* Subtle quote marks for emphasis */}
+            <div className="absolute -left-4 -top-2 text-4xl text-purple-200 font-serif opacity-50">"</div>
+            <div className="absolute -right-4 -bottom-2 text-4xl text-purple-200 font-serif opacity-50 rotate-180">"</div>
           </motion.div>
         )}
 
-        {/* Enhanced Description */}
+        {/* Premium Enhanced Description with SEO focus */}
         {config.meta?.description && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-10"
+            transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-12 relative"
           >
-            <p 
-              className="description-styled leading-relaxed"
-              style={{
-                ...getDescriptionStyles(titleStylePreset),
-                maxWidth: '600px',
-                margin: '0 auto',
-                lineHeight: '1.7'
-              }}
+            {/* Description container with glass effect */}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500" />
+              
+              <p 
+                className="description-styled leading-relaxed description-balance relative z-10 text-gray-600"
+                style={{
+                  ...getDescriptionStyles(titleStylePreset),
+                  fontFamily: titleStylePreset.styles.descriptionFontFamily || 'Inter, sans-serif',
+                  fontSize: `clamp(1rem, 2vw, ${titleStylePreset.styles.descriptionFontSize})`,
+                  maxWidth: '650px',
+                  margin: '0 auto',
+                  lineHeight: '1.8',
+                  letterSpacing: '0.01em',
+                  fontWeight: 450
+                }}
+              >
+                {/* Highlight first sentence for SEO emphasis */}
+                {config.meta.description.split('. ').map((sentence, index) => (
+                  <motion.span
+                    key={index}
+                    className={index === 0 ? 'font-medium text-gray-700' : ''}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{
+                      duration: 0.5,
+                      delay: 0.3 + index * 0.1,
+                      ease: [0.22, 1, 0.36, 1]
+                    }}
+                  >
+                    {sentence}{index < config.meta.description.split('. ').length - 1 ? '. ' : ''}
+                  </motion.span>
+                ))}
+              </p>
+            </div>
+            
+            {/* SEO Keywords visualization (subtle) */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="flex flex-wrap gap-2 justify-center mt-6"
             >
-              {config.meta.description}
-            </p>
+              {/* Extract and display key phrases */}
+              {config.meta.description.split(' ').slice(0, 3).map((word, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 text-xs font-medium text-purple-600 bg-purple-50 rounded-full border border-purple-100 opacity-60"
+                >
+                  {word}
+                </span>
+              ))}
+            </motion.div>
           </motion.div>
         )}
 
