@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPageConfig } from '@/lib/supabase/pages'
-import PageClient from './page-client'
+import LandingPageClient from './landing-page-client'
 
 interface PageProps {
   params: { slug: string }
@@ -12,17 +12,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   
   if (!config) {
     return {
-      title: 'Page Not Found',
+      title: 'Sayfa Bulunamadı',
       robots: 'noindex'
     }
   }
 
   return {
     title: config.title,
+    description: config.meta?.description,
     robots: config.meta?.noindex ? 'noindex' : 'index,follow',
     openGraph: {
       title: config.title,
-      description: config.meta?.description
+      description: config.meta?.description,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: config.title,
+      description: config.meta?.description,
     }
   }
 }
@@ -34,5 +41,6 @@ export default async function Page({ params }: PageProps) {
     notFound()
   }
 
-  return <PageClient config={config} />
+  // No authentication required - public access
+  return <LandingPageClient config={config} isOwner={false} />
 }
