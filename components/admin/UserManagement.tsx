@@ -77,7 +77,7 @@ export default function UserManagement() {
           role: newRole,
           notes: roleNotes,
           assigned_at: new Date().toISOString()
-        });
+        } as any);
 
       if (error) throw error;
 
