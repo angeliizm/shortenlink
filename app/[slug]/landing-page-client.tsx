@@ -291,6 +291,30 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             width: 100% !important;
             max-width: 400px !important;
           }
+          
+          /* Profile card mobile fixes */
+          .profile-card-container {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            transform: none !important;
+          }
+          
+          .profile-avatar {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: relative !important;
+            z-index: 10 !important;
+          }
+          
+          .profile-avatar img {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 50% !important;
+          }
         }
         
         /* Mobile screens (480px and below) - 75% scale */
@@ -323,6 +347,33 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             margin: 0 auto 10px auto !important;
             width: 100% !important;
             max-width: 360px !important;
+          }
+          
+          /* Profile card mobile fixes - smaller screens */
+          .profile-card-container {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            transform: none !important;
+            min-height: auto !important;
+          }
+          
+          .profile-avatar {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: relative !important;
+            z-index: 10 !important;
+            margin: 0 auto 16px auto !important;
+          }
+          
+          .profile-avatar img {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 50% !important;
+            visibility: visible !important;
           }
         }
         
@@ -492,12 +543,12 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             <div className="relative">
               {/* Profile Card Container */}
               <div 
-                className="relative overflow-hidden text-center w-full"
+                className="relative overflow-hidden text-center w-full profile-card-container"
                 style={responsiveContainerStyles}
               >
                  {/* Profile Avatar */}
                  <motion.div 
-                   className="relative mx-auto overflow-hidden"
+                   className="relative mx-auto overflow-hidden profile-avatar"
                    style={{
                      width: `clamp(80px, calc(${styles.avatarSize} * var(--mobile-scale, 1)), ${styles.avatarSize})`,
                      height: `clamp(80px, calc(${styles.avatarSize} * var(--mobile-scale, 1)), ${styles.avatarSize})`,
@@ -505,7 +556,11 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                      border: styles.avatarBorder,
                      boxShadow: styles.avatarShadow,
                      background: styles.avatarBackground,
-                     marginBottom: '16px'
+                     marginBottom: '16px',
+                     display: 'block',
+                     visibility: 'visible',
+                     position: 'relative',
+                     zIndex: 10
                    }}
                    initial={{ scale: 0 }}
                    animate={{ scale: 1 }}
@@ -518,6 +573,14 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                        className="w-full h-full object-cover"
                        loading="eager"
                        crossOrigin="anonymous"
+                       style={{
+                         display: 'block',
+                         visibility: 'visible',
+                         width: '100%',
+                         height: '100%',
+                         objectFit: 'cover',
+                         borderRadius: '50%'
+                       }}
                      />
                    ) : (
                      <div className="w-full h-full flex items-center justify-center">
