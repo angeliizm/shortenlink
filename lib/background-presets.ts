@@ -387,6 +387,416 @@ export const backgroundPresets: BackgroundPreset[] = [
       },
     ],
   },
+  {
+    id: 'floating-orbs',
+    name: 'Floating Orbs',
+    description: 'Smooth floating bubbles, dreamy and elegant',
+    style: {
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      overflow: 'hidden',
+    },
+    animation: 'orbFloat',
+    animationCSS: `
+      @keyframes orbFloat {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(-20px) rotate(120deg); }
+        66% { transform: translateY(10px) rotate(240deg); }
+      }
+    `,
+    controls: [
+      {
+        id: 'primaryColor',
+        label: 'Primary Color',
+        type: 'color',
+        value: '#667eea',
+      },
+      {
+        id: 'secondaryColor',
+        label: 'Secondary Color',
+        type: 'color',
+        value: '#764ba2',
+      },
+      {
+        id: 'orbColor',
+        label: 'Orb Color',
+        type: 'color',
+        value: '#ffffff',
+      },
+      {
+        id: 'speed',
+        label: 'Float Speed',
+        type: 'range',
+        value: 8,
+        min: 4,
+        max: 16,
+        step: 2,
+      },
+    ],
+  },
+  {
+    id: 'pulse-waves',
+    name: 'Pulse Waves',
+    description: 'Rhythmic expanding circles, hypnotic flow',
+    style: {
+      backgroundColor: '#1a1a2e',
+      backgroundImage: `radial-gradient(circle at 50% 50%, rgba(79, 172, 254, 0.2) 0%, transparent 50%)`,
+    },
+    animation: 'pulseWave',
+    animationCSS: `
+      @keyframes pulseWave {
+        0% { transform: scale(0.8); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.5; }
+        100% { transform: scale(1.6); opacity: 0; }
+      }
+    `,
+    controls: [
+      {
+        id: 'baseColor',
+        label: 'Base Color',
+        type: 'color',
+        value: '#1a1a2e',
+      },
+      {
+        id: 'waveColor',
+        label: 'Wave Color',
+        type: 'color',
+        value: '#4facfe',
+      },
+      {
+        id: 'intensity',
+        label: 'Wave Intensity',
+        type: 'range',
+        value: 0.2,
+        min: 0.1,
+        max: 0.5,
+        step: 0.05,
+      },
+      {
+        id: 'speed',
+        label: 'Pulse Speed',
+        type: 'range',
+        value: 3,
+        min: 1,
+        max: 6,
+        step: 1,
+      },
+    ],
+  },
+  {
+    id: 'cosmic-dust',
+    name: 'Cosmic Dust',
+    description: 'Sparkling particles in space, magical atmosphere',
+    style: {
+      background: 'radial-gradient(ellipse at center, #0f0f23 0%, #000000 100%)',
+    },
+    animation: 'starTwinkle',
+    animationCSS: `
+      @keyframes starTwinkle {
+        0%, 100% { opacity: 0.3; transform: scale(0.8) rotate(0deg); }
+        50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+      }
+    `,
+    controls: [
+      {
+        id: 'spaceColor1',
+        label: 'Space Color 1',
+        type: 'color',
+        value: '#0f0f23',
+      },
+      {
+        id: 'spaceColor2',
+        label: 'Space Color 2',
+        type: 'color',
+        value: '#000000',
+      },
+      {
+        id: 'dustColor',
+        label: 'Dust Color',
+        type: 'color',
+        value: '#ffffff',
+      },
+      {
+        id: 'sparkleSpeed',
+        label: 'Sparkle Speed',
+        type: 'range',
+        value: 4,
+        min: 2,
+        max: 8,
+        step: 1,
+      },
+    ],
+  },
+  {
+    id: 'neon-grid',
+    name: 'Neon Grid',
+    description: 'Cyberpunk grid lines, futuristic energy',
+    style: {
+      backgroundColor: '#0a0a0a',
+      backgroundImage: `
+        linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px)
+      `,
+      backgroundSize: '50px 50px',
+    },
+    animation: 'neonPulse',
+    animationCSS: `
+      @keyframes neonPulse {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.8; }
+      }
+    `,
+    controls: [
+      {
+        id: 'backgroundColor',
+        label: 'Background Color',
+        type: 'color',
+        value: '#0a0a0a',
+      },
+      {
+        id: 'neonColor',
+        label: 'Neon Color',
+        type: 'color',
+        value: '#00ffff',
+      },
+      {
+        id: 'gridSize',
+        label: 'Grid Size',
+        type: 'range',
+        value: 50,
+        min: 20,
+        max: 100,
+        step: 10,
+      },
+      {
+        id: 'pulseSpeed',
+        label: 'Pulse Speed',
+        type: 'range',
+        value: 2,
+        min: 1,
+        max: 5,
+        step: 1,
+      },
+    ],
+  },
+  {
+    id: 'rainbow-shift',
+    name: 'Rainbow Shift',
+    description: 'Smooth color transitions, vibrant spectrum',
+    style: {
+      background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #fd79a8)',
+      backgroundSize: '300% 300%',
+    },
+    animation: 'rainbowShift',
+    animationCSS: `
+      @keyframes rainbowShift {
+        0% { background-position: 0% 50%; }
+        25% { background-position: 100% 50%; }
+        50% { background-position: 100% 100%; }
+        75% { background-position: 0% 100%; }
+        100% { background-position: 0% 50%; }
+      }
+    `,
+    controls: [
+      {
+        id: 'color1',
+        label: 'Color 1 (Red)',
+        type: 'color',
+        value: '#ff6b6b',
+      },
+      {
+        id: 'color2',
+        label: 'Color 2 (Teal)',
+        type: 'color',
+        value: '#4ecdc4',
+      },
+      {
+        id: 'color3',
+        label: 'Color 3 (Blue)',
+        type: 'color',
+        value: '#45b7d1',
+      },
+      {
+        id: 'color4',
+        label: 'Color 4 (Green)',
+        type: 'color',
+        value: '#96ceb4',
+      },
+      {
+        id: 'color5',
+        label: 'Color 5 (Yellow)',
+        type: 'color',
+        value: '#ffeaa7',
+      },
+      {
+        id: 'color6',
+        label: 'Color 6 (Pink)',
+        type: 'color',
+        value: '#fd79a8',
+      },
+      {
+        id: 'speed',
+        label: 'Shift Speed',
+        type: 'range',
+        value: 12,
+        min: 6,
+        max: 20,
+        step: 2,
+      },
+    ],
+  },
+  {
+    id: 'matrix-rain',
+    name: 'Matrix Rain',
+    description: 'Digital rain effect, sci-fi atmosphere',
+    style: {
+      backgroundColor: '#000000',
+      backgroundImage: `linear-gradient(0deg, transparent 24%, rgba(0, 255, 0, 0.05) 25%, rgba(0, 255, 0, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 0, 0.05) 75%, rgba(0, 255, 0, 0.05) 76%, transparent 77%, transparent)`,
+      backgroundSize: '20px 20px',
+    },
+    animation: 'matrixFall',
+    animationCSS: `
+      @keyframes matrixFall {
+        0% { background-position: 0 0; }
+        100% { background-position: 0 20px; }
+      }
+    `,
+    controls: [
+      {
+        id: 'backgroundColor',
+        label: 'Background Color',
+        type: 'color',
+        value: '#000000',
+      },
+      {
+        id: 'matrixColor',
+        label: 'Matrix Color',
+        type: 'color',
+        value: '#00ff00',
+      },
+      {
+        id: 'rainSpeed',
+        label: 'Rain Speed',
+        type: 'range',
+        value: 1,
+        min: 0.5,
+        max: 3,
+        step: 0.5,
+      },
+    ],
+  },
+  {
+    id: 'ocean-waves',
+    name: 'Ocean Waves',
+    description: 'Flowing water ripples, calming blue motion',
+    style: {
+      background: 'linear-gradient(180deg, #74b9ff 0%, #0984e3 50%, #2d3436 100%)',
+    },
+    animation: 'oceanFlow',
+    animationCSS: `
+      @keyframes oceanFlow {
+        0%, 100% { transform: translateX(0) scaleY(1); }
+        25% { transform: translateX(-10px) scaleY(1.05); }
+        50% { transform: translateX(0) scaleY(0.95); }
+        75% { transform: translateX(10px) scaleY(1.05); }
+      }
+    `,
+    controls: [
+      {
+        id: 'surfaceColor',
+        label: 'Surface Color',
+        type: 'color',
+        value: '#74b9ff',
+      },
+      {
+        id: 'middleColor',
+        label: 'Middle Color',
+        type: 'color',
+        value: '#0984e3',
+      },
+      {
+        id: 'deepColor',
+        label: 'Deep Color',
+        type: 'color',
+        value: '#2d3436',
+      },
+      {
+        id: 'waveSpeed',
+        label: 'Wave Speed',
+        type: 'range',
+        value: 6,
+        min: 3,
+        max: 12,
+        step: 1,
+      },
+    ],
+  },
+  {
+    id: 'electric-storm',
+    name: 'Electric Storm',
+    description: 'Lightning energy pulses, dynamic electric field',
+    style: {
+      background: 'radial-gradient(ellipse at center, #2d1b69 0%, #11052c 100%)',
+    },
+    animation: 'electricPulse',
+    animationCSS: `
+      @keyframes electricPulse {
+        0%, 100% { 
+          box-shadow: inset 0 0 50px rgba(138, 43, 226, 0.1);
+          filter: brightness(1);
+        }
+        10% { 
+          box-shadow: inset 0 0 100px rgba(138, 43, 226, 0.3);
+          filter: brightness(1.2);
+        }
+        20% { 
+          box-shadow: inset 0 0 50px rgba(138, 43, 226, 0.1);
+          filter: brightness(1);
+        }
+        50% { 
+          box-shadow: inset 0 0 80px rgba(138, 43, 226, 0.2);
+          filter: brightness(1.1);
+        }
+      }
+    `,
+    controls: [
+      {
+        id: 'stormColor1',
+        label: 'Storm Color 1',
+        type: 'color',
+        value: '#2d1b69',
+      },
+      {
+        id: 'stormColor2',
+        label: 'Storm Color 2',
+        type: 'color',
+        value: '#11052c',
+      },
+      {
+        id: 'electricColor',
+        label: 'Electric Color',
+        type: 'color',
+        value: '#8a2be2',
+      },
+      {
+        id: 'intensity',
+        label: 'Storm Intensity',
+        type: 'range',
+        value: 0.3,
+        min: 0.1,
+        max: 0.6,
+        step: 0.1,
+      },
+      {
+        id: 'speed',
+        label: 'Lightning Speed',
+        type: 'range',
+        value: 4,
+        min: 2,
+        max: 8,
+        step: 1,
+      },
+    ],
+  },
 ]
 
 export function applyPresetControls(
@@ -514,6 +924,96 @@ export function applyPresetControls(
           radial-gradient(ellipse at bottom right, ${hexToRgba(aurora4, intensity)} 0%, transparent 50%),
           linear-gradient(180deg, ${base1} 0%, ${base2} 100%)
         `
+      }
+      break
+      
+    case 'floating-orbs':
+      if (controlValues.primaryColor || controlValues.secondaryColor) {
+        const primary = (controlValues.primaryColor || '#667eea') as string
+        const secondary = (controlValues.secondaryColor || '#764ba2') as string
+        style.background = `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`
+      }
+      break
+      
+    case 'pulse-waves':
+      if (controlValues.baseColor) {
+        style.backgroundColor = controlValues.baseColor as string
+      }
+      if (controlValues.waveColor || controlValues.intensity) {
+        const waveColor = (controlValues.waveColor || '#4facfe') as string
+        const intensity = (controlValues.intensity || 0.2) as number
+        style.backgroundImage = `radial-gradient(circle at 50% 50%, ${hexToRgba(waveColor, intensity)} 0%, transparent 50%)`
+      }
+      break
+      
+    case 'cosmic-dust':
+      if (controlValues.spaceColor1 || controlValues.spaceColor2) {
+        const space1 = (controlValues.spaceColor1 || '#0f0f23') as string
+        const space2 = (controlValues.spaceColor2 || '#000000') as string
+        style.background = `radial-gradient(ellipse at center, ${space1} 0%, ${space2} 100%)`
+      }
+      break
+      
+    case 'neon-grid':
+      if (controlValues.backgroundColor) {
+        style.backgroundColor = controlValues.backgroundColor as string
+      }
+      if (controlValues.neonColor || controlValues.gridSize) {
+        const neonColor = (controlValues.neonColor || '#00ffff') as string
+        const gridSize = (controlValues.gridSize || 50) as number
+        const neonRgba = hexToRgba(neonColor, 0.1)
+        style.backgroundImage = `
+          linear-gradient(${neonRgba} 1px, transparent 1px),
+          linear-gradient(90deg, ${neonRgba} 1px, transparent 1px)
+        `
+        style.backgroundSize = `${gridSize}px ${gridSize}px`
+      }
+      break
+      
+    case 'rainbow-shift':
+      if (controlValues.color1 || controlValues.color2 || controlValues.color3 || 
+          controlValues.color4 || controlValues.color5 || controlValues.color6) {
+        const c1 = (controlValues.color1 || '#ff6b6b') as string
+        const c2 = (controlValues.color2 || '#4ecdc4') as string
+        const c3 = (controlValues.color3 || '#45b7d1') as string
+        const c4 = (controlValues.color4 || '#96ceb4') as string
+        const c5 = (controlValues.color5 || '#ffeaa7') as string
+        const c6 = (controlValues.color6 || '#fd79a8') as string
+        style.background = `linear-gradient(45deg, ${c1}, ${c2}, ${c3}, ${c4}, ${c5}, ${c6})`
+      }
+      break
+      
+    case 'matrix-rain':
+      if (controlValues.backgroundColor) {
+        style.backgroundColor = controlValues.backgroundColor as string
+      }
+      if (controlValues.matrixColor) {
+        const matrixColor = (controlValues.matrixColor || '#00ff00') as string
+        const matrixRgba = hexToRgba(matrixColor, 0.05)
+        style.backgroundImage = `linear-gradient(0deg, transparent 24%, ${matrixRgba} 25%, ${matrixRgba} 26%, transparent 27%, transparent 74%, ${matrixRgba} 75%, ${matrixRgba} 76%, transparent 77%, transparent)`
+      }
+      break
+      
+    case 'ocean-waves':
+      if (controlValues.surfaceColor || controlValues.middleColor || controlValues.deepColor) {
+        const surface = (controlValues.surfaceColor || '#74b9ff') as string
+        const middle = (controlValues.middleColor || '#0984e3') as string
+        const deep = (controlValues.deepColor || '#2d3436') as string
+        style.background = `linear-gradient(180deg, ${surface} 0%, ${middle} 50%, ${deep} 100%)`
+      }
+      break
+      
+    case 'electric-storm':
+      if (controlValues.stormColor1 || controlValues.stormColor2) {
+        const storm1 = (controlValues.stormColor1 || '#2d1b69') as string
+        const storm2 = (controlValues.stormColor2 || '#11052c') as string
+        style.background = `radial-gradient(ellipse at center, ${storm1} 0%, ${storm2} 100%)`
+      }
+      if (controlValues.electricColor || controlValues.intensity) {
+        const electricColor = (controlValues.electricColor || '#8a2be2') as string
+        const intensity = (controlValues.intensity || 0.3) as number
+        const electricRgba = hexToRgba(electricColor, intensity)
+        style.boxShadow = `inset 0 0 50px ${electricRgba}`
       }
       break
   }
