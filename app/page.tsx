@@ -1,22 +1,4 @@
-import dynamic from 'next/dynamic'
-
-// Dynamically import LoginForm to avoid SSR issues
-const LoginForm = dynamic(() => import('@/components/login-form'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full max-w-md">
-      <div className="bg-white rounded-xl border border-blue-100/50 shadow-xl shadow-blue-500/5 p-8 sm:p-10">
-        <div className="animate-pulse space-y-6">
-          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-10 bg-gray-200 rounded"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-10 bg-gray-200 rounded"></div>
-          <div className="h-10 bg-blue-200 rounded"></div>
-        </div>
-      </div>
-    </div>
-  )
-})
+import LoginForm from '@/components/login-form'
 
 export default function HomePage() {
   return (
