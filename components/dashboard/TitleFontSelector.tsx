@@ -10,8 +10,7 @@ interface TitleFontSelectorProps {
   siteId: string
   currentPresetId?: string
   currentTitle: string
-  currentColor?: string
-  onSave: (presetId: string, color: string) => void
+  onSave: (presetId: string) => void
   onClose: () => void
 }
 
@@ -19,15 +18,13 @@ export function TitleFontSelector({
   siteId,
   currentPresetId,
   currentTitle,
-  currentColor,
   onSave,
   onClose
 }: TitleFontSelectorProps) {
   const [selectedPresetId, setSelectedPresetId] = useState(currentPresetId || 'modern-sans')
-  const [selectedColor, setSelectedColor] = useState(currentColor || '#1f2937')
 
   const handleSave = () => {
-    onSave(selectedPresetId, selectedColor)
+    onSave(selectedPresetId)
     onClose()
   }
 
@@ -70,78 +67,6 @@ export function TitleFontSelector({
 
           {/* Content */}
           <div className="p-6 overflow-y-auto max-h-[60vh]">
-            {/* Color Picker Section */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Title Color</h3>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={selectedColor}
-                    onChange={(e) => setSelectedColor(e.target.value)}
-                    className="w-12 h-8 rounded border border-gray-300 cursor-pointer"
-                  />
-                  <span className="text-sm text-gray-600">{selectedColor}</span>
-                </div>
-                <div className="flex-1">
-                  <div
-                    className="h-8 rounded border border-gray-300 flex items-center justify-center"
-                    style={{ backgroundColor: selectedColor }}
-                  >
-                    <span
-                      style={{
-                        fontFamily: getTitleFontPresetById(selectedPresetId)?.fontFamily || 'Helvetica',
-                        fontSize: '12px',
-                        fontWeight: getTitleFontPresetById(selectedPresetId)?.fontWeight || '600',
-                        color: selectedColor === '#ffffff' || selectedColor === '#fff' ? '#000000' : '#ffffff',
-                        letterSpacing: getTitleFontPresetById(selectedPresetId)?.letterSpacing || '-0.02em'
-                      }}
-                    >
-                      {currentTitle || 'Sample Title'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Suggested Colors from Profile Presets */}
-              <div className="mt-4">
-                <h4 className="text-xs font-medium text-gray-600 mb-2">Suggested Colors</h4>
-                <div className="flex flex-wrap gap-2">
-                  {(() => {
-                    // Import profile presets to get suggested colors
-                    const { profilePresets } = require('@/lib/profile-presets')
-                    const suggestedColors = [
-                      '#1f2937', // Default dark
-                      '#ffffff', // White
-                      '#000000', // Black
-                      '#00ff41', // Cyberpunk green
-                      '#8b5cf6', // Purple
-                      '#ff1493', // Pink
-                      '#3b82f6', // Blue
-                      '#ffd700', // Gold
-                      '#10b981', // Green
-                      '#f97316', // Orange
-                      '#dc2626', // Red
-                      '#06b6d4', // Cyan
-                    ]
-                    
-                    return suggestedColors.map((color, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setSelectedColor(color)}
-                        className={`w-8 h-8 rounded border-2 transition-all duration-200 ${
-                          selectedColor === color 
-                            ? 'border-blue-500 ring-2 ring-blue-200' 
-                            : 'border-gray-300 hover:border-gray-400'
-                        }`}
-                        style={{ backgroundColor: color }}
-                        title={color}
-                      />
-                    ))
-                  })()}
-                </div>
-              </div>
-            </div>
 
             {/* Font Presets */}
             <h3 className="text-sm font-medium text-gray-700 mb-3">Font Styles</h3>
@@ -169,7 +94,7 @@ export function TitleFontSelector({
                           fontFamily: preset.fontFamily,
                           fontSize: '12px',
                           fontWeight: preset.fontWeight,
-                          color: selectedColor,
+                          color: '#1f2937',
                           letterSpacing: preset.letterSpacing,
                           textAlign: 'center'
                         }}

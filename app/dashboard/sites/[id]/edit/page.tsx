@@ -73,7 +73,6 @@ export default function EditSitePage({ params }: PageProps) {
   
   // Title font preset state
   const [titleStylePresetId, setTitleStylePresetId] = useState<string>(defaultTitleFontPresetId)
-  const [titleColor, setTitleColor] = useState<string>('#1f2937')
   
   // Profile preset state
   const [profilePresetId, setProfilePresetId] = useState<string>(defaultProfilePresetId)
@@ -175,16 +174,6 @@ export default function EditSitePage({ params }: PageProps) {
         }
       }
 
-      // Load title color from database first, then localStorage
-      if (page.title_color) {
-        setTitleColor(page.title_color)
-        localStorage.setItem(`title-color-${siteId}`, page.title_color)
-      } else {
-        const savedTitleColor = localStorage.getItem(`title-color-${siteId}`)
-        if (savedTitleColor) {
-          setTitleColor(savedTitleColor)
-        }
-      }
 
       // Load avatar URL from database first, then localStorage as fallback
       if (page.avatar_url) {
@@ -259,7 +248,6 @@ export default function EditSitePage({ params }: PageProps) {
           avatar_url: avatarUrl,
           profile_preset_id: profilePresetId,
           title_font_preset_id: titleStylePresetId,
-          title_color: titleColor,
           updated_at: new Date().toISOString()
         })
         .eq('id', siteId)
@@ -396,31 +384,30 @@ export default function EditSitePage({ params }: PageProps) {
     }
   }
   
-  const handleTitleStyleSave = async (presetId: string, color: string) => {
+  const handleTitleStyleSave = async (presetId: string) => {
     // Save to state and localStorage for immediate preview
     setTitleStylePresetId(presetId)
-    setTitleColor(color)
     
     if (siteId) {
       localStorage.setItem(`title-font-preset-${siteId}`, presetId)
-      localStorage.setItem(`title-color-${siteId}`, color)
       
       // Save to database
-      try {
-        const { error } = await supabase
-          .from('pages')
-          .update({ 
-            title_font_preset_id: presetId,
-            title_color: color 
-          })
-          .eq('id', siteId)
-          .eq('owner_id', user?.id)
+      if (user?.id) {
+        try {
+          const { error } = await (supabase as any)
+            .from('pages')
+            .update({ 
+              title_font_preset_id: presetId
+            })
+            .eq('id', siteId)
+            .eq('owner_id', user.id)
         
-        if (error) {
-          console.error('Failed to save title style to database:', error)
+          if (error) {
+            console.error('Failed to save title style to database:', error)
+          }
+        } catch (err) {
+          console.error('Error saving title style:', err)
         }
-      } catch (err) {
-        console.error('Error saving title style:', err)
       }
     }
   }
@@ -433,18 +420,20 @@ export default function EditSitePage({ params }: PageProps) {
       localStorage.setItem(`profile-preset-${siteId}`, presetId)
       
       // Save to database
-      try {
-        const { error } = await supabase
-          .from('pages')
-          .update({ profile_preset_id: presetId })
-          .eq('id', siteId)
-          .eq('owner_id', user?.id)
+      if (user?.id) {
+        try {
+          const { error } = await (supabase as any)
+            .from('pages')
+            .update({ profile_preset_id: presetId })
+            .eq('id', siteId)
+            .eq('owner_id', user.id)
         
-        if (error) {
-          console.error('Failed to save profile preset to database:', error)
+          if (error) {
+            console.error('Failed to save profile preset to database:', error)
+          }
+        } catch (err) {
+          console.error('Error saving profile preset:', err)
         }
-      } catch (err) {
-        console.error('Error saving profile preset:', err)
       }
     }
   }
@@ -746,7 +735,7 @@ export default function EditSitePage({ params }: PageProps) {
                         fontFamily: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontFamily || 'Helvetica',
                         fontSize: '10px',
                         fontWeight: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontWeight || '600',
-                        color: titleColor,
+                        color: '#1f2937',
                         letterSpacing: titleFontPresets.find(p => p.id === titleStylePresetId)?.letterSpacing || '-0.02em'
                       }}
                     >
@@ -896,7 +885,6 @@ export default function EditSitePage({ params }: PageProps) {
             siteId={siteId}
             currentPresetId={titleStylePresetId}
             currentTitle={formData.title}
-            currentColor={titleColor}
             onSave={handleTitleStyleSave}
             onClose={() => setTitleFontSelectorOpen(false)}
           />
