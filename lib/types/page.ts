@@ -20,8 +20,6 @@ export interface PageConfig {
   slug: string  // For analytics tracking
   siteSlug: string
   title: string
-  brandColor: string
-  accentColor?: string
   targetUrl: string
   meta?: PageMeta
   isEnabled: boolean

@@ -53,8 +53,6 @@ export default function EditSitePage({ params }: PageProps) {
     title: '',
     site_slug: '',
     target_url: '',
-    brand_color: '#3B82F6',
-    accent_color: '#EFF6FF',
     is_enabled: true,
     description: ''
   })
@@ -133,8 +131,6 @@ export default function EditSitePage({ params }: PageProps) {
         title: page.title,
         site_slug: page.site_slug,
         target_url: decodedTargetUrl,
-        brand_color: page.brand_color,
-        accent_color: page.accent_color || '#EFF6FF',
         is_enabled: page.is_enabled,
         description: page.meta?.description || ''
       })
@@ -242,8 +238,6 @@ export default function EditSitePage({ params }: PageProps) {
           title: formData.title,
           site_slug: formData.site_slug,
           target_url: formattedTargetUrl,
-          brand_color: formData.brand_color,
-          accent_color: formData.accent_color,
           is_enabled: formData.is_enabled,
           meta: { description: formData.description },
           avatar_url: avatarUrl,
@@ -548,46 +542,6 @@ export default function EditSitePage({ params }: PageProps) {
                 </div>
               </div>
               
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="brand_color">Brand Color</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="brand_color"
-                      type="color"
-                      value={formData.brand_color}
-                      onChange={(e) => setFormData({ ...formData, brand_color: e.target.value })}
-                      className="w-16 h-10 p-1"
-                    />
-                    <Input
-                      value={formData.brand_color}
-                      onChange={(e) => setFormData({ ...formData, brand_color: e.target.value })}
-                      placeholder="#3B82F6"
-                      pattern="#[0-9A-Fa-f]{6}"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="accent_color">Accent Color</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="accent_color"
-                      type="color"
-                      value={formData.accent_color}
-                      onChange={(e) => setFormData({ ...formData, accent_color: e.target.value })}
-                      className="w-16 h-10 p-1"
-                    />
-                    <Input
-                      value={formData.accent_color}
-                      onChange={(e) => setFormData({ ...formData, accent_color: e.target.value })}
-                      placeholder="#EFF6FF"
-                      pattern="#[0-9A-Fa-f]{6}"
-                    />
-                  </div>
-                </div>
-              </div>
               
               
               <div className="flex items-center justify-between">

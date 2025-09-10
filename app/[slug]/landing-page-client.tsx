@@ -212,12 +212,12 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
       }
     }
   } else {
-    // Default background with brand colors
+    // Default background with neutral colors
     backgroundStyle = {
       background: `
-        radial-gradient(ellipse 1200px 800px at 50% -20%, ${config.brandColor}08 0%, transparent 40%),
-        radial-gradient(circle 800px at 100% 100%, ${config.accentColor || '#ffffff'}90 0%, transparent 50%),
-        linear-gradient(180deg, ${config.accentColor || '#ffffff'} 0%, ${config.accentColor || '#ffffff'}95 50%, ${config.brandColor}03 100%)
+        radial-gradient(ellipse 1200px 800px at 50% -20%, #3B82F608 0%, transparent 40%),
+        radial-gradient(circle 800px at 100% 100%, #ffffff90 0%, transparent 50%),
+        linear-gradient(180deg, #ffffff 0%, #ffffff95 50%, #3B82F603 100%)
       `
     }
   }
@@ -452,7 +452,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             <motion.div 
               className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full"
               style={{ 
-                background: `radial-gradient(circle, ${config.brandColor}08 0%, transparent 50%)`,
+                background: `radial-gradient(circle, #3B82F608 0%, transparent 50%)`,
                 filter: 'blur(40px)'
               }}
               animate={{
@@ -468,7 +468,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             <motion.div 
               className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full"
               style={{ 
-                background: `radial-gradient(circle, ${config.brandColor}12 0%, transparent 60%)`,
+                background: `radial-gradient(circle, #3B82F612 0%, transparent 60%)`,
                 filter: 'blur(60px)',
                 opacity: 0.4
               }}
@@ -488,9 +488,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
               className="absolute inset-0"
               style={{
                 background: `
-                  radial-gradient(at 20% 80%, ${config.brandColor}06 0%, transparent 50%),
-                  radial-gradient(at 80% 20%, ${config.accentColor || '#ffffff'}05 0%, transparent 50%),
-                  radial-gradient(at 40% 40%, ${config.brandColor}04 0%, transparent 50%)
+                  radial-gradient(at 20% 80%, #3B82F606 0%, transparent 50%),
+                  radial-gradient(at 80% 20%, #ffffff05 0%, transparent 50%),
+                  radial-gradient(at 40% 40%, #3B82F604 0%, transparent 50%)
                 `,
                 filter: 'blur(100px) saturate(150%)'
               }}

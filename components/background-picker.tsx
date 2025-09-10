@@ -164,6 +164,14 @@ export function BackgroundPicker({
                     <div className="absolute bottom-0 left-0 right-0 p-3 text-left">
                       <h3 className="text-sm font-medium text-white">{preset.name}</h3>
                       <p className="text-xs text-white/80 mt-0.5">{preset.description}</p>
+                      {preset.controls && preset.controls.filter(c => c.type === 'color').length > 0 && (
+                        <div className="mt-1 flex items-center gap-1">
+                          <span className="text-xs text-white/90">🎨</span>
+                          <span className="text-xs text-white/90">
+                            {preset.controls.filter(c => c.type === 'color').length} color{preset.controls.filter(c => c.type === 'color').length > 1 ? 's' : ''}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     {selectedPreset?.id === preset.id && (
                       <div className="absolute top-2 right-2 p-1.5 bg-purple-500 rounded-full">
@@ -199,22 +207,40 @@ export function BackgroundPicker({
                     <p className="text-xs text-gray-500">
                       {selectedPreset.description}
                     </p>
+                    {selectedPreset.controls && selectedPreset.controls.filter(c => c.type === 'color').length > 0 && (
+                      <div className="mt-2 p-2 bg-purple-50 rounded-lg border border-purple-200">
+                        <p className="text-xs text-purple-700 font-medium">
+                          🎨 This preset has {selectedPreset.controls.filter(c => c.type === 'color').length} customizable color{selectedPreset.controls.filter(c => c.type === 'color').length > 1 ? 's' : ''}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {selectedPreset.controls && selectedPreset.controls.length > 0 && (
                     <div className="space-y-4">
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-purple-600 font-medium">
                         <Sparkles className="w-3 h-3" />
                         <span>Customize Colors & Settings</span>
                       </div>
                       {/* Color Controls */}
                       {selectedPreset.controls.filter(c => c.type === 'color').length > 0 && (
                         <div className="space-y-3">
-                          <div className="text-xs font-medium text-gray-600 uppercase tracking-wide">
-                            Colors
+                          <div className="flex items-center justify-between">
+                            <div className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                              Colors
+                            </div>
+                            <div className="text-xs text-purple-600 font-medium">
+                              {selectedPreset.controls.filter(c => c.type === 'color').length} color{selectedPreset.controls.filter(c => c.type === 'color').length > 1 ? 's' : ''}
+                            </div>
                           </div>
-                          {selectedPreset.controls.filter(c => c.type === 'color').map((control) => (
-                            <div key={control.id} className="space-y-2">
+                          {selectedPreset.controls.filter(c => c.type === 'color').map((control, index) => (
+                            <motion.div 
+                              key={control.id} 
+                              className="space-y-2"
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                            >
                               <label className="text-xs font-medium text-gray-700">
                                 {control.label}
                               </label>
@@ -224,7 +250,7 @@ export function BackgroundPicker({
                                     type="color"
                                     value={controlValues[control.id] as string || control.value}
                                     onChange={(e) => handleControlChange(control.id, e.target.value)}
-                                    className="w-12 h-12 rounded-lg border-2 border-gray-200 cursor-pointer hover:border-purple-300 transition-colors"
+                                    className="w-12 h-12 rounded-lg border-2 border-gray-200 cursor-pointer hover:border-purple-300 transition-colors shadow-sm"
                                   />
                                   <input
                                     type="text"
@@ -236,11 +262,11 @@ export function BackgroundPicker({
                                 </div>
                                 {/* Color preview */}
                                 <div 
-                                  className="w-full h-6 rounded-lg border border-gray-200"
-                                  style={{ backgroundColor: controlValues[control.id] as string || control.value }}
+                                  className="w-full h-6 rounded-lg border border-gray-200 shadow-sm"
+                                  style={{ backgroundColor: (controlValues[control.id] as string) || (control.value as string) }}
                                 />
                               </div>
-                            </div>
+                            </motion.div>
                           ))}
                         </div>
                       )}

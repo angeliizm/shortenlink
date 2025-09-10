@@ -56,8 +56,6 @@ function transformPageData(data: any, bgPrefs?: any, titlePrefs?: any): PageConf
     slug: data.site_slug,  // Added for analytics tracking
     siteSlug: data.site_slug,
     title: data.title,
-    brandColor: data.brand_color,
-    accentColor: data.accent_color,
     targetUrl: data.target_url,
     meta: data.meta,
     isEnabled: data.is_enabled,
