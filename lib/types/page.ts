@@ -28,6 +28,9 @@ export interface PageConfig {
   customDomain?: string
   userId?: string
   avatarUrl?: string
+  profilePresetId?: string
+  titleFontPresetId?: string
+  titleColor?: string
   backgroundPreference?: {
     presetId: string
     controlValues: Record<string, string | number>

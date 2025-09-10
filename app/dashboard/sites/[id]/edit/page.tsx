@@ -164,18 +164,26 @@ export default function EditSitePage({ params }: PageProps) {
         setBackgroundPreferences({ [siteId]: bgPrefs })
       }
 
-      // Load title font preset from localStorage
-      const savedTitlePreset = localStorage.getItem(`title-font-preset-${siteId}`)
-      if (savedTitlePreset && titleFontPresets.find(p => p.id === savedTitlePreset)) {
-        setTitleStylePresetId(savedTitlePreset)
+      // Load title font preset from database first, then localStorage
+      if (page.title_font_preset_id) {
+        setTitleStylePresetId(page.title_font_preset_id)
+        localStorage.setItem(`title-font-preset-${siteId}`, page.title_font_preset_id)
+      } else {
+        const savedTitlePreset = localStorage.getItem(`title-font-preset-${siteId}`)
+        if (savedTitlePreset && titleFontPresets.find(p => p.id === savedTitlePreset)) {
+          setTitleStylePresetId(savedTitlePreset)
+        }
       }
 
-      // Load title color from localStorage
-      const savedTitleColor = localStorage.getItem(`title-color-${siteId}`)
-      if (savedTitleColor) {
-        setTitleColor(savedTitleColor)
+      // Load title color from database first, then localStorage
+      if (page.title_color) {
+        setTitleColor(page.title_color)
+        localStorage.setItem(`title-color-${siteId}`, page.title_color)
       } else {
-        setTitleStylePresetId(defaultTitleFontPresetId)
+        const savedTitleColor = localStorage.getItem(`title-color-${siteId}`)
+        if (savedTitleColor) {
+          setTitleColor(savedTitleColor)
+        }
       }
 
       // Load avatar URL from database first, then localStorage as fallback
@@ -190,12 +198,17 @@ export default function EditSitePage({ params }: PageProps) {
         }
       }
       
-      // Load profile preset from localStorage
-      const savedProfilePreset = localStorage.getItem(`profile-preset-${siteId}`)
-      if (savedProfilePreset && profilePresets.find(p => p.id === savedProfilePreset)) {
-        setProfilePresetId(savedProfilePreset)
+      // Load profile preset from database first, then localStorage
+      if (page.profile_preset_id) {
+        setProfilePresetId(page.profile_preset_id)
+        localStorage.setItem(`profile-preset-${siteId}`, page.profile_preset_id)
       } else {
-        setProfilePresetId(defaultProfilePresetId)
+        const savedProfilePreset = localStorage.getItem(`profile-preset-${siteId}`)
+        if (savedProfilePreset && profilePresets.find(p => p.id === savedProfilePreset)) {
+          setProfilePresetId(savedProfilePreset)
+        } else {
+          setProfilePresetId(defaultProfilePresetId)
+        }
       }
     } catch (err) {
       setError('Failed to load site data')
@@ -244,6 +257,9 @@ export default function EditSitePage({ params }: PageProps) {
           is_enabled: formData.is_enabled,
           meta: { description: formData.description },
           avatar_url: avatarUrl,
+          profile_preset_id: profilePresetId,
+          title_font_preset_id: titleStylePresetId,
+          title_color: titleColor,
           updated_at: new Date().toISOString()
         })
         .eq('id', siteId)
@@ -381,24 +397,55 @@ export default function EditSitePage({ params }: PageProps) {
   }
   
   const handleTitleStyleSave = async (presetId: string, color: string) => {
-    // Save to localStorage for immediate preview
+    // Save to state and localStorage for immediate preview
     setTitleStylePresetId(presetId)
     setTitleColor(color)
     
     if (siteId) {
       localStorage.setItem(`title-font-preset-${siteId}`, presetId)
       localStorage.setItem(`title-color-${siteId}`, color)
+      
+      // Save to database
+      try {
+        const { error } = await supabase
+          .from('pages')
+          .update({ 
+            title_font_preset_id: presetId,
+            title_color: color 
+          })
+          .eq('id', siteId)
+          .eq('owner_id', user?.id)
+        
+        if (error) {
+          console.error('Failed to save title style to database:', error)
+        }
+      } catch (err) {
+        console.error('Error saving title style:', err)
+      }
     }
   }
 
   const handleProfileStyleSave = async (presetId: string) => {
-    // Temporarily disable saving to database due to API issues
-    // Just update the UI state and localStorage for now
+    // Save to state and localStorage for immediate preview
     setProfilePresetId(presetId)
     
-    // Save to localStorage for immediate preview
     if (siteId) {
       localStorage.setItem(`profile-preset-${siteId}`, presetId)
+      
+      // Save to database
+      try {
+        const { error } = await supabase
+          .from('pages')
+          .update({ profile_preset_id: presetId })
+          .eq('id', siteId)
+          .eq('owner_id', user?.id)
+        
+        if (error) {
+          console.error('Failed to save profile preset to database:', error)
+        }
+      } catch (err) {
+        console.error('Error saving profile preset:', err)
+      }
     }
   }
 

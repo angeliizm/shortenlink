@@ -30,10 +30,11 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
     controls: Record<string, string | number>
   } | null>(null)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
-  const [profilePresetId, setProfilePresetId] = useState<string>(defaultProfilePresetId)
-  const [titleFontPresetId, setTitleFontPresetId] = useState<string>(defaultTitleFontPresetId)
-  const [titleColor, setTitleColor] = useState<string>('#1f2937')
-  const [avatarUrl, setAvatarUrl] = useState<string>(config.avatarUrl || '')
+  // Initialize from config first, then localStorage will override if needed
+  const [profilePresetId, setProfilePresetId] = useState<string>(config.profilePresetId || defaultProfilePresetId)
+  const [titleFontPresetId, setTitleFontPresetId] = useState<string>(config.titleFontPresetId || defaultTitleFontPresetId)
+  const [titleColor, setTitleColor] = useState<string>(config.titleColor || '#1f2937')
+  const [avatarUrl, setAvatarUrl] = useState<string>('')
   
   // Listen for preset changes from edit page (if same site)
   useEffect(() => {
@@ -103,33 +104,52 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [config.slug, config.backgroundPreference, config.titleStylePreference, titleStylePreset, trackPageView])
 
-  // Load presets from localStorage (temporary solution)
+  // Load preferences: database values take priority, then localStorage, then defaults
   useEffect(() => {
     if (config.id) {
-      const savedProfilePreset = localStorage.getItem(`profile-preset-${config.id}`)
-      if (savedProfilePreset && getProfilePresetById(savedProfilePreset)) {
-        setProfilePresetId(savedProfilePreset)
+      // Profile preset: check database first via config
+      if (config.profilePresetId) {
+        setProfilePresetId(config.profilePresetId)
+      } else {
+        const savedProfilePreset = localStorage.getItem(`profile-preset-${config.id}`)
+        if (savedProfilePreset && getProfilePresetById(savedProfilePreset)) {
+          setProfilePresetId(savedProfilePreset)
+        }
       }
       
-      const savedTitleFontPreset = localStorage.getItem(`title-font-preset-${config.id}`)
-      if (savedTitleFontPreset && getTitleFontPresetById(savedTitleFontPreset)) {
-        setTitleFontPresetId(savedTitleFontPreset)
+      // Title font preset: check database first via config
+      if (config.titleFontPresetId) {
+        setTitleFontPresetId(config.titleFontPresetId)
+      } else {
+        const savedTitleFontPreset = localStorage.getItem(`title-font-preset-${config.id}`)
+        if (savedTitleFontPreset && getTitleFontPresetById(savedTitleFontPreset)) {
+          setTitleFontPresetId(savedTitleFontPreset)
+        }
       }
 
-      const savedTitleColor = localStorage.getItem(`title-color-${config.id}`)
-      if (savedTitleColor) {
-        setTitleColor(savedTitleColor)
+      // Title color: check database first via config
+      if (config.titleColor) {
+        setTitleColor(config.titleColor)
+      } else {
+        const savedTitleColor = localStorage.getItem(`title-color-${config.id}`)
+        if (savedTitleColor) {
+          setTitleColor(savedTitleColor)
+        }
       }
 
-      const savedAvatarUrl = localStorage.getItem(`avatar-url-${config.id}`)
-      if (savedAvatarUrl) {
-        setAvatarUrl(savedAvatarUrl)
-      } else if (config.avatarUrl) {
-        // Fallback to config avatarUrl if localStorage doesn't have it
+      // Avatar URL: database takes priority
+      if (config.avatarUrl) {
         setAvatarUrl(config.avatarUrl)
+        // Sync to localStorage for offline access
+        localStorage.setItem(`avatar-url-${config.id}`, config.avatarUrl)
+      } else {
+        const savedAvatarUrl = localStorage.getItem(`avatar-url-${config.id}`)
+        if (savedAvatarUrl) {
+          setAvatarUrl(savedAvatarUrl)
+        }
       }
     }
-  }, [config.id])
+  }, [config.id, config.avatarUrl, config.profilePresetId, config.titleFontPresetId, config.titleColor])
 
 
   const handleSaveBackground = async (presetId: string, controls: Record<string, string | number>) => {

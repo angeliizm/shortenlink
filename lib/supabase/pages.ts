@@ -65,6 +65,9 @@ function transformPageData(data: any, bgPrefs?: any, titlePrefs?: any): PageConf
     customDomain: data.custom_domain,
     userId: data.user_id,
     avatarUrl: data.avatar_url,
+    profilePresetId: data.profile_preset_id,
+    titleFontPresetId: data.title_font_preset_id,
+    titleColor: data.title_color,
     backgroundPreference: bgPrefs ? {
       presetId: bgPrefs.preset_id,
       controlValues: bgPrefs.control_values || {}
