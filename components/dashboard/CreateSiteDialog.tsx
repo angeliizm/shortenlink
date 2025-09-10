@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/stores/auth-store'
+import { canCreateSites } from '@/lib/auth/roles'
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ export default function CreateSiteDialog({ open, onOpenChange, onSuccess }: Crea
   const supabase = createClient()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [canCreate, setCanCreate] = useState(false)
   
   const [formData, setFormData] = useState({
     title: '',
@@ -51,9 +53,27 @@ export default function CreateSiteDialog({ open, onOpenChange, onSuccess }: Crea
   
   const [actions, setActions] = useState<Action[]>([])
 
+  useEffect(() => {
+    if (user) {
+      checkCreatePermission()
+    }
+  }, [user])
+
+  const checkCreatePermission = async () => {
+    if (user) {
+      const canCreateSite = await canCreateSites(user.id)
+      setCanCreate(canCreateSite)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (!canCreate) {
+      setError('Bu işlemi gerçekleştirmek için yeterli yetkiniz yok.')
+      return
+    }
     
     if (!user) return
     

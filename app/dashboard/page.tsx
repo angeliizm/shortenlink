@@ -4,11 +4,13 @@ import { useAuth } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shield, Sparkles, BarChart, Palette } from 'lucide-react'
+import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shield, Sparkles, BarChart, Palette, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import CreateSiteDialog from '@/components/dashboard/CreateSiteDialog'
 import DeleteSiteDialog from '@/components/dashboard/DeleteSiteDialog'
+import RoleGuard from '@/components/auth/RoleGuard'
+import { getUserRole } from '@/lib/auth/roles'
 import { formatDistanceToNow } from 'date-fns'
 
 interface Site {
@@ -33,14 +35,26 @@ export default function DashboardPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Site | null>(null)
   const [stats, setStats] = useState({ totalSites: 0, activeSites: 0 })
+  const [userRole, setUserRole] = useState<string>('')
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/')
     } else if (isAuthenticated && user) {
       fetchSites()
+      fetchUserRole()
     }
   }, [isLoading, isAuthenticated, router, user])
+
+  const fetchUserRole = async () => {
+    if (!user) return
+    try {
+      const role = await getUserRole(user.id)
+      setUserRole(role)
+    } catch (error) {
+      console.error('Error fetching user role:', error)
+    }
+  }
 
   const fetchSites = async () => {
     if (!user) return
@@ -103,7 +117,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100">
+    <RoleGuard requireDashboardAccess={true}>
+      <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100">
       {/* Navigation */}
       <nav className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -117,6 +132,20 @@ export default function DashboardPage() {
               <span className="text-sm text-gray-600">
                 {user?.email}
               </span>
+              
+              {/* Admin Panel Link - Sadece admin kullanıcılar için */}
+              {userRole === 'admin' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push('/admin')}
+                  className="flex items-center space-x-2 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                >
+                  <Settings className="h-4 w-4" />
+                  <span>Admin Panel</span>
+                </Button>
+              )}
+              
               <button
                 onClick={logout}
                 className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
@@ -315,6 +344,7 @@ export default function DashboardPage() {
         onConfirm={handleDeleteSite}
       />
       
-    </div>
+      </div>
+    </RoleGuard>
   )
 }
