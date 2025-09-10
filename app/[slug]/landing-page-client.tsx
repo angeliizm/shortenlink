@@ -9,7 +9,7 @@ import { getTitleFontPresetById, defaultTitleFontPresetId } from '@/lib/title-fo
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { BackgroundPicker } from '@/components/background-picker'
 import { backgroundPresets, applyPresetControls, type BackgroundPreset } from '@/lib/background-presets'
-import { titleStylePresets, getTitleStyles, getDescriptionStyles, getAccentElement } from '@/lib/title-style-presets'
+import { titleStylePresets, getTitleStyles, getDescriptionStyles, getAccentElement, type TitleStylePreset } from '@/lib/title-style-presets'
 import { Palette, Sparkles, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -295,6 +295,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             border-dashoffset: 18px;
           }
         }
+        
+        /* Responsive font sizes will be added dynamically */
+        
         ${animationCSS || ''}
         ${animationClass ? `.${animationClass} {
           animation-name: ${activeBackground.preset?.animation};
@@ -407,7 +410,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
       {/* Profile Card - Dynamic Preset Design */}
       {(() => {
         const profilePreset = getProfilePresetById(profilePresetId) || getProfilePresetById(defaultProfilePresetId)!
+        const titleStylePreset = titleStylePresets.find(p => p.id === titleFontPresetId) || titleStylePresets.find(p => p.id === defaultTitleFontPresetId)!
         const styles = profilePreset.styles
+        const titleStyles = titleStylePreset.styles
         
         // Create styles for the container
         const containerStyles = {
@@ -419,15 +424,35 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         }
         
         return (
-          <motion.div 
-            className="relative z-10 w-full max-w-md mx-auto mb-8"
-            style={{
-              margin: '0 auto 30px auto'
-            }}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
-          >
+          <>
+            <style jsx>{`
+              .responsive-title {
+                font-size: ${titleStyles.titleFontSize} !important;
+              }
+              
+              .responsive-description {
+                font-size: ${titleStyles.descriptionFontSize} !important;
+              }
+              
+              @media (max-width: 768px) {
+                .responsive-title {
+                  font-size: ${titleStyles.titleFontSizeMobile} !important;
+                }
+                
+                .responsive-description {
+                  font-size: ${titleStyles.descriptionFontSizeMobile} !important;
+                }
+              }
+            `}</style>
+            <motion.div 
+              className="relative z-10 w-full max-w-md mx-auto mb-8"
+              style={{
+                margin: '0 auto 30px auto'
+              }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+            >
             <div className="relative">
               {/* Profile Card Container */}
               <div 
@@ -485,17 +510,18 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
 
                 {/* Name/Title */}
                 {(() => {
-                  const titleFontPreset = getTitleFontPresetById(titleFontPresetId) || getTitleFontPresetById(defaultTitleFontPresetId)!
-                  
                   return (
                      <motion.h1 
+                       className="responsive-title"
                        style={{ 
-                         fontSize: styles.titleFontSize,
-                         fontWeight: titleFontPreset.fontWeight,
+                         fontSize: titleStyles.titleFontSize,
+                         fontWeight: titleStyles.titleFontWeight,
                          color: titleColor,
                          margin: styles.titleMargin,
-                         letterSpacing: titleFontPreset.letterSpacing,
-                         fontFamily: titleFontPreset.fontFamily
+                         letterSpacing: titleStyles.titleLetterSpacing,
+                         fontFamily: titleStyles.titleFontFamily,
+                         lineHeight: titleStyles.titleLineHeight,
+                         textAlign: titleStyles.textAlign
                        }}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -509,12 +535,17 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                 {/* Description */}
                 {config.meta?.description && (
                   <motion.p 
+                    className="responsive-description"
                     style={{ 
-                      fontSize: styles.descriptionFontSize,
-                      color: styles.descriptionColor,
+                      fontSize: titleStyles.descriptionFontSize,
+                      color: titleStyles.descriptionColor,
                       margin: styles.descriptionMargin,
-                      lineHeight: styles.descriptionLineHeight,
-                      fontFamily: 'Helvetica, Arial, sans-serif'
+                      lineHeight: titleStyles.descriptionLineHeight,
+                      fontFamily: titleStyles.descriptionFontFamily || 'Helvetica, Arial, sans-serif',
+                      fontWeight: titleStyles.descriptionFontWeight,
+                      letterSpacing: titleStyles.descriptionLetterSpacing,
+                      textAlign: titleStyles.textAlign,
+                      maxWidth: titleStyles.descriptionMaxWidth
                     }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -548,6 +579,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
               </div>
             </div>
           </motion.div>
+          </>
         )
       })()}
 
