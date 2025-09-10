@@ -281,7 +281,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           }
           
           .content-container {
-            padding: 16px 20px 0 20px !important;
+            padding: 0 20px !important;
           }
           
           .action-button {
@@ -314,7 +314,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           }
           
           .content-container {
-            padding: 12px 16px 0 16px !important;
+            padding: 0 16px !important;
           }
           
           .action-button {
@@ -382,8 +382,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
+          paddingTop: '30px'
         }}
       >
         {/* Enhanced background elements */}
@@ -481,10 +481,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         
         return (
           <motion.div 
-            className="relative z-10 w-full mx-auto mb-6"
+            className="relative z-10 w-full max-w-md mx-auto mb-8"
             style={{
-              maxWidth: '100%',
-              margin: '0 auto 1.5rem auto'
+              margin: '0 auto 30px auto'
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -603,7 +602,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
 
       {/* Enhanced Main Content Container */}
       <motion.div 
-        className="relative z-10 w-full max-w-md mx-auto content-container pt-4 px-4"
+        className="relative z-10 w-full max-w-md mx-auto content-container px-4"
         style={{
           textAlign: titleStylePreset.styles.textAlign,
         }}
@@ -706,7 +705,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         {/* Enhanced Action Buttons Container */}
         {sortedActions.length > 0 && (
           <motion.div 
-            className="w-full mx-auto mt-6"
+            className="w-full mx-auto"
             style={{
               display: 'flex',
               flexDirection: 'column',
