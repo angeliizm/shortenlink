@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { PageConfig } from '@/lib/types/page'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { getPresetById, defaultPresetId } from '@/lib/button-presets'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { BackgroundPicker } from '@/components/background-picker'
 import { backgroundPresets, applyPresetControls, type BackgroundPreset } from '@/lib/background-presets'
 import { titleStylePresets, getTitleStyles, getDescriptionStyles, getAccentElement } from '@/lib/title-style-presets'
-import { Palette } from 'lucide-react'
+import { Palette, Sparkles, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface LandingPageClientProps {
@@ -150,16 +150,66 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   return (
     <>
       <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        * {
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+        
         @media (max-width: 768px) {
           .title-styled {
             font-size: ${titleStylePreset.styles.titleFontSizeMobile} !important;
+            line-height: 1.2 !important;
           }
           .description-styled {
             font-size: ${titleStylePreset.styles.descriptionFontSizeMobile} !important;
+            line-height: 1.6 !important;
           }
           .content-container {
             padding: ${titleStylePreset.styles.containerPaddingMobile} !important;
           }
+          .action-button {
+            font-size: 16px !important;
+            padding: 16px 24px !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .title-styled {
+            font-size: calc(${titleStylePreset.styles.titleFontSizeMobile} * 0.9) !important;
+          }
+          .description-styled {
+            font-size: calc(${titleStylePreset.styles.descriptionFontSizeMobile} * 0.95) !important;
+          }
+        }
+        
+        .glass-effect {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .button-shine {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .button-shine::before {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          right: -2px;
+          bottom: -2px;
+          background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+          transform: translateX(-100%);
+          transition: transform 0.6s;
+        }
+        
+        .button-shine:hover::before {
+          transform: translateX(100%);
         }
         ${animationCSS || ''}
         ${animationClass ? `.${animationClass} {
@@ -173,117 +223,191 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         className={`min-h-screen relative overflow-hidden ${animationClass}`} 
         style={{
           ...backgroundStyle,
-          transition: 'background 0.3s ease-in-out, background-color 0.3s ease-in-out'
+          transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center'
         }}
       >
-        {/* Premium background elements - only show if using default background */}
+        {/* Enhanced background elements */}
         {!activeBackground.preset && (
           <div className="absolute inset-0 pointer-events-none">
-            {/* Soft gradient rings */}
-            <div 
+            {/* Animated gradient orbs */}
+            <motion.div 
               className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full"
               style={{ 
-                background: `radial-gradient(circle, ${config.brandColor}06 0%, transparent 50%)`,
+                background: `radial-gradient(circle, ${config.brandColor}08 0%, transparent 50%)`,
                 filter: 'blur(40px)'
               }}
-            />
-            <div 
-              className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full opacity-30"
-              style={{ 
-                background: `radial-gradient(circle, ${config.brandColor}10 0%, transparent 60%)`,
-                filter: 'blur(60px)'
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.5, 0.8, 0.5]
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut"
               }}
             />
-            {/* Subtle grid pattern */}
+            <motion.div 
+              className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full"
+              style={{ 
+                background: `radial-gradient(circle, ${config.brandColor}12 0%, transparent 60%)`,
+                filter: 'blur(60px)',
+                opacity: 0.4
+              }}
+              animate={{
+                scale: [1, 1.1, 1],
+                x: [0, 30, 0],
+                y: [0, -20, 0]
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+            {/* Modern mesh gradient */}
             <div 
-              className="absolute inset-0 opacity-[0.02]"
+              className="absolute inset-0"
               style={{
-                backgroundImage: `
-                  linear-gradient(${config.brandColor} 1px, transparent 1px),
-                  linear-gradient(90deg, ${config.brandColor} 1px, transparent 1px)
+                background: `
+                  radial-gradient(at 20% 80%, ${config.brandColor}06 0%, transparent 50%),
+                  radial-gradient(at 80% 20%, ${config.accentColor || '#ffffff'}05 0%, transparent 50%),
+                  radial-gradient(at 40% 40%, ${config.brandColor}04 0%, transparent 50%)
                 `,
-                backgroundSize: '100px 100px'
+                filter: 'blur(100px) saturate(150%)'
+              }}
+            />
+            {/* Subtle noise texture */}
+            <div 
+              className="absolute inset-0 opacity-[0.015]"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                mixBlendMode: 'overlay'
               }}
             />
           </div>
         )}
 
-        {/* Background Picker Button - Only for site owners */}
+        {/* Enhanced Background Picker Button */}
         {isOwner && (
           <motion.button
             onClick={() => setShowBackgroundPicker(true)}
-            className="absolute top-4 right-4 z-20 p-3 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
+            className="fixed top-6 right-6 z-20 p-3.5 glass-effect rounded-2xl shadow-xl hover:shadow-2xl transition-all group"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, type: "spring", stiffness: 300 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Palette className="w-5 h-5 text-purple-600" />
+            <div className="relative">
+              <Palette className="w-5 h-5 text-purple-600 transition-transform group-hover:rotate-12" />
+              <Sparkles className="w-3 h-3 text-purple-400 absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
           </motion.button>
         )}
 
-      {/* Main Content */}
+      {/* Enhanced Main Content Container */}
       <motion.div 
-        className="relative z-10 w-full max-w-2xl mx-auto content-container"
+        className="relative z-10 w-full max-w-3xl mx-auto content-container px-6 sm:px-8 lg:px-12"
         style={{
           padding: titleStylePreset.styles.containerPadding,
           textAlign: titleStylePreset.styles.textAlign,
         }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ 
+          duration: 0.8, 
+          ease: [0.22, 1, 0.36, 1]
+        }}
       >
-        <div className="relative">
-          {/* Accent Element (if bracket) */}
-          {titleStylePreset.styles.accentElement === 'bracket' && getAccentElement(titleStylePreset)}
+        <div className="relative mb-8">
+          {/* Enhanced Accent Element */}
+          {titleStylePreset.styles.accentElement === 'bracket' && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {getAccentElement(titleStylePreset)}
+            </motion.div>
+          )}
           
-          {/* Title with professional styling */}
+          {/* Enhanced Title with better typography */}
           <motion.h1 
-            className="title-styled"
-            style={getTitleStyles(titleStylePreset)}
+            className="title-styled font-bold tracking-tight"
+            style={{
+              ...getTitleStyles(titleStylePreset),
+              lineHeight: '1.1',
+              letterSpacing: '-0.02em'
+            }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ 
+              duration: 0.6, 
+              delay: 0.1, 
+              ease: [0.22, 1, 0.36, 1]
+            }}
           >
             {config.title}
           </motion.h1>
           
-          {/* Accent Element (if underline or dot) */}
+          {/* Enhanced Accent Element animations */}
           {(titleStylePreset.styles.accentElement === 'underline' || 
-            titleStylePreset.styles.accentElement === 'dot') && 
-            getAccentElement(titleStylePreset)}
+            titleStylePreset.styles.accentElement === 'dot') && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0, x: '-50%' }}
+              animate={{ opacity: 1, scale: 1, x: '-50%' }}
+              transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {getAccentElement(titleStylePreset)}
+            </motion.div>
+          )}
         </div>
 
-        {/* Display text - closer to title */}
+        {/* Enhanced Display Text */}
         {displayText && (
-          <motion.p 
-            className="text-lg md:text-xl lg:text-2xl text-gray-700 text-center mt-4 mb-3 font-medium"
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-6"
           >
-            {displayText}
-          </motion.p>
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-700/90 text-center font-medium leading-relaxed">
+              {displayText}
+            </p>
+          </motion.div>
         )}
 
-        {/* Description with professional styling */}
+        {/* Enhanced Description */}
         {config.meta?.description && (
-          <motion.p 
-            className="description-styled"
-            style={getDescriptionStyles(titleStylePreset)}
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-10"
           >
-            {config.meta.description}
-          </motion.p>
+            <p 
+              className="description-styled leading-relaxed"
+              style={{
+                ...getDescriptionStyles(titleStylePreset),
+                maxWidth: '600px',
+                margin: '0 auto',
+                lineHeight: '1.7'
+              }}
+            >
+              {config.meta.description}
+            </p>
+          </motion.div>
         )}
 
-        {/* Action Buttons - Vertical Stack */}
+        {/* Enhanced Action Buttons Container */}
         {sortedActions.length > 0 && (
           <motion.div 
-            className="w-full max-w-md mx-auto mt-12 space-y-3"
+            className="w-full max-w-md mx-auto mt-10 space-y-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
@@ -309,24 +433,35 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`
-                    relative block w-full text-center font-medium
-                    transition-all duration-300 ease-out overflow-hidden
-                    py-3.5 px-6 rounded-xl
-                    hover:shadow-lg
+                    action-button relative block w-full text-center font-semibold
+                    transition-all duration-300 ease-out overflow-hidden button-shine
+                    py-4 px-7 rounded-2xl
+                    hover:shadow-xl hover:shadow-black/10
+                    transform-gpu
+                    backdrop-blur-sm
+                    group
                   `}
                   style={{
                     ...backgroundStyle,
                     color: styles.color,
                     border: styles.borderWidth ? `${styles.borderWidth} solid ${styles.borderColor || 'transparent'}` : 'none',
+                    fontSize: '17px',
+                    letterSpacing: '-0.01em',
+                    position: 'relative',
+                    isolation: 'isolate'
                   }}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ 
-                    duration: 0.4, 
-                    delay: 0.3 + index * 0.05,
+                    duration: 0.5, 
+                    delay: 0.3 + index * 0.08,
                     ease: [0.22, 1, 0.36, 1]
                   }}
-                  whileHover={{ scale: 1.01 }}
+                  whileHover={{ 
+                    scale: 1.02,
+                    y: -2,
+                    transition: { duration: 0.2 }
+                  }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     // Track action click
@@ -350,6 +485,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     if (styles.hoverBorderColor && styles.borderWidth) {
                       e.currentTarget.style.borderColor = styles.hoverBorderColor
                     }
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                    e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
                   }}
                   onMouseLeave={(e) => {
                     if (styles.backgroundColor.includes('gradient')) {
@@ -363,9 +500,20 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     if (styles.borderColor && styles.borderWidth) {
                       e.currentTarget.style.borderColor = styles.borderColor
                     }
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = 'none'
                   }}
                 >
-                  <span className="relative z-10">{action.label}</span>
+                  {/* Button content with icon */}
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    <span>{action.label}</span>
+                    <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                  </span>
+                  
+                  {/* Subtle gradient overlay */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                  </div>
                 </motion.a>
               )
             })}
@@ -374,20 +522,29 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
       </motion.div>
       </div>
 
-      {/* Background Picker Modal */}
-      {showBackgroundPicker && (
-        <BackgroundPicker
-          siteId={config.id || ''}
-          currentPresetId={currentBackground.preset?.id}
-          currentControls={currentBackground.controls}
-          onSave={handleSaveBackground}
-          onPreview={handlePreviewBackground}
-          onClose={() => {
-            setShowBackgroundPicker(false)
-            setPreviewBackground(null)
-          }}
-        />
-      )}
+      {/* Enhanced Background Picker Modal with Animation */}
+      <AnimatePresence>
+        {showBackgroundPicker && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <BackgroundPicker
+              siteId={config.id || ''}
+              currentPresetId={currentBackground.preset?.id}
+              currentControls={currentBackground.controls}
+              onSave={handleSaveBackground}
+              onPreview={handlePreviewBackground}
+              onClose={() => {
+                setShowBackgroundPicker(false)
+                setPreviewBackground(null)
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }
