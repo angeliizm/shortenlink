@@ -8,6 +8,7 @@ export interface ProfilePreset {
     containerBackground: string
     containerBorder?: string
     containerShadow: string
+    containerBackgroundSize?: string
     
     // Avatar styles
     avatarSize: string
