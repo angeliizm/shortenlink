@@ -185,6 +185,16 @@ class AnalyticsClient {
 
   private async getGeoLocation(): Promise<{ country?: string; region?: string }> {
     try {
+      // Check if we already have geo data in localStorage to avoid repeated requests
+      const cachedGeo = localStorage.getItem('analytics_geo_cache');
+      if (cachedGeo) {
+        const { data, timestamp } = JSON.parse(cachedGeo);
+        // Cache for 1 hour
+        if (Date.now() - timestamp < 3600000) {
+          return data;
+        }
+      }
+
       // Use a lightweight IP geolocation service
       // This should be replaced with your preferred service
       const response = await fetch('https://ipapi.co/json/', {
@@ -193,10 +203,18 @@ class AnalyticsClient {
       
       if (response.ok) {
         const data = await response.json();
-        return {
+        const geoData = {
           country: data.country_code,
           region: data.region
         };
+        
+        // Cache the result
+        localStorage.setItem('analytics_geo_cache', JSON.stringify({
+          data: geoData,
+          timestamp: Date.now()
+        }));
+        
+        return geoData;
       }
     } catch {
       // Silently fail - geo location is nice to have but not critical
@@ -215,20 +233,20 @@ class AnalyticsClient {
       eventData.is_bot = true;
     }
 
+    // Check if new visitor first
+    const isNewVisitor = !localStorage.getItem('analytics_returning_visitor');
+    if (isNewVisitor && eventData.event_type === 'page_view') {
+      localStorage.setItem('analytics_returning_visitor', 'true');
+    }
+
     // Get device info
     const deviceInfo = this.getDeviceInfo();
     
     // Get UTM params
     const utmParams = this.getUTMParams();
     
-    // Get geo location (async, don't wait)
-    const geoPromise = this.getGeoLocation();
-
-    // Check if new visitor
-    const isNewVisitor = !localStorage.getItem('analytics_returning_visitor');
-    if (isNewVisitor && eventData.event_type === 'page_view') {
-      localStorage.setItem('analytics_returning_visitor', 'true');
-    }
+    // Get geo location only for new visitors (async, don't wait)
+    const geoPromise = isNewVisitor ? this.getGeoLocation() : Promise.resolve({});
 
     // Build complete event
     const event: AnalyticsEvent = {
@@ -247,8 +265,8 @@ class AnalyticsClient {
 
     // Add geo location when available
     geoPromise.then(geo => {
-      if (geo.country) event.country = geo.country;
-      if (geo.region) event.region = geo.region;
+      if ((geo as any).country) event.country = (geo as any).country;
+      if ((geo as any).region) event.region = (geo as any).region;
     });
 
     // Add to queue

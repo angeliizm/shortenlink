@@ -99,7 +99,7 @@ export function BackgroundPicker({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden"
+          className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -122,10 +122,16 @@ export function BackgroundPicker({
           </div>
 
           {/* Content */}
-          <div className="flex h-[500px]">
+          <div className="flex flex-1 min-h-0">
             {/* Presets Grid */}
             <div className="flex-1 p-6 overflow-y-auto">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div 
+                className="grid grid-cols-3 gap-4 max-h-[400px] overflow-y-auto"
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#cbd5e1 #f1f5f9'
+                }}
+              >
                 {backgroundPresets.map((preset) => (
                   <motion.button
                     key={preset.id}
@@ -146,20 +152,8 @@ export function BackgroundPicker({
                         return acc
                       }, {} as Record<string, string | number>) || {})}
                     />
-                    {preset.animation && !prefersReducedMotion && (
-                      <style jsx>{`
-                        @keyframes ${preset.id}-anim {
-                          ${preset.animationCSS?.replace(`@keyframes ${preset.animation}`, '').replace(/^\s*\{|\}\s*$/g, '')}
-                        }
-                        .${preset.id}-animated {
-                          animation: ${preset.id}-anim ${preset.controls?.find(c => c.id.includes('speed'))?.value || 15}s ease-in-out infinite;
-                        }
-                      `}</style>
-                    )}
-                    <div className={cn(
-                      "absolute inset-0",
-                      preset.animation && !prefersReducedMotion && `${preset.id}-animated`
-                    )} />
+                    {/* Animations disabled - no animation preview */}
+                    <div className="absolute inset-0" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-3 text-left">
                       <h3 className="text-sm font-medium text-white">{preset.name}</h3>
@@ -197,9 +191,9 @@ export function BackgroundPicker({
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                className="w-80 border-l border-gray-100 bg-gray-50/50"
+                className="w-80 border-l border-gray-100 bg-gray-50/50 flex flex-col"
               >
-                <div className="p-6 space-y-6 max-h-[400px] overflow-y-auto">
+                <div className="p-6 space-y-6 flex-1 overflow-y-auto max-h-[60vh]">
                   <div>
                     <h3 className="text-sm font-medium text-gray-900 mb-1">
                       {selectedPreset.name}
@@ -335,7 +329,7 @@ export function BackgroundPicker({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between p-6 border-t border-gray-100 bg-gray-50/50">
+          <div className="flex items-center justify-between p-6 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
             <button
               onClick={handleReset}
               className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"

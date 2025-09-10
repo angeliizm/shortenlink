@@ -146,6 +146,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         const savedAvatarUrl = localStorage.getItem(`avatar-url-${config.id}`)
         if (savedAvatarUrl) {
           setAvatarUrl(savedAvatarUrl)
+        } else {
+          // Clear avatar URL if no saved value
+          setAvatarUrl('')
         }
       }
     }
@@ -202,15 +205,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
 
   if (activeBackground.preset) {
     backgroundStyle = applyPresetControls(activeBackground.preset, activeBackground.controls)
-    if (activeBackground.preset.animation && !prefersReducedMotion) {
-      animationClass = `bg-animation-${activeBackground.preset.id}`
-      animationCSS = activeBackground.preset.animationCSS || ''
-      // Apply animation duration from controls
-      const speedControl = activeBackground.controls.speed || activeBackground.controls.waveSpeed || activeBackground.controls.density
-      if (speedControl) {
-        animationCSS = animationCSS.replace(/\d+s/g, `${speedControl}s`)
-      }
-    }
+    // Animations disabled - no animation class or CSS
+    animationClass = ''
+    animationCSS = ''
   } else {
     // Default background with neutral colors
     backgroundStyle = {
@@ -231,9 +228,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
            font-family: 'Helvetica', 'Arial', sans-serif;
          }
         
-        :root {
-          --mobile-scale: 1;
-        }
         
         .title-gradient {
           background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #667eea 100%);
@@ -260,130 +254,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           text-wrap: balance;
         }
         
-        /* Tablet screens (768px and below) - 85% scale */
-        @media (max-width: 768px) {
-          :root {
-            --mobile-scale: 0.85;
-          }
-          
-          .title-styled {
-            font-size: calc(${titleStylePreset.styles.titleFontSize} * 0.85) !important;
-            line-height: calc(${titleStylePreset.styles.titleLineHeight || '1.2'} * 1.05) !important;
-          }
-          
-          .description-styled {
-            font-size: calc(${titleStylePreset.styles.descriptionFontSize} * 0.85) !important;
-            line-height: calc(${titleStylePreset.styles.descriptionLineHeight || '1.6'} * 1.02) !important;
-          }
-          
-          .title-gradient {
-            font-size: calc(3rem * 0.85) !important;
-          }
-          
-          .content-container {
-            padding: 0 20px !important;
-          }
-          
-          .action-button {
-            font-size: calc(16px * 0.9) !important;
-            padding: calc(20px * 0.85) calc(32px * 0.85) !important;
-            margin: 0 auto 12px auto !important;
-            width: 100% !important;
-            max-width: 400px !important;
-          }
-          
-          .action-button.has-description {
-            padding: calc(24px * 0.85) calc(32px * 0.85) !important;
-          }
-          
-          /* Profile card mobile fixes */
-          .profile-card-container {
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            transform: none !important;
-          }
-          
-          .profile-avatar {
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            position: relative !important;
-            z-index: 10 !important;
-          }
-          
-          .profile-avatar img {
-            display: block !important;
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-            border-radius: 50% !important;
-          }
-        }
-        
-        /* Mobile screens (480px and below) - 75% scale */
-        @media (max-width: 480px) {
-          :root {
-            --mobile-scale: 0.75;
-          }
-          
-          .title-styled {
-            font-size: calc(${titleStylePreset.styles.titleFontSize} * 0.75) !important;
-            line-height: calc(${titleStylePreset.styles.titleLineHeight || '1.2'} * 1.08) !important;
-          }
-          
-          .description-styled {
-            font-size: calc(${titleStylePreset.styles.descriptionFontSize} * 0.75) !important;
-            line-height: calc(${titleStylePreset.styles.descriptionLineHeight || '1.6'} * 1.05) !important;
-          }
-          
-          .title-gradient {
-            font-size: calc(3rem * 0.75) !important;
-          }
-          
-          .content-container {
-            padding: 0 16px !important;
-          }
-          
-          .action-button {
-            font-size: max(14px, calc(16px * 0.75)) !important;
-            padding: max(14px, calc(20px * 0.75)) max(20px, calc(32px * 0.75)) !important;
-            margin: 0 auto 10px auto !important;
-            width: 100% !important;
-            max-width: 360px !important;
-          }
-          
-          .action-button.has-description {
-            padding: max(16px, calc(24px * 0.75)) max(20px, calc(32px * 0.75)) !important;
-          }
-          
-          /* Profile card mobile fixes - smaller screens */
-          .profile-card-container {
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            transform: none !important;
-            min-height: auto !important;
-          }
-          
-          .profile-avatar {
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            position: relative !important;
-            z-index: 10 !important;
-            margin: 0 auto 16px auto !important;
-          }
-          
-          .profile-avatar img {
-            display: block !important;
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-            border-radius: 50% !important;
-            visibility: visible !important;
-          }
-        }
         
         .glass-effect {
           background: rgba(255, 255, 255, 0.1);
@@ -428,7 +298,17 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         ${animationCSS || ''}
         ${animationClass ? `.${animationClass} {
           animation-name: ${activeBackground.preset?.animation};
-          animation-duration: ${activeBackground.controls.speed || activeBackground.controls.waveSpeed || 15}s;
+          animation-duration: ${activeBackground.controls.speed || 
+                              activeBackground.controls.waveSpeed || 
+                              activeBackground.controls.mistSpeed ||
+                              activeBackground.controls.glowSpeed ||
+                              activeBackground.controls.pulseSpeed ||
+                              activeBackground.controls.sparkleSpeed ||
+                              activeBackground.controls.rainSpeed ||
+                              activeBackground.controls.lightningSpeed ||
+                              activeBackground.controls.shiftSpeed ||
+                              activeBackground.controls.breathingSpeed ||
+                              15}s;
           animation-timing-function: ease-in-out;
           animation-iteration-count: infinite;
         }` : ''}
@@ -529,9 +409,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         const profilePreset = getProfilePresetById(profilePresetId) || getProfilePresetById(defaultProfilePresetId)!
         const styles = profilePreset.styles
         
-        // Create responsive styles for the container
-        const responsiveContainerStyles = {
-          padding: `clamp(24px, calc(${parseInt(styles.containerPadding)} * var(--mobile-scale, 1) * 1px), ${styles.containerPadding})`,
+        // Create styles for the container
+        const containerStyles = {
+          padding: styles.containerPadding,
           borderRadius: styles.containerBorderRadius,
           background: styles.containerBackground,
           border: styles.containerBorder,
@@ -551,15 +431,15 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             <div className="relative">
               {/* Profile Card Container */}
               <div 
-                className="relative overflow-hidden text-center w-full profile-card-container"
-                style={responsiveContainerStyles}
+                className="relative overflow-hidden text-center w-full"
+                style={containerStyles}
               >
                  {/* Profile Avatar */}
                  <motion.div 
-                   className="relative mx-auto overflow-hidden profile-avatar"
+                   className="relative mx-auto overflow-hidden"
                    style={{
-                     width: `clamp(80px, calc(${styles.avatarSize} * var(--mobile-scale, 1)), ${styles.avatarSize})`,
-                     height: `clamp(80px, calc(${styles.avatarSize} * var(--mobile-scale, 1)), ${styles.avatarSize})`,
+                     width: styles.avatarSize,
+                     height: styles.avatarSize,
                      borderRadius: styles.avatarBorderRadius,
                      border: styles.avatarBorder,
                      boxShadow: styles.avatarShadow,
@@ -610,7 +490,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   return (
                      <motion.h1 
                        style={{ 
-                         fontSize: `clamp(1.25rem, calc(${styles.titleFontSize} * var(--mobile-scale, 1)), ${styles.titleFontSize})`,
+                         fontSize: styles.titleFontSize,
                          fontWeight: titleFontPreset.fontWeight,
                          color: titleColor,
                          margin: styles.titleMargin,
@@ -630,7 +510,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                 {config.meta?.description && (
                   <motion.p 
                     style={{ 
-                      fontSize: `clamp(0.875rem, calc(${styles.descriptionFontSize} * var(--mobile-scale, 1)), ${styles.descriptionFontSize})`,
+                      fontSize: styles.descriptionFontSize,
                       color: styles.descriptionColor,
                       margin: styles.descriptionMargin,
                       lineHeight: styles.descriptionLineHeight,
@@ -650,16 +530,16 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     <div 
                       className="absolute top-4 right-4 rounded-full opacity-60" 
                       style={{ 
-                        width: `clamp(20px, calc(${styles.decorativeSize} * var(--mobile-scale, 1)), ${styles.decorativeSize})`,
-                        height: `clamp(20px, calc(${styles.decorativeSize} * var(--mobile-scale, 1)), ${styles.decorativeSize})`,
+                        width: styles.decorativeSize,
+                        height: styles.decorativeSize,
                         backgroundColor: styles.decorativeColor 
                       }} 
                     />
                     <div 
                       className="absolute bottom-4 left-4 rounded-full opacity-40" 
                       style={{ 
-                        width: `clamp(10px, calc(${parseInt(styles.decorativeSize) / 2}px * var(--mobile-scale, 1)), ${parseInt(styles.decorativeSize) / 2}px)`,
-                        height: `clamp(10px, calc(${parseInt(styles.decorativeSize) / 2}px * var(--mobile-scale, 1)), ${parseInt(styles.decorativeSize) / 2}px)`,
+                        width: `${parseInt(styles.decorativeSize) / 2}px`,
+                        height: `${parseInt(styles.decorativeSize) / 2}px`,
                         backgroundColor: styles.decorativeColor 
                       }} 
                     />
@@ -673,7 +553,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
 
       {/* Enhanced Main Content Container */}
       <motion.div 
-        className="relative z-10 w-full max-w-md mx-auto content-container px-4"
+        className="relative z-10 w-full max-w-md mx-auto px-4"
         style={{
           textAlign: titleStylePreset.styles.textAlign,
         }}
@@ -807,9 +687,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   target="_blank"
                   rel="noopener noreferrer"
                    className={`
-                     action-button relative block w-full text-center font-semibold
+                     relative block w-full text-center font-semibold
                      transition-all duration-300 ease-out overflow-visible
-                     ${action.description ? 'py-6 px-8 has-description' : 'py-5 px-8'} rounded-xl
+                     ${action.description ? 'py-6 px-8' : 'py-5 px-8'} rounded-xl
                      hover:shadow-xl hover:shadow-purple-200/30
                      transform-gpu
                      group
@@ -822,7 +702,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                      borderWidth: '0px',
                      borderStyle: 'none',
                      borderRadius: '12px',
-                     fontSize: 'clamp(14px, calc(16px * var(--mobile-scale, 1)), 16px)',
+                     fontSize: '16px',
                      letterSpacing: '-0.01em',
                      position: 'relative',
                      isolation: 'isolate',
@@ -895,8 +775,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   <span 
                     className="absolute rounded-2xl pointer-events-none dashed-border-static"
                     style={{
-                      inset: 'clamp(-4px, calc(-6px * var(--mobile-scale, 1)), -6px)',
-                      border: `clamp(1px, calc(2px * var(--mobile-scale, 1)), 2px) dashed #E5E7EB`,
+                      inset: '-6px',
+                      border: '2px dashed #E5E7EB',
                       opacity: 0.5,
                       transition: 'all 0.3s ease'
                     }}
@@ -906,8 +786,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   <span 
                     className="absolute rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100"
                     style={{
-                      inset: 'clamp(-4px, calc(-6px * var(--mobile-scale, 1)), -6px)',
-                      border: `clamp(1px, calc(2px * var(--mobile-scale, 1)), 2px) dashed #E5E7EB`,
+                      inset: '-6px',
+                      border: '2px dashed #E5E7EB',
                       animation: 'rotate-dash 8s linear infinite',
                       transition: 'opacity 0.3s ease'
                     }}

@@ -66,10 +66,32 @@ export function AvatarUploader({ siteId, currentAvatarUrl, onAvatarChange }: Ava
     }
   }
 
-  const handleRemoveAvatar = () => {
-    onAvatarChange('')
-    setUploadError(null)
-    setUploadSuccess(false)
+  const handleRemoveAvatar = async () => {
+    if (!currentAvatarUrl) return
+
+    try {
+      // Delete from Vercel Blob
+      const response = await fetch(`/api/delete-avatar?url=${encodeURIComponent(currentAvatarUrl)}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        const result = await response.json()
+        console.warn('Failed to delete avatar from blob storage:', result.error)
+        // Continue with local removal even if blob deletion fails
+      }
+
+      // Remove from local state
+      onAvatarChange('')
+      setUploadError(null)
+      setUploadSuccess(false)
+    } catch (error) {
+      console.error('Error removing avatar:', error)
+      // Still remove from local state even if blob deletion fails
+      onAvatarChange('')
+      setUploadError(null)
+      setUploadSuccess(false)
+    }
   }
 
   return (

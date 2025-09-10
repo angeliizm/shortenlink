@@ -37,7 +37,7 @@ export default function SitePermissions() {
   const [loading, setLoading] = useState(true);
   const [selectedSite, setSelectedSite] = useState<string>('');
   const [selectedUser, setSelectedUser] = useState<string>('');
-  const [selectedPermission, setSelectedPermission] = useState<'view' | 'edit' | 'analytics' | 'create'>('view');
+  const [selectedPermissions, setSelectedPermissions] = useState<('view' | 'edit' | 'analytics')[]>(['view']);
   const [expiryDate, setExpiryDate] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -154,34 +154,45 @@ export default function SitePermissions() {
     }
   };
 
-  const filteredUsers = users.filter(user => 
-    user.email.toLowerCase().includes(userSearchTerm.toLowerCase())
-  );
+  // Seçili kullanıcıları her zaman göster, arama terimi varsa filtrele
+  const filteredUsers = users.filter(user => {
+    const isSelected = selectedUser === user.id;
+    const matchesSearch = user.email.toLowerCase().includes(userSearchTerm.toLowerCase());
+    return isSelected || matchesSearch;
+  });
 
   const handleGrantPermission = async () => {
-    if (!selectedSite || !selectedUser || !selectedPermission) return;
+    if (!selectedSite || !selectedUser || selectedPermissions.length === 0) return;
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase
-        .from('site_permissions')
-        .insert({
-          user_id: selectedUser,
-          site_slug: selectedSite,
-          permission_type: selectedPermission,
-          granted_at: new Date().toISOString(),
-          expires_at: expiryDate || null,
-          is_active: true
-        } as any);
+      // Her izin türü için ayrı kayıt oluştur
+      const permissionPromises = selectedPermissions.map(permission => 
+        supabase
+          .from('site_permissions')
+          .insert({
+            user_id: selectedUser,
+            site_slug: selectedSite,
+            permission_type: permission,
+            granted_at: new Date().toISOString(),
+            expires_at: expiryDate || null,
+            is_active: true
+          } as any)
+      );
 
-      if (error) throw error;
+      const results = await Promise.all(permissionPromises);
+      
+      // Hata kontrolü
+      for (const result of results) {
+        if (result.error) throw result.error;
+      }
 
       await fetchData();
       setIsDialogOpen(false);
       setSelectedSite('');
       setSelectedUser('');
       setUserSearchTerm('');
-      setSelectedPermission('view');
+      setSelectedPermissions(['view']);
       setExpiryDate('');
     } catch (error) {
       console.error('Error granting permission:', error);
@@ -211,7 +222,6 @@ export default function SitePermissions() {
       case 'view': return 'Görüntüleme';
       case 'edit': return 'Düzenleme';
       case 'analytics': return 'Analitik';
-      case 'create': return 'Oluşturma';
       default: return type;
     }
   };
@@ -221,7 +231,6 @@ export default function SitePermissions() {
       case 'view': return 'bg-blue-100 text-blue-800';
       case 'edit': return 'bg-green-100 text-green-800';
       case 'analytics': return 'bg-purple-100 text-purple-800';
-      case 'create': return 'bg-orange-100 text-orange-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -324,40 +333,54 @@ export default function SitePermissions() {
               </div>
             </div>
 
-            {/* Permission Type */}
+            {/* Permission Types */}
             <div>
-              <Label htmlFor="permission-select" className="text-sm font-medium text-gray-700 mb-2 block">İzin Türü</Label>
-              <Select value={selectedPermission} onValueChange={(value: any) => setSelectedPermission(value)}>
-                <SelectTrigger className="h-12 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-white/95 backdrop-blur-sm border-white/20">
-                  <SelectItem value="view">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span>Görüntüleme - Sadece siteyi görüntüleyebilir</span>
+              <Label className="text-sm font-medium text-gray-700 mb-2 block">İzin Türleri</Label>
+              <div className="space-y-3">
+                {[
+                  { value: 'view', label: 'Görüntüleme', description: 'Sadece siteyi görüntüleyebilir', color: 'bg-blue-500' },
+                  { value: 'edit', label: 'Düzenleme', description: 'Site içeriğini düzenleyebilir', color: 'bg-green-500' },
+                  { value: 'analytics', label: 'Analitik', description: 'Site analitiklerini görüntüleyebilir', color: 'bg-purple-500' }
+                ].map((permission) => (
+                  <div
+                    key={permission.value}
+                    className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                      selectedPermissions.includes(permission.value as any)
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                    onClick={() => {
+                      setSelectedPermissions(prev => {
+                        if (prev.includes(permission.value as any)) {
+                          return prev.filter(p => p !== permission.value);
+                        } else {
+                          return [...prev, permission.value as any];
+                        }
+                      });
+                    }}
+                  >
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center mr-3 ${
+                      selectedPermissions.includes(permission.value as any)
+                        ? 'border-blue-500 bg-blue-500'
+                        : 'border-gray-300'
+                    }`}>
+                      {selectedPermissions.includes(permission.value as any) && (
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      )}
                     </div>
-                  </SelectItem>
-                  <SelectItem value="edit">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span>Düzenleme - Site içeriğini düzenleyebilir</span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 ${permission.color} rounded-full`}></div>
+                        <span className="font-medium text-gray-900">{permission.label}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">{permission.description}</p>
                     </div>
-                  </SelectItem>
-                  <SelectItem value="analytics">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                      <span>Analitik - Site analitiklerini görüntüleyebilir</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="create">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span>Oluşturma - Yeni içerik oluşturabilir</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Birden fazla izin türü seçebilirsiniz
+              </p>
             </div>
 
             {/* Expiry Date */}
@@ -380,9 +403,9 @@ export default function SitePermissions() {
 
           <div className="flex items-center justify-between pt-4 border-t border-gray-200">
             <div className="text-sm text-gray-600">
-              {selectedSite && selectedUser && selectedPermission ? (
+              {selectedSite && selectedUser && selectedPermissions.length > 0 ? (
                 <span className="text-green-600 font-medium">
-                  ✓ Tüm alanlar dolduruldu, izin verilebilir
+                  ✓ Tüm alanlar dolduruldu, {selectedPermissions.length} izin türü seçildi
                 </span>
               ) : (
                 <span>Lütfen tüm gerekli alanları doldurun</span>
@@ -391,7 +414,7 @@ export default function SitePermissions() {
             
             <Button
               onClick={handleGrantPermission}
-              disabled={!selectedSite || !selectedUser || !selectedPermission || isSubmitting}
+              disabled={!selectedSite || !selectedUser || selectedPermissions.length === 0 || isSubmitting}
               className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-3 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
@@ -402,7 +425,7 @@ export default function SitePermissions() {
               ) : (
                 <>
                   <Plus className="w-4 h-4 mr-2" />
-                  İzin Ver
+                  İzin Ver ({selectedPermissions.length})
                 </>
               )}
             </Button>
