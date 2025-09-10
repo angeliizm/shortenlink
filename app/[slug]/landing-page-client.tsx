@@ -341,6 +341,76 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           </motion.button>
         )}
 
+      {/* Profile Card - Modern Design */}
+      <motion.div 
+        className="relative z-10 w-full max-w-md mx-auto mb-8"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+      >
+        <div className="relative">
+          {/* Profile Card Container */}
+          <div 
+            className="relative overflow-hidden rounded-3xl p-8 text-center"
+            style={{
+              background: `linear-gradient(135deg, ${config.brandColor}15 0%, ${config.accentColor || '#ffffff'}20 100%)`,
+              backdropFilter: 'blur(20px)',
+              border: `1px solid ${config.brandColor}30`,
+              boxShadow: `0 20px 40px ${config.brandColor}20, 0 0 0 1px ${config.brandColor}10`
+            }}
+          >
+            {/* Profile Avatar */}
+            <motion.div 
+              className="relative mx-auto mb-6 w-24 h-24 rounded-full overflow-hidden"
+              style={{
+                background: `linear-gradient(135deg, ${config.brandColor} 0%, ${config.accentColor || '#ffffff'} 100%)`,
+                boxShadow: `0 10px 30px ${config.brandColor}40`
+              }}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="w-full h-full flex items-center justify-center">
+                <svg 
+                  className="w-12 h-12 text-white" 
+                  fill="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+              </div>
+            </motion.div>
+
+            {/* Name/Title */}
+            <motion.h1 
+              className="text-2xl font-bold mb-2"
+              style={{ color: config.brandColor }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {config.title}
+            </motion.h1>
+
+            {/* Description */}
+            {config.meta?.description && (
+              <motion.p 
+                className="text-gray-600 text-sm leading-relaxed"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {config.meta.description}
+              </motion.p>
+            )}
+
+            {/* Decorative Elements */}
+            <div className="absolute top-4 right-4 w-2 h-2 rounded-full opacity-60" style={{ backgroundColor: config.brandColor }} />
+            <div className="absolute bottom-4 left-4 w-1 h-1 rounded-full opacity-40" style={{ backgroundColor: config.brandColor }} />
+          </div>
+        </div>
+      </motion.div>
+
       {/* Enhanced Main Content Container */}
       <motion.div 
         className="relative z-10 w-full max-w-3xl mx-auto content-container px-6 sm:px-8 lg:px-12"
@@ -355,114 +425,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           ease: [0.22, 1, 0.36, 1]
         }}
       >
-        <div className="relative mb-10">
-          {/* SEO Badge for better visibility */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100"
-          >
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
-            </span>
-            <span className="text-xs font-medium text-purple-700">Live</span>
-          </motion.div>
-          
-          {/* Enhanced Accent Element */}
-          {titleStylePreset.styles.accentElement === 'bracket' && (
-            <motion.div
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: '4px' }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute left-0 top-1/2 -translate-y-1/2 h-16 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"
-            />
-          )}
-          
-          {/* Premium Enhanced Title */}
-          <motion.div className="relative">
-            <motion.h1 
-              className={`title-styled font-extrabold tracking-tight ${
-                titleStylePreset.id === 'modern-gradient' ? 'title-gradient' : 'title-shadow'
-              }`}
-              style={{
-                ...getTitleStyles(titleStylePreset),
-                fontFamily: titleStylePreset.styles.titleFontFamily || 'Plus Jakarta Sans, Inter, sans-serif',
-                fontSize: `clamp(2.5rem, 5vw + 1rem, ${titleStylePreset.styles.titleFontSize})`,
-                lineHeight: '1.05',
-                letterSpacing: '-0.03em',
-                fontWeight: 800,
-                position: 'relative',
-                zIndex: 1
-              }}
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ 
-                duration: 0.7, 
-                delay: 0.1, 
-                ease: [0.22, 1, 0.36, 1]
-              }}
-            >
-              {/* Split text for better animation */}
-              {config.title.split(' ').map((word, index) => (
-                <motion.span
-                  key={index}
-                  className="inline-block"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: 0.15 + index * 0.05,
-                    ease: [0.22, 1, 0.36, 1]
-                  }}
-                >
-                  {word}{' '}
-                </motion.span>
-              ))}
-            </motion.h1>
-            
-            {/* Subtle glow effect behind title */}
-            <div 
-              className="absolute inset-0 blur-3xl opacity-20"
-              style={{
-                background: `radial-gradient(ellipse at center, ${config.brandColor}40 0%, transparent 70%)`
-              }}
-            />
-          </motion.div>
-          
-          {/* Enhanced Accent Element animations */}
-          {titleStylePreset.styles.accentElement === 'underline' && (
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="h-1 w-24 mx-auto mt-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full origin-left"
-              style={{
-                background: titleStylePreset.styles.accentColor || 'linear-gradient(to right, #667eea, #764ba2)'
-              }}
-            />
-          )}
-          
-          {titleStylePreset.styles.accentElement === 'dot' && (
-            <motion.div className="flex gap-2 justify-center mt-4">
-              {[0, 1, 2].map((i) => (
-                <motion.div
-                  key={i}
-                  className="w-2 h-2 rounded-full"
-                  style={{ background: titleStylePreset.styles.accentColor || config.brandColor }}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{
-                    duration: 0.4,
-                    delay: 0.3 + i * 0.1,
-                    ease: [0.22, 1, 0.36, 1]
-                  }}
-                />
-              ))}
-            </motion.div>
-          )}
-        </div>
+        {/* Content area - now simplified since title is in profile card */}
 
         {/* Premium Display Text with visual hierarchy */}
         {displayText && (
