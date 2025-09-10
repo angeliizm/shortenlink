@@ -1,21 +1,36 @@
+import dynamic from 'next/dynamic'
+
+// Dynamically import LoginForm to avoid SSR issues
+const LoginForm = dynamic(() => import('@/components/login-form'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full max-w-md">
+      <div className="bg-white rounded-xl border border-blue-100/50 shadow-xl shadow-blue-500/5 p-8 sm:p-10">
+        <div className="animate-pulse space-y-6">
+          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-10 bg-gray-200 rounded"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-10 bg-gray-200 rounded"></div>
+          <div className="h-10 bg-blue-200 rounded"></div>
+        </div>
+      </div>
+    </div>
+  )
+})
+
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-          Shorten Link
-        </h1>
-        <p className="text-gray-600 text-center mb-8">
-          Welcome to our URL shortener service
-        </p>
-        <div className="space-y-4">
-          <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
-            Get Started
-          </button>
-          <button className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50">
-            Learn More
-          </button>
-        </div>
+    <div className="relative min-h-screen bg-gradient-radial overflow-hidden">
+      {/* Decorative blobs */}
+      <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] bg-blob-1 rounded-full opacity-60" />
+      <div className="absolute bottom-[-150px] right-[-150px] w-[500px] h-[500px] bg-blob-2 rounded-full opacity-50" />
+      
+      {/* Subtle noise overlay */}
+      <div className="absolute inset-0 bg-noise opacity-50" />
+      
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <LoginForm />
       </div>
     </div>
   )
