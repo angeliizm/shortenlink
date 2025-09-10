@@ -1,4 +1,13 @@
-import LoginForm from '@/components/login-form'
+'use client'
+
+import { Suspense } from 'react'
+import dynamic from 'next/dynamic'
+
+// Dynamically import LoginForm with no SSR
+const LoginForm = dynamic(() => import('@/components/login-form'), {
+  ssr: false,
+  loading: () => <div>Loading...</div>
+})
 
 export default function HomePage() {
   return (
@@ -12,7 +21,9 @@ export default function HomePage() {
       
       {/* Content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
-        <LoginForm />
+        <Suspense fallback={<div>Loading...</div>}>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   )

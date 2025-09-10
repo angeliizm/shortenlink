@@ -5,6 +5,10 @@ const nextConfig = {
   images: {
     domains: ['localhost'],
   },
+  output: 'standalone',
+  experimental: {
+    outputFileTracingRoot: undefined,
+  },
   // Removed rewrites to fix Vercel deployment issues
   // All API routes are now handled internally by Next.js
 }
