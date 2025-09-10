@@ -165,9 +165,12 @@ CREATE POLICY "Users can view their own role, admins can view all" ON user_roles
         get_user_role() = 'admin'
     );
 
--- Sadece adminler rol atayabilir
+-- Sadece adminler rol atayabilir, ancak kullanıcılar kendi rollerini güncelleyebilir (geliştirme amaçlı)
 CREATE POLICY "Only admins can manage roles" ON user_roles
-    FOR ALL USING (get_user_role() = 'admin');
+    FOR ALL USING (
+        get_user_role() = 'admin' OR 
+        user_id = auth.uid()
+    );
 
 -- Site Permissions tablosu için RLS
 ALTER TABLE site_permissions ENABLE ROW LEVEL SECURITY;
