@@ -178,10 +178,16 @@ export default function EditSitePage({ params }: PageProps) {
         setTitleStylePresetId(defaultTitleFontPresetId)
       }
 
-      // Load avatar URL from localStorage
-      const savedAvatarUrl = localStorage.getItem(`avatar-url-${siteId}`)
-      if (savedAvatarUrl) {
-        setAvatarUrl(savedAvatarUrl)
+      // Load avatar URL from database first, then localStorage as fallback
+      if (page.avatar_url) {
+        setAvatarUrl(page.avatar_url)
+        // Sync with localStorage
+        localStorage.setItem(`avatar-url-${siteId}`, page.avatar_url)
+      } else {
+        const savedAvatarUrl = localStorage.getItem(`avatar-url-${siteId}`)
+        if (savedAvatarUrl) {
+          setAvatarUrl(savedAvatarUrl)
+        }
       }
       
       // Load profile preset from localStorage
@@ -237,6 +243,7 @@ export default function EditSitePage({ params }: PageProps) {
           accent_color: formData.accent_color,
           is_enabled: formData.is_enabled,
           meta: { description: formData.description },
+          avatar_url: avatarUrl,
           updated_at: new Date().toISOString()
         })
         .eq('id', siteId)
@@ -395,10 +402,26 @@ export default function EditSitePage({ params }: PageProps) {
     }
   }
 
-  const handleAvatarChange = (url: string) => {
+  const handleAvatarChange = async (url: string) => {
     setAvatarUrl(url)
     if (siteId) {
+      // Save to localStorage for immediate effect
       localStorage.setItem(`avatar-url-${siteId}`, url)
+      
+      // Also save to database
+      try {
+        const { error } = await supabase
+          .from('pages')
+          .update({ avatar_url: url })
+          .eq('id', siteId)
+          .eq('owner_id', user?.id)
+        
+        if (error) {
+          console.error('Failed to save avatar URL to database:', error)
+        }
+      } catch (err) {
+        console.error('Error saving avatar URL:', err)
+      }
     }
   }
 

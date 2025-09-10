@@ -33,7 +33,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   const [profilePresetId, setProfilePresetId] = useState<string>(defaultProfilePresetId)
   const [titleFontPresetId, setTitleFontPresetId] = useState<string>(defaultTitleFontPresetId)
   const [titleColor, setTitleColor] = useState<string>('#1f2937')
-  const [avatarUrl, setAvatarUrl] = useState<string>('')
+  const [avatarUrl, setAvatarUrl] = useState<string>(config.avatarUrl || '')
   
   // Listen for preset changes from edit page (if same site)
   useEffect(() => {
@@ -124,6 +124,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
       const savedAvatarUrl = localStorage.getItem(`avatar-url-${config.id}`)
       if (savedAvatarUrl) {
         setAvatarUrl(savedAvatarUrl)
+      } else if (config.avatarUrl) {
+        // Fallback to config avatarUrl if localStorage doesn't have it
+        setAvatarUrl(config.avatarUrl)
       }
     }
   }, [config.id])
@@ -247,10 +250,22 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           }
           .action-button {
             font-size: 16px !important;
-            padding: 16px 24px !important;
+            padding: 16px 20px !important;
+            margin: 0 8px !important;
           }
           .title-gradient {
             font-size: 2.5rem !important;
+          }
+          .profile-avatar {
+            width: 80px !important;
+            height: 80px !important;
+            margin-bottom: 12px !important;
+          }
+          .profile-avatar img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: inherit !important;
           }
         }
         
@@ -263,6 +278,16 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           }
           .title-gradient {
             font-size: 2rem !important;
+          }
+          .action-button {
+            font-size: 14px !important;
+            padding: 14px 16px !important;
+            margin: 0 4px !important;
+          }
+          .profile-avatar {
+            width: 70px !important;
+            height: 70px !important;
+            margin-bottom: 10px !important;
           }
         }
         
@@ -431,7 +456,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
               >
                  {/* Profile Avatar */}
                  <motion.div 
-                   className="relative mx-auto overflow-hidden"
+                   className="relative mx-auto overflow-hidden profile-avatar"
                    style={{
                      width: styles.avatarSize,
                      height: styles.avatarSize,
@@ -450,6 +475,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                        src={avatarUrl}
                        alt="Profile Avatar"
                        className="w-full h-full object-cover"
+                       loading="eager"
+                       crossOrigin="anonymous"
                      />
                    ) : (
                      <div className="w-full h-full flex items-center justify-center">
@@ -637,7 +664,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         {/* Enhanced Action Buttons Container */}
         {sortedActions.length > 0 && (
           <motion.div 
-            className="w-full max-w-md mx-auto mt-4 space-y-6"
+            className="w-full max-w-md mx-auto mt-4 space-y-6 px-4 sm:px-0"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
@@ -749,18 +776,31 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                 >
                   {/* Sabit dış çizikli kenarlık - tüm butonlarda görünür */}
                   <span 
-                    className="absolute -inset-[6px] rounded-2xl pointer-events-none dashed-border-static"
+                    className="absolute rounded-2xl pointer-events-none dashed-border-static hidden sm:block"
                     style={{
+                      inset: '-6px',
                       border: '2px dashed #E5E7EB',
                       opacity: 0.5,
                       transition: 'all 0.3s ease'
                     }}
                   />
                   
-                  {/* Animated dashed border on hover */}
+                  {/* Mobile-safe dashed border */}
                   <span 
-                    className="absolute -inset-[6px] rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100"
+                    className="absolute rounded-2xl pointer-events-none dashed-border-static block sm:hidden"
                     style={{
+                      inset: '-3px',
+                      border: '1px dashed #E5E7EB',
+                      opacity: 0.5,
+                      transition: 'all 0.3s ease'
+                    }}
+                  />
+                  
+                  {/* Animated dashed border on hover - desktop only */}
+                  <span 
+                    className="absolute rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100 hidden sm:block"
+                    style={{
+                      inset: '-6px',
                       border: '2px dashed #E5E7EB',
                       animation: 'rotate-dash 8s linear infinite',
                       transition: 'opacity 0.3s ease'

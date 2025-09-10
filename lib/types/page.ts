@@ -27,6 +27,7 @@ export interface PageConfig {
   actions: PageAction[]
   customDomain?: string
   userId?: string
+  avatarUrl?: string
   backgroundPreference?: {
     presetId: string
     controlValues: Record<string, string | number>
