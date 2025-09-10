@@ -6,8 +6,8 @@ export async function createClient() {
   const cookieStore = await cookies()
 
   return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    'https://coufslfrsxvlzbwitzct.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvdWZzbGZyc3h2bHpid2l0emN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxOTI5NTcsImV4cCI6MjA3Mjc2ODk1N30.EUvRiVahwgdHIckEkUvhWBwBxvoQhHL0Qh1OLbjF-3A',
     {
       cookies: {
         getAll() {
@@ -33,8 +33,9 @@ export async function createServiceRoleClient() {
   const cookieStore = await cookies()
   
   return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    'https://coufslfrsxvlzbwitzct.supabase.co',
+    // process.env.SUPABASE_SERVICE_ROLE_KEY!, // TODO: Add service role key
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvdWZzbGZyc3h2bHpid2l0emN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxOTI5NTcsImV4cCI6MjA3Mjc2ODk1N30.EUvRiVahwgdHIckEkUvhWBwBxvoQhHL0Qh1OLbjF-3A', // Using anon key for now
     {
       cookies: {
         getAll() {

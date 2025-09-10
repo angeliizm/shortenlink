@@ -10,7 +10,8 @@ export async function POST(request: NextRequest) {
     // Clear refresh token cookie
     cookieStore.set('refresh_token', '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      // secure: process.env.NODE_ENV === 'production',
+      secure: false, // For testing
       sameSite: 'lax',
       maxAge: 0, // Expire immediately
       path: '/'

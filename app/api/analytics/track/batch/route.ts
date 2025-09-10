@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
     // Hash IP for privacy
     const forwardedFor = request.headers.get('x-forwarded-for');
     const ip = forwardedFor ? forwardedFor.split(',')[0] : request.headers.get('x-real-ip') || 'unknown';
-    const ipHash = createHash('sha256').update(ip + process.env.ANALYTICS_SALT || 'default-salt').digest('hex');
+    // const ipHash = createHash('sha256').update(ip + process.env.ANALYTICS_SALT || 'default-salt').digest('hex');
+    const ipHash = createHash('sha256').update(ip + 'default-salt').digest('hex'); // For testing
 
     // Prepare all events
     const preparedEvents = events.map(event => ({
