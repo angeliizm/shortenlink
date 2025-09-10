@@ -206,6 +206,10 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   // Get title styles for responsive CSS
   const currentTitleStylePreset = titleStylePresets.find(p => p.id === titleFontPresetId) || titleStylePresets.find(p => p.id === defaultTitleFontPresetId)!
   const titleStyles = currentTitleStylePreset.styles
+  
+  // Get profile styles for responsive CSS
+  const profilePreset = getProfilePresetById(profilePresetId) || getProfilePresetById(defaultProfilePresetId)!
+  const styles = profilePreset.styles
 
   if (activeBackground.preset) {
     backgroundStyle = applyPresetControls(activeBackground.preset, activeBackground.controls)
@@ -303,10 +307,14 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         /* Responsive font sizes */
         .responsive-title {
           font-size: ${titleStyles?.titleFontSize || '3.5rem'} !important;
+          color: ${titleStyles?.titleColor || '#111827'} !important;
+          font-family: ${titleStyles?.titleFontFamily || 'Inter, sans-serif'} !important;
         }
         
         .responsive-description {
           font-size: ${titleStyles?.descriptionFontSize || '1.125rem'} !important;
+          color: ${titleStyles?.descriptionColor || '#6b7280'} !important;
+          font-family: ${titleStyles?.descriptionFontFamily || 'Inter, sans-serif'} !important;
         }
         
         @media (max-width: 768px) {
@@ -430,8 +438,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
 
       {/* Profile Card - Dynamic Preset Design */}
       {(() => {
-        const profilePreset = getProfilePresetById(profilePresetId) || getProfilePresetById(defaultProfilePresetId)!
-        const styles = profilePreset.styles
         
         // Create styles for the container
         const containerStyles = {
@@ -515,7 +521,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                        style={{ 
                          fontSize: titleStyles.titleFontSize,
                          fontWeight: titleStyles.titleFontWeight,
-                         color: titleColor,
+                         color: titleStyles.titleColor || titleColor,
                          margin: styles.titleMargin,
                          letterSpacing: titleStyles.titleLetterSpacing,
                          fontFamily: titleStyles.titleFontFamily,
