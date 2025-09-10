@@ -102,6 +102,45 @@ export function TitleFontSelector({
                   </div>
                 </div>
               </div>
+              
+              {/* Suggested Colors from Profile Presets */}
+              <div className="mt-4">
+                <h4 className="text-xs font-medium text-gray-600 mb-2">Suggested Colors</h4>
+                <div className="flex flex-wrap gap-2">
+                  {(() => {
+                    // Import profile presets to get suggested colors
+                    const { profilePresets } = require('@/lib/profile-presets')
+                    const suggestedColors = [
+                      '#1f2937', // Default dark
+                      '#ffffff', // White
+                      '#000000', // Black
+                      '#00ff41', // Cyberpunk green
+                      '#8b5cf6', // Purple
+                      '#ff1493', // Pink
+                      '#3b82f6', // Blue
+                      '#ffd700', // Gold
+                      '#10b981', // Green
+                      '#f97316', // Orange
+                      '#dc2626', // Red
+                      '#06b6d4', // Cyan
+                    ]
+                    
+                    return suggestedColors.map((color, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedColor(color)}
+                        className={`w-8 h-8 rounded border-2 transition-all duration-200 ${
+                          selectedColor === color 
+                            ? 'border-blue-500 ring-2 ring-blue-200' 
+                            : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
+                    ))
+                  })()}
+                </div>
+              </div>
             </div>
 
             {/* Font Presets */}
