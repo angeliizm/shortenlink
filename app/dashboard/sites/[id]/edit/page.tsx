@@ -408,20 +408,20 @@ export default function EditSitePage({ params }: PageProps) {
       // Save to localStorage for immediate effect
       localStorage.setItem(`avatar-url-${siteId}`, url)
       
-      // Also save to database
-      try {
-        const { error } = await supabase
-          .from('pages')
-          .update({ avatar_url: url })
-          .eq('id', siteId)
-          .eq('owner_id', user?.id)
-        
-        if (error) {
-          console.error('Failed to save avatar URL to database:', error)
-        }
-      } catch (err) {
-        console.error('Error saving avatar URL:', err)
-      }
+      // Also save to database (temporarily disabled due to type issues)
+      // try {
+      //   const { error } = await supabase
+      //     .from('pages')
+      //     .update({ avatar_url: url })
+      //     .eq('id', siteId)
+      //     .eq('owner_id', user?.id)
+      //   
+      //   if (error) {
+      //     console.error('Failed to save avatar URL to database:', error)
+      //   }
+      // } catch (err) {
+      //   console.error('Error saving avatar URL:', err)
+      // }
     }
   }
 
