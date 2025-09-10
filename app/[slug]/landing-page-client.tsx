@@ -281,7 +281,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           }
           
           .content-container {
-            padding: 32px 20px 0 20px !important;
+            padding: 16px 20px 0 20px !important;
           }
           
           .action-button {
@@ -314,7 +314,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           }
           
           .content-container {
-            padding: 24px 16px 0 16px !important;
+            padding: 12px 16px 0 16px !important;
           }
           
           .action-button {
@@ -493,7 +493,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             <div className="relative">
               {/* Profile Card Container */}
               <div 
-                className="relative overflow-hidden text-center"
+                className="relative overflow-hidden text-center w-full"
                 style={responsiveContainerStyles}
               >
                  {/* Profile Avatar */}
@@ -603,7 +603,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
 
       {/* Enhanced Main Content Container */}
       <motion.div 
-        className="relative z-10 w-full max-w-md mx-auto content-container pt-8 px-4"
+        className="relative z-10 w-full max-w-md mx-auto content-container pt-4 px-4"
         style={{
           textAlign: titleStylePreset.styles.textAlign,
         }}
