@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import AnalyticsDashboard from '@/components/analytics/AnalyticsDashboard'
+import ModernAnalyticsTemplate from '@/components/analytics/ModernAnalyticsTemplate'
 
 export default async function AnalyticsPage({ params }: { params: { slug: string } }) {
   const supabase = await createClient()
@@ -23,9 +23,5 @@ export default async function AnalyticsPage({ params }: { params: { slug: string
     redirect('/dashboard')
   }
 
-  return (
-    <div className="container mx-auto py-8 px-4">
-      <AnalyticsDashboard siteSlug={params.slug} />
-    </div>
-  )
+  return <ModernAnalyticsTemplate siteSlug={params.slug} />
 }

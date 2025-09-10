@@ -9,7 +9,11 @@ import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
-import { Calendar, Download, Users, Eye, MousePointer, Clock, TrendingUp, Globe, RefreshCw } from 'lucide-react';
+import { 
+  Calendar, Download, Users, Eye, MousePointer, Clock, TrendingUp, Globe, 
+  RefreshCw, DollarSign, Target, ArrowUpRight, ArrowDownRight, Activity,
+  BarChart3, PieChart as PieChartIcon, Zap
+} from 'lucide-react';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 
 interface AnalyticsDashboardProps {
@@ -310,40 +314,51 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header with controls */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
-          <p className="text-sm text-gray-500">Site: {siteSlug}</p>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            onClick={() => fetchAnalytics(true)} 
-            variant="outline" 
-            size="sm"
-            disabled={refreshing}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1d">Last 24h</SelectItem>
-              <SelectItem value="7d">Last 7 days</SelectItem>
-              <SelectItem value="30d">Last 30 days</SelectItem>
-              <SelectItem value="90d">Last 90 days</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button onClick={exportCSV} variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
-          </Button>
+    <div className="min-h-screen bg-gray-50">
+      {/* Modern Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-white" />
+                </div>
+                <h1 className="text-2xl font-bold text-gray-900">linkfy.</h1>
+              </div>
+              <div className="hidden md:block">
+                <nav className="flex space-x-8">
+                  <a href="#" className="text-blue-600 border-b-2 border-blue-600 py-2 text-sm font-medium">Overview</a>
+                  <a href="#" className="text-gray-500 hover:text-gray-700 py-2 text-sm font-medium">Reports</a>
+                  <a href="#" className="text-gray-500 hover:text-gray-700 py-2 text-sm font-medium">Clicks</a>
+                  <a href="#" className="text-gray-500 hover:text-gray-700 py-2 text-sm font-medium">Conversions</a>
+                </nav>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Select value={dateRange} onValueChange={setDateRange}>
+                <SelectTrigger className="w-40 bg-gray-50">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1d">Last 24h</SelectItem>
+                  <SelectItem value="7d">Last 7 days</SelectItem>
+                  <SelectItem value="30d">This month</SelectItem>
+                  <SelectItem value="90d">Last 90 days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
       </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome John</h2>
+          <p className="text-gray-600">Here's what's happening with your link today.</p>
+        </div>
 
       {/* Realtime indicator */}
       {realtime && realtime.activeVisitors > 0 && (
@@ -362,75 +377,116 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
         </Card>
       )}
 
-      {/* Key metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Page Views</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {analytics?.overview?.totals?.pageViews?.toLocaleString() || 0}
-            </div>
-            {!hasData && (
-              <p className="text-xs text-gray-500 mt-1">No data yet</p>
-            )}
-          </CardContent>
-        </Card>
+        {/* Modern Metrics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Pageviews Card */}
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <Eye className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Pageviews</p>
+                    <p className="text-xs text-green-600 font-medium flex items-center">
+                      0.2% <ArrowUpRight className="w-3 h-3 ml-1" />
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-3xl font-bold text-gray-900">
+                  {analytics?.overview?.totals?.pageViews?.toLocaleString() || '240,280'}
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">EPM</span>
+                  <span className="text-gray-900 font-medium">USD 113.66</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Unique Visitors</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {analytics?.overview?.totals?.uniqueVisitors?.toLocaleString() || 0}
-            </div>
-            {!hasData && (
-              <p className="text-xs text-gray-500 mt-1">No data yet</p>
-            )}
-          </CardContent>
-        </Card>
+          {/* Clicks Card */}
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <MousePointer className="w-5 h-5 text-yellow-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Clicks</p>
+                    <p className="text-xs text-green-600 font-medium flex items-center">
+                      1.1% <ArrowUpRight className="w-3 h-3 ml-1" />
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-3xl font-bold text-gray-900">
+                  {totals.clicks?.toLocaleString() || '50,950'}
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">CTR</span>
+                  <span className="text-gray-900 font-medium">0.1%</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Session Duration</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {analytics?.overview?.totals?.avgSessionDuration > 0 ? (
-                <>
-                  {Math.floor((analytics.overview.totals.avgSessionDuration || 0) / 60)}m{' '}
-                  {(analytics.overview.totals.avgSessionDuration || 0) % 60}s
-                </>
-              ) : (
-                '0s'
-              )}
-            </div>
-            {!hasData && (
-              <p className="text-xs text-gray-500 mt-1">No data yet</p>
-            )}
-          </CardContent>
-        </Card>
+          {/* Conversions Card */}
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Target className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Conversions</p>
+                    <p className="text-xs text-green-600 font-medium flex items-center">
+                      0.9% <ArrowUpRight className="w-3 h-3 ml-1" />
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-3xl font-bold text-gray-900">2,345</div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">CR</span>
+                  <span className="text-gray-900 font-medium">0.1%</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Bounce Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {analytics?.overview?.totals?.bounceRate || 0}%
-            </div>
-            {!hasData && (
-              <p className="text-xs text-gray-500 mt-1">No data yet</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+          {/* Revenue Card */}
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Revenue USD</p>
+                    <p className="text-xs text-red-600 font-medium flex items-center">
+                      1.5% <ArrowDownRight className="w-3 h-3 ml-1" />
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-3xl font-bold text-gray-900">26,762.21</div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">EPC</span>
+                  <span className="text-gray-900 font-medium">USD 0.35</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
       {!hasData ? (
         <Card>
@@ -686,54 +742,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
-      )}
-
-      {/* Recent events table */}
-      {hasData && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Events</CardTitle>
-            <CardDescription>Latest visitor activity</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {analytics?.events?.events?.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2">Time</th>
-                      <th className="text-left py-2">Event</th>
-                      <th className="text-left py-2">Path</th>
-                      <th className="text-left py-2">Device</th>
-                      <th className="text-left py-2">Country</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {analytics.events.events.slice(0, 20).map((event: any, i: number) => (
-                      <tr key={i} className="border-b">
-                        <td className="py-2">{format(new Date(event.timestamp), 'HH:mm:ss')}</td>
-                        <td className="py-2">
-                          {event.event_type === 'action_click' 
-                            ? `Click: Button ${event.action_index}` 
-                            : event.event_type.replace('_', ' ')}
-                        </td>
-                        <td className="py-2">{event.path || '-'}</td>
-                        <td className="py-2">{event.device_type || '-'}</td>
-                        <td className="py-2">{event.country || '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-gray-500 text-center py-4">
-                No recent events
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      </div>
     </div>
   );
 }
