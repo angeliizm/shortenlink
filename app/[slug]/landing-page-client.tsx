@@ -251,7 +251,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           .action-button {
             font-size: 16px !important;
             padding: 18px 24px !important;
-            margin: 0 !important;
+            margin: 0 0 12px 0 !important;
           }
           .title-gradient {
             font-size: 2.5rem !important;
@@ -260,12 +260,18 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             width: 100px !important;
             height: 100px !important;
             margin-bottom: 16px !important;
+            display: block !important;
+            visibility: visible !important;
+            z-index: 10 !important;
+            position: relative !important;
           }
           .profile-avatar img {
             width: 100% !important;
             height: 100% !important;
             object-fit: cover !important;
             border-radius: inherit !important;
+            display: block !important;
+            visibility: visible !important;
           }
           .profile-card-container {
             padding: 24px !important;
@@ -287,12 +293,16 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           .action-button {
             font-size: 15px !important;
             padding: 16px 20px !important;
-            margin: 0 !important;
+            margin: 0 0 10px 0 !important;
           }
           .profile-avatar {
             width: 90px !important;
             height: 90px !important;
             margin-bottom: 14px !important;
+            display: block !important;
+            visibility: visible !important;
+            z-index: 10 !important;
+            position: relative !important;
           }
           .profile-card-container {
             padding: 20px !important;
@@ -474,7 +484,11 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                      border: styles.avatarBorder,
                      boxShadow: styles.avatarShadow,
                      background: styles.avatarBackground,
-                     marginBottom: '16px'
+                     marginBottom: '16px',
+                     display: 'block',
+                     visibility: 'visible',
+                     zIndex: 10,
+                     position: 'relative'
                    }}
                    initial={{ scale: 0 }}
                    animate={{ scale: 1 }}
@@ -487,6 +501,13 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                        className="w-full h-full object-cover"
                        loading="eager"
                        crossOrigin="anonymous"
+                       style={{
+                         display: 'block',
+                         visibility: 'visible',
+                         width: '100%',
+                         height: '100%',
+                         objectFit: 'cover'
+                       }}
                      />
                    ) : (
                      <div className="w-full h-full flex items-center justify-center">
