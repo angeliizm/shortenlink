@@ -25,10 +25,10 @@ export default function PageClient({ config }: PageClientProps) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: config.accentColor || '#f9fafb' }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f9fafb' }}>
       <TopBar 
         title={config.title}
-        brandColor={config.brandColor}
+        brandColor="#3B82F6"
         actions={config.actions}
       />
       
@@ -44,7 +44,7 @@ export default function PageClient({ config }: PageClientProps) {
             title={config.title}
             targetUrl={config.targetUrl}
             actions={config.actions}
-            brandColor={config.brandColor}
+            brandColor="#3B82F6"
           />
         )}
       </main>
