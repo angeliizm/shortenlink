@@ -281,7 +281,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           }
           
           .content-container {
-            padding: 0 20px !important;
+            padding: 32px 20px 0 20px !important;
           }
           
           .action-button {
@@ -314,7 +314,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           }
           
           .content-container {
-            padding: 0 16px !important;
+            padding: 24px 16px 0 16px !important;
           }
           
           .action-button {
@@ -481,10 +481,10 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         
         return (
           <motion.div 
-            className="relative z-10 w-full mx-auto mb-4"
+            className="relative z-10 w-full mx-auto mb-6"
             style={{
-              maxWidth: 'min(90%, 400px)',
-              margin: '0 auto 1rem auto'
+              maxWidth: '100%',
+              margin: '0 auto 1.5rem auto'
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -603,7 +603,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
 
       {/* Enhanced Main Content Container */}
       <motion.div 
-        className="relative z-10 w-full max-w-3xl mx-auto content-container"
+        className="relative z-10 w-full max-w-md mx-auto content-container pt-8 px-4"
         style={{
           textAlign: titleStylePreset.styles.textAlign,
         }}
@@ -706,7 +706,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         {/* Enhanced Action Buttons Container */}
         {sortedActions.length > 0 && (
           <motion.div 
-            className="w-full max-w-md mx-auto mt-4 px-4 sm:px-0"
+            className="w-full mx-auto mt-6"
             style={{
               display: 'flex',
               flexDirection: 'column',
