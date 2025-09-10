@@ -343,7 +343,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
 
       {/* Profile Card - Modern Design */}
       <motion.div 
-        className="relative z-10 w-full max-w-md mx-auto mb-8"
+        className="relative z-10 w-full max-w-md mx-auto mb-4"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
@@ -476,7 +476,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                 }}
               >
                 {/* Highlight first sentence for SEO emphasis */}
-                {config.meta.description.split('. ').map((sentence, index) => (
+                {config.meta?.description?.split('. ').map((sentence, index) => (
                   <motion.span
                     key={index}
                     className={index === 0 ? 'font-medium text-gray-700' : ''}
@@ -488,7 +488,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                       ease: [0.22, 1, 0.36, 1]
                     }}
                   >
-                    {sentence}{index < config.meta.description.split('. ').length - 1 ? '. ' : ''}
+                    {sentence}{index < (config.meta?.description?.split('. ').length || 0) - 1 ? '. ' : ''}
                   </motion.span>
                 ))}
               </p>
@@ -502,7 +502,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
               className="flex flex-wrap gap-2 justify-center mt-6"
             >
               {/* Extract and display key phrases */}
-              {config.meta.description.split(' ').slice(0, 3).map((word, index) => (
+              {config.meta?.description?.split(' ').slice(0, 3).map((word, index) => (
                 <span
                   key={index}
                   className="px-3 py-1 text-xs font-medium text-purple-600 bg-purple-50 rounded-full border border-purple-100 opacity-60"
@@ -517,7 +517,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         {/* Enhanced Action Buttons Container */}
         {sortedActions.length > 0 && (
           <motion.div 
-            className="w-full max-w-md mx-auto mt-10 space-y-4"
+            className="w-full max-w-md mx-auto mt-4 space-y-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}

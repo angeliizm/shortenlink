@@ -441,17 +441,6 @@ export default function EditSitePage({ params }: PageProps) {
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="target_url">Content Title (Optional)</Label>
-                <Input
-                  id="target_url"
-                  type="text"
-                  value={formData.target_url}
-                  onChange={(e) => setFormData({ ...formData, target_url: e.target.value })}
-                  placeholder="Enter any title or text (optional)"
-                />
-                <p className="text-xs text-gray-500">This can be any text you want to display, or leave empty</p>
-              </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -493,16 +482,6 @@ export default function EditSitePage({ params }: PageProps) {
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="description">Description (SEO)</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Brief description for search engines..."
-                  rows={2}
-                />
-              </div>
               
               <div className="flex items-center justify-between">
                 <Label htmlFor="enabled" className="flex items-center cursor-pointer">
