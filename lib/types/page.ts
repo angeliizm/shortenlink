@@ -4,6 +4,7 @@ export interface PageAction {
   href: string
   variant: 'primary' | 'outline' | 'ghost'
   preset?: string
+  description?: string
   sortOrder: number
   isEnabled: boolean
 }

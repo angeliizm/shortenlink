@@ -32,6 +32,7 @@ interface Action {
   href: string
   variant: 'primary' | 'outline' | 'ghost'
   preset: string
+  description?: string
   sort_order: number
   is_enabled: boolean
 }
@@ -277,6 +278,7 @@ export default function EditSitePage({ params }: PageProps) {
               href: action.href,
               variant: action.variant,
               preset: action.preset,
+              description: action.description,
               sort_order: index,
               is_enabled: action.is_enabled,
               updated_at: new Date().toISOString()
@@ -294,6 +296,7 @@ export default function EditSitePage({ params }: PageProps) {
               href: action.href,
               variant: action.variant,
               preset: action.preset,
+              description: action.description,
               sort_order: index,
               is_enabled: action.is_enabled
             })
@@ -318,6 +321,7 @@ export default function EditSitePage({ params }: PageProps) {
       href: '',
       variant: 'outline',
       preset: defaultPresetId,
+      description: '',
       sort_order: actions.length,
       is_enabled: true
     }])
@@ -625,7 +629,7 @@ export default function EditSitePage({ params }: PageProps) {
                   No actions configured. Add action buttons to provide quick links for your visitors.
                 </p>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {actions.map((action, index) => (
                     <div
                       key={action.id ?? index}
@@ -634,40 +638,80 @@ export default function EditSitePage({ params }: PageProps) {
                       onDragOver={(e) => { e.preventDefault(); setDragOverIndex(index) }}
                       onDragLeave={() => setDragOverIndex(null)}
                       onDrop={(e) => { e.preventDefault(); if (draggedIndex !== null) moveAction(draggedIndex, index); setDraggedIndex(null); setDragOverIndex(null) }}
-                      className={`flex gap-2 p-3 bg-gray-50 rounded-lg ${dragOverIndex === index ? 'ring-2 ring-blue-300' : ''}`}
+                      className={`p-4 bg-gray-50 rounded-lg border ${dragOverIndex === index ? 'ring-2 ring-blue-300' : ''}`}
                     >
-                      <span className="flex items-center pr-1 cursor-grab select-none">
-                        <GripVertical className="h-4 w-4 text-gray-400" />
-                      </span>
-                      <Input
-                        placeholder="Label"
-                        value={action.label}
-                        onChange={(e) => updateAction(index, 'label', e.target.value)}
-                        className="flex-1"
-                      />
-                      <Input
-                        placeholder="https://..."
-                        value={action.href}
-                        onChange={(e) => updateAction(index, 'href', e.target.value)}
-                        className="flex-1"
-                      />
-                      <PresetSelector
-                        value={action.preset}
-                        onChange={(value) => updateAction(index, 'preset', value)}
-                        className="w-40"
-                      />
-                      <Switch
-                        checked={action.is_enabled}
-                        onCheckedChange={(checked) => updateAction(index, 'is_enabled', checked)}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeAction(index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {/* Header row with drag handle and delete button */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="flex items-center cursor-grab select-none">
+                          <GripVertical className="h-4 w-4 text-gray-400" />
+                        </span>
+                        <div className="flex-1 text-sm font-medium text-gray-700">
+                          Action {index + 1}
+                        </div>
+                        <Switch
+                          checked={action.is_enabled}
+                          onCheckedChange={(checked) => updateAction(index, 'is_enabled', checked)}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeAction(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      {/* Form fields */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor={`label-${index}`} className="text-sm font-medium">
+                            Label
+                          </Label>
+                          <Input
+                            id={`label-${index}`}
+                            placeholder="Button text"
+                            value={action.label}
+                            onChange={(e) => updateAction(index, 'label', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor={`href-${index}`} className="text-sm font-medium">
+                            URL
+                          </Label>
+                          <Input
+                            id={`href-${index}`}
+                            placeholder="https://..."
+                            value={action.href}
+                            onChange={(e) => updateAction(index, 'href', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor={`preset-${index}`} className="text-sm font-medium">
+                            Style
+                          </Label>
+                          <PresetSelector
+                            value={action.preset}
+                            onChange={(value) => updateAction(index, 'preset', value)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor={`description-${index}`} className="text-sm font-medium">
+                            Description (optional)
+                          </Label>
+                          <Textarea
+                            id={`description-${index}`}
+                            placeholder="Brief description of this action..."
+                            value={action.description || ''}
+                            onChange={(e) => updateAction(index, 'description', e.target.value)}
+                            className="mt-1 min-h-[60px]"
+                            rows={2}
+                          />
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>

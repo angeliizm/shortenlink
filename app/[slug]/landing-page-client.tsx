@@ -292,6 +292,10 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             max-width: 400px !important;
           }
           
+          .action-button.has-description {
+            padding: calc(24px * 0.85) calc(32px * 0.85) !important;
+          }
+          
           /* Profile card mobile fixes */
           .profile-card-container {
             display: block !important;
@@ -347,6 +351,10 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             margin: 0 auto 10px auto !important;
             width: 100% !important;
             max-width: 360px !important;
+          }
+          
+          .action-button.has-description {
+            padding: max(16px, calc(24px * 0.75)) max(20px, calc(32px * 0.75)) !important;
           }
           
           /* Profile card mobile fixes - smaller screens */
@@ -801,7 +809,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                    className={`
                      action-button relative block w-full text-center font-semibold
                      transition-all duration-300 ease-out overflow-visible
-                     py-5 px-8 rounded-xl
+                     ${action.description ? 'py-6 px-8 has-description' : 'py-5 px-8'} rounded-xl
                      hover:shadow-xl hover:shadow-purple-200/30
                      transform-gpu
                      group
@@ -906,20 +914,28 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   />
                   
                   {/* Button content with icon */}
-                  <span className="relative z-10 flex items-center justify-center gap-3">
-                    {/* Trophy/Icon placeholder */}
-                    <div className="w-5 h-5 flex items-center justify-center">
-                      <svg 
-                        className="w-4 h-4" 
-                        fill="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                      </svg>
+                  <div className="relative z-10 flex flex-col items-center justify-center gap-1">
+                    <div className="flex items-center justify-center gap-3">
+                      {/* Trophy/Icon placeholder */}
+                      <div className="w-5 h-5 flex items-center justify-center">
+                        <svg 
+                          className="w-4 h-4" 
+                          fill="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                      </div>
+                      <span className="font-medium">{action.label}</span>
+                      <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                     </div>
-                    <span className="font-medium">{action.label}</span>
-                    <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                  </span>
+                    {/* Description */}
+                    {action.description && (
+                      <span className="text-xs opacity-80 font-normal max-w-[280px] text-center leading-tight">
+                        {action.description}
+                      </span>
+                    )}
+                  </div>
                 </motion.a>
               )
             })}
