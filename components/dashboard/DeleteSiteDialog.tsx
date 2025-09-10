@@ -39,7 +39,7 @@ export default function DeleteSiteDialog({ site, open, onOpenChange, onConfirm }
           <AlertDialogDescription className="space-y-2">
             <p>Are you sure you want to delete <strong>{site.title}</strong>?</p>
             <p className="text-sm">
-              This will permanently delete the site at <code className="bg-gray-100 px-1 py-0.5 rounded">/siteler/{site.site_slug}</code> 
+              This will permanently delete the site at <code className="bg-gray-100 px-1 py-0.5 rounded">/{site.site_slug}</code> 
               and all associated actions. This action cannot be undone.
             </p>
           </AlertDialogDescription>

@@ -37,7 +37,7 @@ On the test page:
 4. Click "Check API Status" to verify API health
 
 ### 5. Test Real Site Page
-1. Visit any of your sites: http://localhost:3000/siteler/{your-site-slug}
+1. Visit any of your sites: http://localhost:3000/{your-site-slug}
 2. Open browser DevTools > Network tab
 3. Look for requests to `/api/analytics/track`
 4. Click action buttons on the page

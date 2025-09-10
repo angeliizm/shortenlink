@@ -211,7 +211,7 @@ export default function CreateSiteDialog({ open, onOpenChange, onSuccess }: Crea
                   pattern="^[a-z0-9-]+$"
                   required
                 />
-                <p className="text-xs text-gray-500">/siteler/{formData.site_slug || 'your-slug'}</p>
+                <p className="text-xs text-gray-500">/{formData.site_slug || 'your-slug'}</p>
               </div>
             </div>
             

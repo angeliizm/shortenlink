@@ -381,7 +381,7 @@ export default function EditSitePage({ params }: PageProps) {
             </div>
             
             <Button
-              onClick={() => window.open(`/siteler/${formData.site_slug}`, '_blank')}
+              onClick={() => window.open(`/${formData.site_slug}`, '_blank')}
               variant="outline"
             >
               Preview Site
@@ -425,7 +425,7 @@ export default function EditSitePage({ params }: PageProps) {
                     pattern="[a-z0-9-]+"
                     required
                   />
-                  <p className="text-xs text-gray-500">/siteler/{formData.site_slug}</p>
+                  <p className="text-xs text-gray-500">/{formData.site_slug}</p>
                 </div>
               </div>
               

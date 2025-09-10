@@ -45,7 +45,7 @@ You should see:
 - Other events you triggered
 
 ### Step 5: Test on Real Site Pages
-1. Visit any of your sites: **http://localhost:3001/siteler/{your-site-slug}**
+1. Visit any of your sites: **http://localhost:3001/{your-site-slug}**
 2. Open Browser DevTools → Network tab
 3. Filter by "analytics"
 4. Click action buttons on the page

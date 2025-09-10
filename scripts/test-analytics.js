@@ -155,7 +155,7 @@ async function testAnalytics() {
   console.log('\n✨ Analytics system test complete!\n');
   
   console.log('Next steps:');
-  console.log('1. Visit a site page at /siteler/{site-slug}');
+  console.log('1. Visit a site page at /{site-slug}');
   console.log('2. Click some action buttons');
   console.log('3. Check the analytics dashboard at /dashboard/analytics/{site-slug}');
   console.log('4. Verify events appear in the database\n');

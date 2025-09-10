@@ -242,7 +242,7 @@ export default function DashboardPage() {
                       <div className="flex items-center space-x-4 text-sm text-gray-500">
                         <span className="flex items-center">
                           <Link2 className="h-3 w-3 mr-1" />
-                          /siteler/{site.site_slug}
+                          /{site.site_slug}
                         </span>
                         <span className="flex items-center">
                           <ExternalLink className="h-3 w-3 mr-1" />
@@ -262,7 +262,7 @@ export default function DashboardPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => window.open(`/siteler/${site.site_slug}`, '_blank')}
+                        onClick={() => window.open(`/${site.site_slug}`, '_blank')}
                         title="View Site"
                       >
                         <Eye className="h-4 w-4" />

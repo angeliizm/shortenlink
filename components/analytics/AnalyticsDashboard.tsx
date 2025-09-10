@@ -438,7 +438,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
             <div className="text-center">
               <p className="text-gray-500 mb-2">No analytics data available for this period</p>
               <p className="text-sm text-gray-400">
-                Visit your site at <code className="bg-gray-100 px-2 py-1 rounded">/siteler/{siteSlug}</code> to start tracking
+                Visit your site at <code className="bg-gray-100 px-2 py-1 rounded">/{siteSlug}</code> to start tracking
               </p>
             </div>
           </CardContent>
