@@ -37,7 +37,7 @@ export async function getUserRole(userId?: string): Promise<UserRole> {
       return 'pending';
     }
 
-    return data.role as UserRole;
+    return (data as { role: UserRole }).role;
   } catch (error) {
     console.error('Error getting user role:', error);
     return 'pending';
@@ -85,7 +85,7 @@ export async function hasSitePermission(
       .eq('site_slug', siteSlug)
       .single();
 
-    if (pageData?.owner_id === userId) {
+    if (pageData && (pageData as { owner_id: string }).owner_id === userId) {
       return true;
     }
 
@@ -101,7 +101,8 @@ export async function hasSitePermission(
 
     if (permissionData) {
       // Expire date kontrol et
-      if (permissionData.expires_at && new Date(permissionData.expires_at) < new Date()) {
+      const typedPermissionData = permissionData as { expires_at: string | null };
+      if (typedPermissionData.expires_at && new Date(typedPermissionData.expires_at) < new Date()) {
         return false;
       }
       return true;
@@ -136,7 +137,7 @@ export async function canDeleteSite(siteSlug: string, userId?: string): Promise<
       .eq('site_slug', siteSlug)
       .single();
 
-    return pageData?.owner_id === userId;
+    return pageData ? (pageData as { owner_id: string }).owner_id === userId : false;
   } catch (error) {
     console.error('Error checking delete permission:', error);
     return false;
@@ -164,13 +165,23 @@ export async function getUserPermissions(userId?: string): Promise<SitePermissio
       return [];
     }
 
-    return data.map(permission => ({
-      siteSlug: permission.site_slug,
-      permissionType: permission.permission_type,
-      grantedAt: permission.granted_at,
-      expiresAt: permission.expires_at,
-      isActive: permission.is_active
-    }));
+    return data.map(permission => {
+      const typedPermission = permission as {
+        site_slug: string;
+        permission_type: string;
+        granted_at: string;
+        expires_at: string | null;
+        is_active: boolean;
+      };
+      
+      return {
+        siteSlug: typedPermission.site_slug,
+        permissionType: typedPermission.permission_type as 'view' | 'edit' | 'analytics' | 'create',
+        grantedAt: typedPermission.granted_at,
+        expiresAt: typedPermission.expires_at || undefined,
+        isActive: typedPermission.is_active
+      };
+    });
   } catch (error) {
     console.error('Error getting user permissions:', error);
     return [];
