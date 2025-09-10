@@ -238,28 +238,30 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         
         @media (max-width: 768px) {
           .title-styled {
-            font-size: calc(${titleStylePreset.styles.titleFontSize} * 0.85) !important;
-            line-height: 1.2 !important;
+            font-size: 1.5rem !important;
+            line-height: 1.3 !important;
           }
           .description-styled {
-            font-size: calc(${titleStylePreset.styles.descriptionFontSize} * 0.9) !important;
+            font-size: 1rem !important;
             line-height: 1.5 !important;
           }
           .content-container {
-            /* padding removed - now handled by profile card styles */
+            padding: 0 16px !important;
           }
           .action-button {
             font-size: 16px !important;
-            padding: 18px 24px !important;
-            margin: 0 0 12px 0 !important;
+            padding: 16px 20px !important;
+            margin: 0 0 16px 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
           }
           .title-gradient {
-            font-size: 2.5rem !important;
+            font-size: 2rem !important;
           }
           .profile-avatar {
-            width: 100px !important;
-            height: 100px !important;
-            margin-bottom: 16px !important;
+            width: 120px !important;
+            height: 120px !important;
+            margin: 0 auto 20px auto !important;
             display: block !important;
             visibility: visible !important;
             z-index: 10 !important;
@@ -269,45 +271,65 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             width: 100% !important;
             height: 100% !important;
             object-fit: cover !important;
-            border-radius: inherit !important;
+            border-radius: 50% !important;
             display: block !important;
             visibility: visible !important;
           }
           .profile-card-container {
-            padding: 24px !important;
-            margin: 16px !important;
-            min-height: 280px !important;
+            padding: 32px 24px !important;
+            margin: 20px 16px !important;
+            min-height: 320px !important;
+            width: calc(100% - 32px) !important;
+            max-width: 400px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
           }
         }
         
         @media (max-width: 480px) {
           .title-styled {
-            font-size: calc(${titleStylePreset.styles.titleFontSize} * 0.75) !important;
+            font-size: 1.25rem !important;
+            line-height: 1.3 !important;
           }
           .description-styled {
-            font-size: calc(${titleStylePreset.styles.descriptionFontSize} * 0.85) !important;
+            font-size: 0.9rem !important;
+            line-height: 1.4 !important;
           }
           .title-gradient {
-            font-size: 2rem !important;
+            font-size: 1.75rem !important;
           }
           .action-button {
             font-size: 15px !important;
-            padding: 16px 20px !important;
-            margin: 0 0 10px 0 !important;
+            padding: 14px 18px !important;
+            margin: 0 0 14px 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
           }
           .profile-avatar {
-            width: 90px !important;
-            height: 90px !important;
-            margin-bottom: 14px !important;
+            width: 100px !important;
+            height: 100px !important;
+            margin: 0 auto 16px auto !important;
             display: block !important;
             visibility: visible !important;
             z-index: 10 !important;
             position: relative !important;
           }
+          .profile-avatar img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 50% !important;
+            display: block !important;
+            visibility: visible !important;
+          }
           .profile-card-container {
-            padding: 20px !important;
-            margin: 12px !important;
-            min-height: 260px !important;
+            padding: 24px 20px !important;
+            margin: 16px 12px !important;
+            min-height: 280px !important;
+            width: calc(100% - 24px) !important;
+            max-width: 360px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
           }
         }
         
@@ -480,7 +502,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                    style={{
                      width: styles.avatarSize,
                      height: styles.avatarSize,
-                     borderRadius: styles.avatarBorderRadius,
+                     borderRadius: '50%',
                      border: styles.avatarBorder,
                      boxShadow: styles.avatarShadow,
                      background: styles.avatarBackground,
@@ -695,7 +717,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         {/* Enhanced Action Buttons Container */}
         {sortedActions.length > 0 && (
           <motion.div 
-            className="w-full max-w-md mx-auto mt-4 space-y-6 px-2 sm:px-0"
+            className="w-full max-w-md mx-auto mt-4 space-y-4 px-4 sm:px-0"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
