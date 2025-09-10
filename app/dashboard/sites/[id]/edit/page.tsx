@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
@@ -19,7 +19,7 @@ import { backgroundPresets, applyPresetControls } from '@/lib/background-presets
 import { TitleStyleSelector } from '@/components/title-style-selector'
 
 interface PageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 interface Action {
@@ -36,11 +36,13 @@ export default function EditSitePage({ params }: PageProps) {
   const router = useRouter()
   const { user } = useAuth()
   const supabase = createClient()
+  const urlParams = useParams()
   
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [siteId, setSiteId] = useState<string>('')
   
   const [formData, setFormData] = useState({
     title: '',
@@ -65,8 +67,18 @@ export default function EditSitePage({ params }: PageProps) {
   const [titleStylePresetId, setTitleStylePresetId] = useState<string | undefined>(undefined)
 
   useEffect(() => {
-    fetchSiteData()
-  }, [params.id])
+    const initializeParams = async () => {
+      const resolvedParams = await params
+      setSiteId(resolvedParams.id)
+    }
+    initializeParams()
+  }, [params])
+
+  useEffect(() => {
+    if (siteId) {
+      fetchSiteData()
+    }
+  }, [siteId])
 
   const fetchSiteData = async () => {
     if (!user) return
@@ -76,7 +88,7 @@ export default function EditSitePage({ params }: PageProps) {
       const { data: page, error: pageError } = await supabase
         .from('pages')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', siteId)
         .eq('owner_id', user.id)
         .single() as { data: any, error: any }
       
@@ -109,7 +121,7 @@ export default function EditSitePage({ params }: PageProps) {
       const { data: actionsData, error: actionsError } = await supabase
         .from('page_actions')
         .select('*')
-        .eq('page_id', params.id)
+        .eq('page_id', siteId)
         .order('sort_order') as { data: any[], error: any }
       
       if (!actionsError && actionsData) {
@@ -123,11 +135,11 @@ export default function EditSitePage({ params }: PageProps) {
       const { data: bgPrefs, error: bgError } = await supabase
         .from('background_preferences')
         .select('*')
-        .eq('site_id', params.id)
+        .eq('site_id', siteId)
         .single() as { data: any, error: any }
       
       if (!bgError && bgPrefs) {
-        setBackgroundPreferences({ [params.id]: bgPrefs })
+        setBackgroundPreferences({ [siteId]: bgPrefs })
       }
 
       // Fetch title style preference (optional table)
@@ -136,7 +148,7 @@ export default function EditSitePage({ params }: PageProps) {
         const { data } = await supabase
           .from('title_style_preferences')
           .select('preset_id')
-          .eq('site_id', params.id)
+          .eq('site_id', siteId)
           .single()
         titlePref = data
       } catch (e) {
@@ -195,7 +207,7 @@ export default function EditSitePage({ params }: PageProps) {
           meta: { description: formData.description },
           updated_at: new Date().toISOString()
         })
-        .eq('id', params.id)
+        .eq('id', siteId)
         .eq('owner_id', user.id)
       
       if (pageError) throw pageError
@@ -234,7 +246,7 @@ export default function EditSitePage({ params }: PageProps) {
           const { error: insertError } = await (supabase as any)
             .from('page_actions')
             .insert({
-              page_id: params.id,
+              page_id: siteId,
               label: action.label,
               href: action.href,
               variant: action.variant,
@@ -299,7 +311,7 @@ export default function EditSitePage({ params }: PageProps) {
         const { error } = await supabase
           .from('background_preferences')
           .delete()
-          .eq('site_id', params.id)
+          .eq('site_id', siteId)
         
         if (error) throw error
         setBackgroundPreferences({})
@@ -308,7 +320,7 @@ export default function EditSitePage({ params }: PageProps) {
         const { error } = await (supabase as any)
           .from('background_preferences')
           .upsert({
-            site_id: params.id,
+            site_id: siteId,
             preset_id: presetId,
             control_values: controls
           }, {
@@ -317,8 +329,8 @@ export default function EditSitePage({ params }: PageProps) {
         
         if (error) throw error
         setBackgroundPreferences({
-          [params.id]: {
-            site_id: params.id,
+          [siteId]: {
+            site_id: siteId,
             preset_id: presetId,
             control_values: controls
           }
@@ -334,7 +346,7 @@ export default function EditSitePage({ params }: PageProps) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        siteId: params.id,
+        siteId: siteId,
         presetId,
       })
     })
@@ -595,12 +607,12 @@ export default function EditSitePage({ params }: PageProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <BackgroundPreviewChip
-                    presetId={backgroundPreferences[params.id]?.preset_id}
-                    controlValues={backgroundPreferences[params.id]?.control_values}
+                    presetId={backgroundPreferences[siteId]?.preset_id}
+                    controlValues={backgroundPreferences[siteId]?.control_values}
                   />
                   <div>
                     <p className="text-sm font-medium">
-                      {backgroundPreferences[params.id]?.preset_id 
+                      {backgroundPreferences[siteId]?.preset_id 
                         ? `Custom background applied` 
                         : 'Using default background'
                       }
@@ -625,14 +637,14 @@ export default function EditSitePage({ params }: PageProps) {
           <Card className="mb-6">
             <CardContent className="pt-6">
               <TitleStyleSelector
-                siteId={params.id}
+                siteId={siteId}
                 currentTitle={formData.title}
                 currentDescription={formData.description}
                 currentPresetId={titleStylePresetId}
-                backgroundStyle={backgroundPreferences[params.id]
+                backgroundStyle={backgroundPreferences[siteId]
                   ? applyPresetControls(
-                      backgroundPresets.find(p => p.id === backgroundPreferences[params.id].preset_id) || backgroundPresets[0],
-                      backgroundPreferences[params.id]?.control_values || {}
+                      backgroundPresets.find(p => p.id === backgroundPreferences[siteId].preset_id) || backgroundPresets[0],
+                      backgroundPreferences[siteId]?.control_values || {}
                     )
                   : undefined}
                 onSave={handleTitleStyleSave}
@@ -670,9 +682,9 @@ export default function EditSitePage({ params }: PageProps) {
         {/* Background Selector Dialog */}
         {backgroundSelectorOpen && (
           <BackgroundSelector
-            siteId={params.id}
-            currentPresetId={backgroundPreferences[params.id]?.preset_id}
-            currentControls={backgroundPreferences[params.id]?.control_values}
+            siteId={siteId}
+            currentPresetId={backgroundPreferences[siteId]?.preset_id}
+            currentControls={backgroundPreferences[siteId]?.control_values}
             onSave={async (presetId, controls) => {
               await handleBackgroundSave(presetId, controls)
               setBackgroundSelectorOpen(false)
