@@ -94,6 +94,12 @@ export const backgroundPresets: BackgroundPreset[] = [
     },
     controls: [
       {
+        id: 'baseColor',
+        label: 'Base Color',
+        type: 'color',
+        value: '#fefefe',
+      },
+      {
         id: 'warmth',
         label: 'Warmth',
         type: 'range',
@@ -120,6 +126,18 @@ export const backgroundPresets: BackgroundPreset[] = [
     },
     controls: [
       {
+        id: 'baseColor',
+        label: 'Base Color',
+        type: 'color',
+        value: '#ffffff',
+      },
+      {
+        id: 'stripeColor',
+        label: 'Stripe Color',
+        type: 'color',
+        value: '#000000',
+      },
+      {
         id: 'thickness',
         label: 'Stripe Width',
         type: 'range',
@@ -140,6 +158,18 @@ export const backgroundPresets: BackgroundPreset[] = [
       backgroundSize: '20px 20px',
     },
     controls: [
+      {
+        id: 'baseColor',
+        label: 'Base Color',
+        type: 'color',
+        value: '#fafbfc',
+      },
+      {
+        id: 'dotColor',
+        label: 'Dot Color',
+        type: 'color',
+        value: '#000000',
+      },
       {
         id: 'dotSize',
         label: 'Dot Size',
@@ -169,6 +199,30 @@ export const backgroundPresets: BackgroundPreset[] = [
     `,
     controls: [
       {
+        id: 'color1',
+        label: 'Color 1',
+        type: 'color',
+        value: '#ee7752',
+      },
+      {
+        id: 'color2',
+        label: 'Color 2',
+        type: 'color',
+        value: '#e73c7e',
+      },
+      {
+        id: 'color3',
+        label: 'Color 3',
+        type: 'color',
+        value: '#23a6d5',
+      },
+      {
+        id: 'color4',
+        label: 'Color 4',
+        type: 'color',
+        value: '#23d5ab',
+      },
+      {
         id: 'speed',
         label: 'Animation Speed',
         type: 'range',
@@ -195,6 +249,18 @@ export const backgroundPresets: BackgroundPreset[] = [
       }
     `,
     controls: [
+      {
+        id: 'baseColor',
+        label: 'Base Color',
+        type: 'color',
+        value: '#f0f4f8',
+      },
+      {
+        id: 'waveColor',
+        label: 'Wave Color',
+        type: 'color',
+        value: '#9C92AC',
+      },
       {
         id: 'waveSpeed',
         label: 'Wave Speed',
@@ -223,6 +289,24 @@ export const backgroundPresets: BackgroundPreset[] = [
       }
     `,
     controls: [
+      {
+        id: 'color1',
+        label: 'Top Color',
+        type: 'color',
+        value: '#0f0c29',
+      },
+      {
+        id: 'color2',
+        label: 'Middle Color',
+        type: 'color',
+        value: '#302b63',
+      },
+      {
+        id: 'color3',
+        label: 'Bottom Color',
+        type: 'color',
+        value: '#24243e',
+      },
       {
         id: 'density',
         label: 'Firefly Count',
@@ -256,6 +340,42 @@ export const backgroundPresets: BackgroundPreset[] = [
       }
     `,
     controls: [
+      {
+        id: 'baseColor1',
+        label: 'Base Color 1',
+        type: 'color',
+        value: '#fafbfc',
+      },
+      {
+        id: 'baseColor2',
+        label: 'Base Color 2',
+        type: 'color',
+        value: '#e9ecef',
+      },
+      {
+        id: 'auroraColor1',
+        label: 'Aurora Color 1',
+        type: 'color',
+        value: '#7877C6',
+      },
+      {
+        id: 'auroraColor2',
+        label: 'Aurora Color 2',
+        type: 'color',
+        value: '#FF77C6',
+      },
+      {
+        id: 'auroraColor3',
+        label: 'Aurora Color 3',
+        type: 'color',
+        value: '#FFCE54',
+      },
+      {
+        id: 'auroraColor4',
+        label: 'Aurora Color 4',
+        type: 'color',
+        value: '#78DBFF',
+      },
       {
         id: 'intensity',
         label: 'Aurora Intensity',
@@ -300,31 +420,100 @@ export function applyPresetControls(
       break
       
     case 'paper-noise':
+      if (controlValues.baseColor) {
+        style.backgroundColor = controlValues.baseColor as string
+      }
       if (controlValues.warmth !== undefined) {
         const warmth = controlValues.warmth as number
-        const r = 254 + warmth
-        const g = 254 + Math.floor(warmth * 0.7)
-        const b = 254 - warmth
+        const baseColor = controlValues.baseColor as string || '#fefefe'
+        const r = parseInt(baseColor.slice(1, 3), 16) + warmth
+        const g = parseInt(baseColor.slice(3, 5), 16) + Math.floor(warmth * 0.7)
+        const b = parseInt(baseColor.slice(5, 7), 16) - warmth
         style.backgroundColor = `rgb(${Math.min(255, Math.max(240, r))}, ${Math.min(255, Math.max(240, g))}, ${Math.min(255, Math.max(240, b))})`
       }
       break
       
     case 'diagonal-stripes':
-      if (controlValues.thickness) {
-        const width = controlValues.thickness as number
+      if (controlValues.baseColor) {
+        style.backgroundColor = controlValues.baseColor as string
+      }
+      if (controlValues.stripeColor || controlValues.thickness) {
+        const width = (controlValues.thickness || 10) as number
+        const stripeColor = (controlValues.stripeColor || '#000000') as string
+        const stripeRgba = hexToRgba(stripeColor, 0.01)
         style.backgroundImage = `repeating-linear-gradient(
           45deg,
           transparent,
           transparent ${width}px,
-          rgba(0, 0, 0, 0.01) ${width}px,
-          rgba(0, 0, 0, 0.01) ${width * 2}px
+          ${stripeRgba} ${width}px,
+          ${stripeRgba} ${width * 2}px
         )`
       }
       break
       
     case 'micro-dots':
-      if (controlValues.dotSize) {
-        style.backgroundSize = `${controlValues.dotSize}px ${controlValues.dotSize}px`
+      if (controlValues.baseColor) {
+        style.backgroundColor = controlValues.baseColor as string
+      }
+      if (controlValues.dotColor || controlValues.dotSize) {
+        const dotColor = (controlValues.dotColor || '#000000') as string
+        const dotSize = (controlValues.dotSize || 20) as number
+        const dotRgba = hexToRgba(dotColor, 0.03)
+        style.backgroundImage = `radial-gradient(circle, ${dotRgba} 1px, transparent 1px)`
+        style.backgroundSize = `${dotSize}px ${dotSize}px`
+      }
+      break
+      
+    case 'living-gradient':
+      if (controlValues.color1 || controlValues.color2 || controlValues.color3 || controlValues.color4) {
+        const c1 = (controlValues.color1 || '#ee7752') as string
+        const c2 = (controlValues.color2 || '#e73c7e') as string
+        const c3 = (controlValues.color3 || '#23a6d5') as string
+        const c4 = (controlValues.color4 || '#23d5ab') as string
+        style.background = `linear-gradient(270deg, ${c1}, ${c2}, ${c3}, ${c4})`
+      }
+      break
+      
+    case 'liquid-waves':
+      if (controlValues.baseColor) {
+        style.backgroundColor = controlValues.baseColor as string
+      }
+      if (controlValues.waveColor) {
+        const waveColor = (controlValues.waveColor || '#9C92AC') as string
+        const encodedColor = encodeURIComponent(waveColor)
+        style.backgroundImage = `url("data:image/svg+xml,%3Csvg width='100' height='20' viewBox='0 0 100 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21.184 20c.357-.13.72-.264 1.088-.402l1.768-.661C33.64 15.347 39.647 14 50 14c10.271 0 15.362 1.222 24.629 4.928.955.383 1.869.74 2.75 1.072h6.225c-2.51-.73-5.139-1.691-8.233-2.928C65.888 13.278 60.562 12 50 12c-10.626 0-16.855 1.397-26.66 5.063l-1.767.662c-2.475.923-4.66 1.674-6.724 2.275h6.335zm0-20C13.258 2.892 8.077 4 0 4V2c5.744 0 9.951-.574 14.85-2h6.334zM77.38 0C85.239 2.966 90.502 4 100 4V2c-6.842 0-11.386-.542-16.396-2h-6.225zM0 14c8.44 0 13.718-1.21 22.272-4.402l1.768-.661C33.64 5.347 39.647 4 50 4c10.271 0 15.362 1.222 24.629 4.928C84.112 12.722 89.438 14 100 14v-2c-10.271 0-15.362-1.222-24.629-4.928C65.888 3.278 60.562 2 50 2 39.374 2 33.145 3.397 23.34 7.063l-1.767.662C13.223 10.84 8.163 12 0 12v2z' fill='%23${encodedColor.slice(1)}' fill-opacity='0.04' fill-rule='evenodd'/%3E%3C/svg%3E")`
+      }
+      break
+      
+    case 'fireflies':
+      if (controlValues.color1 || controlValues.color2 || controlValues.color3) {
+        const c1 = (controlValues.color1 || '#0f0c29') as string
+        const c2 = (controlValues.color2 || '#302b63') as string
+        const c3 = (controlValues.color3 || '#24243e') as string
+        style.background = `linear-gradient(180deg, ${c1} 0%, ${c2} 50%, ${c3} 100%)`
+      }
+      break
+      
+    case 'aurora-veil':
+      if (controlValues.baseColor1 || controlValues.baseColor2 || 
+          controlValues.auroraColor1 || controlValues.auroraColor2 || 
+          controlValues.auroraColor3 || controlValues.auroraColor4 || 
+          controlValues.intensity !== undefined) {
+        const base1 = (controlValues.baseColor1 || '#fafbfc') as string
+        const base2 = (controlValues.baseColor2 || '#e9ecef') as string
+        const aurora1 = (controlValues.auroraColor1 || '#7877C6') as string
+        const aurora2 = (controlValues.auroraColor2 || '#FF77C6') as string
+        const aurora3 = (controlValues.auroraColor3 || '#FFCE54') as string
+        const aurora4 = (controlValues.auroraColor4 || '#78DBFF') as string
+        const intensity = (controlValues.intensity || 0.3) as number
+        
+        style.background = `
+          radial-gradient(ellipse at top left, ${hexToRgba(aurora1, intensity)} 0%, transparent 50%),
+          radial-gradient(ellipse at top right, ${hexToRgba(aurora2, intensity)} 0%, transparent 50%),
+          radial-gradient(ellipse at bottom left, ${hexToRgba(aurora3, intensity)} 0%, transparent 50%),
+          radial-gradient(ellipse at bottom right, ${hexToRgba(aurora4, intensity)} 0%, transparent 50%),
+          linear-gradient(180deg, ${base1} 0%, ${base2} 100%)
+        `
       }
       break
   }

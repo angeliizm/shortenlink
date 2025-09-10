@@ -141,7 +141,10 @@ export function BackgroundPicker({
                   >
                     <div
                       className="absolute inset-0"
-                      style={applyPresetControls(preset, {})}
+                      style={applyPresetControls(preset, preset.controls?.reduce((acc, control) => {
+                        acc[control.id] = control.value
+                        return acc
+                      }, {} as Record<string, string | number>) || {})}
                     />
                     {preset.animation && !prefersReducedMotion && (
                       <style jsx>{`
@@ -188,7 +191,7 @@ export function BackgroundPicker({
                 transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                 className="w-80 border-l border-gray-100 bg-gray-50/50"
               >
-                <div className="p-6 space-y-6">
+                <div className="p-6 space-y-6 max-h-[400px] overflow-y-auto">
                   <div>
                     <h3 className="text-sm font-medium text-gray-900 mb-1">
                       {selectedPreset.name}
@@ -202,64 +205,94 @@ export function BackgroundPicker({
                     <div className="space-y-4">
                       <div className="flex items-center gap-2 text-xs text-gray-500">
                         <Sparkles className="w-3 h-3" />
-                        <span>Customize</span>
+                        <span>Customize Colors & Settings</span>
                       </div>
-                      {selectedPreset.controls.map((control) => (
-                        <div key={control.id} className="space-y-2">
-                          <label className="text-xs font-medium text-gray-700">
-                            {control.label}
-                          </label>
-                          {control.type === 'color' && (
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="color"
-                                value={controlValues[control.id] as string || control.value}
-                                onChange={(e) => handleControlChange(control.id, e.target.value)}
-                                className="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer"
-                              />
-                              <input
-                                type="text"
-                                value={controlValues[control.id] as string || control.value}
-                                onChange={(e) => handleControlChange(control.id, e.target.value)}
-                                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                              />
-                            </div>
-                          )}
-                          {control.type === 'range' && (
-                            <div className="space-y-1">
-                              <input
-                                type="range"
-                                min={control.min}
-                                max={control.max}
-                                step={control.step}
-                                value={controlValues[control.id] as number || control.value}
-                                onChange={(e) => handleControlChange(control.id, parseFloat(e.target.value))}
-                                className="w-full accent-purple-500"
-                              />
-                              <div className="flex justify-between text-xs text-gray-400">
-                                <span>{control.min}</span>
-                                <span className="font-medium text-gray-700">
-                                  {controlValues[control.id] || control.value}
-                                </span>
-                                <span>{control.max}</span>
+                      {/* Color Controls */}
+                      {selectedPreset.controls.filter(c => c.type === 'color').length > 0 && (
+                        <div className="space-y-3">
+                          <div className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                            Colors
+                          </div>
+                          {selectedPreset.controls.filter(c => c.type === 'color').map((control) => (
+                            <div key={control.id} className="space-y-2">
+                              <label className="text-xs font-medium text-gray-700">
+                                {control.label}
+                              </label>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="color"
+                                    value={controlValues[control.id] as string || control.value}
+                                    onChange={(e) => handleControlChange(control.id, e.target.value)}
+                                    className="w-12 h-12 rounded-lg border-2 border-gray-200 cursor-pointer hover:border-purple-300 transition-colors"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={controlValues[control.id] as string || control.value}
+                                    onChange={(e) => handleControlChange(control.id, e.target.value)}
+                                    className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono"
+                                    placeholder="#000000"
+                                  />
+                                </div>
+                                {/* Color preview */}
+                                <div 
+                                  className="w-full h-6 rounded-lg border border-gray-200"
+                                  style={{ backgroundColor: controlValues[control.id] as string || control.value }}
+                                />
                               </div>
                             </div>
-                          )}
-                          {control.type === 'select' && control.options && (
-                            <select
-                              value={controlValues[control.id] as string || control.value}
-                              onChange={(e) => handleControlChange(control.id, e.target.value)}
-                              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            >
-                              {control.options.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                  {option.label}
-                                </option>
-                              ))}
-                            </select>
-                          )}
+                          ))}
                         </div>
-                      ))}
+                      )}
+
+                      {/* Other Controls */}
+                      {selectedPreset.controls.filter(c => c.type !== 'color').length > 0 && (
+                        <div className="space-y-3">
+                          <div className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                            Settings
+                          </div>
+                          {selectedPreset.controls.filter(c => c.type !== 'color').map((control) => (
+                            <div key={control.id} className="space-y-2">
+                              <label className="text-xs font-medium text-gray-700">
+                                {control.label}
+                              </label>
+                              {control.type === 'range' && (
+                                <div className="space-y-1">
+                                  <input
+                                    type="range"
+                                    min={control.min}
+                                    max={control.max}
+                                    step={control.step}
+                                    value={controlValues[control.id] as number || control.value}
+                                    onChange={(e) => handleControlChange(control.id, parseFloat(e.target.value))}
+                                    className="w-full accent-purple-500"
+                                  />
+                                  <div className="flex justify-between text-xs text-gray-400">
+                                    <span>{control.min}</span>
+                                    <span className="font-medium text-gray-700">
+                                      {controlValues[control.id] || control.value}
+                                    </span>
+                                    <span>{control.max}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {control.type === 'select' && control.options && (
+                                <select
+                                  value={controlValues[control.id] as string || control.value}
+                                  onChange={(e) => handleControlChange(control.id, e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                >
+                                  {control.options.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                      {option.label}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
 
