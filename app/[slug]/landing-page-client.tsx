@@ -202,6 +202,10 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   let backgroundStyle: React.CSSProperties = {}
   let animationClass = ''
   let animationCSS = ''
+  
+  // Get title styles for responsive CSS
+  const currentTitleStylePreset = titleStylePresets.find(p => p.id === titleFontPresetId) || titleStylePresets.find(p => p.id === defaultTitleFontPresetId)!
+  const titleStyles = currentTitleStylePreset.styles
 
   if (activeBackground.preset) {
     backgroundStyle = applyPresetControls(activeBackground.preset, activeBackground.controls)
@@ -296,7 +300,24 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           }
         }
         
-        /* Responsive font sizes will be added dynamically */
+        /* Responsive font sizes */
+        .responsive-title {
+          font-size: ${titleStyles?.titleFontSize || '3.5rem'} !important;
+        }
+        
+        .responsive-description {
+          font-size: ${titleStyles?.descriptionFontSize || '1.125rem'} !important;
+        }
+        
+        @media (max-width: 768px) {
+          .responsive-title {
+            font-size: ${titleStyles?.titleFontSizeMobile || '2.25rem'} !important;
+          }
+          
+          .responsive-description {
+            font-size: ${titleStyles?.descriptionFontSizeMobile || '1rem'} !important;
+          }
+        }
         
         ${animationCSS || ''}
         ${animationClass ? `.${animationClass} {
@@ -410,9 +431,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
       {/* Profile Card - Dynamic Preset Design */}
       {(() => {
         const profilePreset = getProfilePresetById(profilePresetId) || getProfilePresetById(defaultProfilePresetId)!
-        const titleStylePreset = titleStylePresets.find(p => p.id === titleFontPresetId) || titleStylePresets.find(p => p.id === defaultTitleFontPresetId)!
         const styles = profilePreset.styles
-        const titleStyles = titleStylePreset.styles
         
         // Create styles for the container
         const containerStyles = {
@@ -424,27 +443,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         }
         
         return (
-          <>
-            <style jsx>{`
-              .responsive-title {
-                font-size: ${titleStyles.titleFontSize} !important;
-              }
-              
-              .responsive-description {
-                font-size: ${titleStyles.descriptionFontSize} !important;
-              }
-              
-              @media (max-width: 768px) {
-                .responsive-title {
-                  font-size: ${titleStyles.titleFontSizeMobile} !important;
-                }
-                
-                .responsive-description {
-                  font-size: ${titleStyles.descriptionFontSizeMobile} !important;
-                }
-              }
-            `}</style>
-            <motion.div 
+          <motion.div 
               className="relative z-10 w-full max-w-md mx-auto mb-8"
               style={{
                 margin: '0 auto 30px auto'
@@ -579,7 +578,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
               </div>
             </div>
           </motion.div>
-          </>
         )
       })()}
 
