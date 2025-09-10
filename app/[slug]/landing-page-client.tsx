@@ -238,28 +238,28 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         
         @media (max-width: 768px) {
           .title-styled {
-            font-size: ${titleStylePreset.styles.titleFontSizeMobile} !important;
-            line-height: 1.15 !important;
+            font-size: calc(${titleStylePreset.styles.titleFontSize} * 0.85) !important;
+            line-height: 1.2 !important;
           }
           .description-styled {
-            font-size: ${titleStylePreset.styles.descriptionFontSizeMobile} !important;
-            line-height: 1.65 !important;
+            font-size: calc(${titleStylePreset.styles.descriptionFontSize} * 0.9) !important;
+            line-height: 1.5 !important;
           }
           .content-container {
             /* padding removed - now handled by profile card styles */
           }
           .action-button {
             font-size: 16px !important;
-            padding: 16px 20px !important;
-            margin: 0 8px !important;
+            padding: 18px 24px !important;
+            margin: 0 !important;
           }
           .title-gradient {
             font-size: 2.5rem !important;
           }
           .profile-avatar {
-            width: 80px !important;
-            height: 80px !important;
-            margin-bottom: 12px !important;
+            width: 100px !important;
+            height: 100px !important;
+            margin-bottom: 16px !important;
           }
           .profile-avatar img {
             width: 100% !important;
@@ -267,27 +267,37 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             object-fit: cover !important;
             border-radius: inherit !important;
           }
+          .profile-card-container {
+            padding: 24px !important;
+            margin: 16px !important;
+            min-height: 280px !important;
+          }
         }
         
         @media (max-width: 480px) {
           .title-styled {
-            font-size: calc(${titleStylePreset.styles.titleFontSizeMobile} * 0.85) !important;
+            font-size: calc(${titleStylePreset.styles.titleFontSize} * 0.75) !important;
           }
           .description-styled {
-            font-size: calc(${titleStylePreset.styles.descriptionFontSizeMobile} * 0.9) !important;
+            font-size: calc(${titleStylePreset.styles.descriptionFontSize} * 0.85) !important;
           }
           .title-gradient {
             font-size: 2rem !important;
           }
           .action-button {
-            font-size: 14px !important;
-            padding: 14px 16px !important;
-            margin: 0 4px !important;
+            font-size: 15px !important;
+            padding: 16px 20px !important;
+            margin: 0 !important;
           }
           .profile-avatar {
-            width: 70px !important;
-            height: 70px !important;
-            margin-bottom: 10px !important;
+            width: 90px !important;
+            height: 90px !important;
+            margin-bottom: 14px !important;
+          }
+          .profile-card-container {
+            padding: 20px !important;
+            margin: 12px !important;
+            min-height: 260px !important;
           }
         }
         
@@ -445,7 +455,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             <div className="relative">
               {/* Profile Card Container */}
               <div 
-                className="relative overflow-hidden text-center"
+                className="relative overflow-hidden text-center profile-card-container"
                 style={{
                   padding: styles.containerPadding,
                   borderRadius: styles.containerBorderRadius,
@@ -664,7 +674,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         {/* Enhanced Action Buttons Container */}
         {sortedActions.length > 0 && (
           <motion.div 
-            className="w-full max-w-md mx-auto mt-4 space-y-6 px-4 sm:px-0"
+            className="w-full max-w-md mx-auto mt-4 space-y-6 px-2 sm:px-0"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
