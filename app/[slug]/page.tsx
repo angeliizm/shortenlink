@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { getPageConfig } from '@/lib/supabase/pages'
 import LandingPageClient from './landing-page-client'
 
@@ -38,7 +38,8 @@ export default async function Page({ params }: PageProps) {
   const config = await getPageConfig(params.slug)
   
   if (!config) {
-    notFound()
+    // Redirect to home page instead of showing 404
+    redirect('/')
   }
 
   // No authentication required - public access

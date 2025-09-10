@@ -8,7 +8,7 @@ export default async function AnalyticsPage({ params }: { params: { slug: string
   // Check authentication
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
-    redirect('/login')
+    redirect('/')
   }
 
   // Verify user owns this site
