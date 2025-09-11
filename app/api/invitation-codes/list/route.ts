@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,8 +14,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get active invitation codes
-    const { data: codes, error: listError } = await (supabase as any)
+    // Get active invitation codes with service role client
+    const serviceSupabase = createServiceRoleClient()
+    const { data: codes, error: listError } = await (serviceSupabase as any)
       .rpc('get_active_invitation_codes')
 
     if (listError) {

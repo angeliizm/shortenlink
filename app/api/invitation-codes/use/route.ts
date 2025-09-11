@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,11 +30,13 @@ export async function POST(request: NextRequest) {
     const forwarded = request.headers.get('x-forwarded-for')
     const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || '127.0.0.1'
 
-    // Use the invitation code
-    const { data: result, error: useError } = await (supabase as any)
+    // Use the invitation code with service role client
+    const serviceSupabase = createServiceRoleClient()
+    const { data: result, error: useError } = await (serviceSupabase as any)
       .rpc('use_invitation_code', {
-        invitation_code: code.toUpperCase(),
-        user_ip: ip
+        p_code: code.toUpperCase(),
+        p_user_id: user.id,
+        p_ip_address: ip
       })
 
     if (useError) {

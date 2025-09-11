@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -92,8 +92,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate unique code
-    const { data: codeData, error: codeError } = await (supabase as any)
+    // Generate unique code with service role client
+    const serviceSupabase = createServiceRoleClient()
+    const { data: codeData, error: codeError } = await (serviceSupabase as any)
       .rpc('generate_invitation_code')
 
     if (codeError) {
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
     // Create invitation codes for each site
     const invitationCodes = []
     for (const site of sites) {
-      const { data: invitationCode, error: createError } = await (supabase
+      const { data: invitationCode, error: createError } = await (serviceSupabase
         .from('invitation_codes') as any)
         .insert({
           code: codeData as string,
