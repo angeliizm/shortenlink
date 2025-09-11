@@ -434,6 +434,100 @@ export default function ModernAnalyticsDashboard({ siteSlug }: ModernAnalyticsDa
           </div>
         </div>
 
+        {/* Top Buttons Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* En Çok Tıklanan Butonlar */}
+          <Card className="bg-white border-0 shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-900">En Çok Tıklanan Butonlar</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="space-y-3">
+                {analytics?.actions?.actions ? (
+                  Object.entries(analytics.actions.actions)
+                    .sort(([, a], [, b]) => (b as number) - (a as number))
+                    .slice(0, 5)
+                    .map(([buttonIndex, count]) => (
+                      <div key={buttonIndex} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <span className="text-sm font-medium text-blue-600">
+                              {parseInt(buttonIndex) + 1}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              Buton {parseInt(buttonIndex) + 1}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {siteInfo?.actions?.[parseInt(buttonIndex)]?.label || 'Buton'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-gray-900">
+                            {count as number}
+                          </p>
+                          <p className="text-xs text-gray-500">tıklama</p>
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <MousePointer className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-sm text-gray-500">Henüz buton tıklaması yok</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* En İyi Referanslar */}
+          <Card className="bg-white border-0 shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-900">En İyi Referanslar</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="space-y-3">
+                {analytics?.referrers?.referrers ? (
+                  analytics.referrers.referrers.slice(0, 5).map((referrer: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                          <span className="text-sm font-medium text-green-600">
+                            {i + 1}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {referrer.referrer === 'direct' ? 'Doğrudan' : referrer.referrer}
+                          </p>
+                          <p className="text-xs text-gray-500">referans</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-gray-900">
+                          {referrer.count}
+                        </p>
+                        <p className="text-xs text-gray-500">ziyaret</p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <ArrowUpRight className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-sm text-gray-500">Henüz referans verisi yok</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Bottom Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Real-time Stats */}

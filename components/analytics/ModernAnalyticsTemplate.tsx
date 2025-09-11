@@ -710,14 +710,11 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
                            {activity.referrer || 'Doğrudan'}
                          </span>
                          <span className="text-gray-600">
-                           {isClick ? 'Buton Tıklaması' : 'Sayfa Görüntüleme'}
+                           {isClick ? 'Üye Olma' : 'Sayfa Görüntüleme'}
                          </span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <span className="text-gray-500">{timeStr}</span>
-                         {hasValue && (
-                           <span className="text-green-600 font-medium">Üye Oldu</span>
-                         )}
                       </div>
                     </div>
                     );
