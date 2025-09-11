@@ -4,7 +4,7 @@ import { useAuth } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shield, Sparkles, BarChart, Palette, Settings } from 'lucide-react'
+import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shield, Sparkles, BarChart, Palette, Settings, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import CreateSiteDialog from '@/components/dashboard/CreateSiteDialog'
@@ -39,6 +39,11 @@ export default function DashboardPage() {
   const [deleteTarget, setDeleteTarget] = useState<Site | null>(null)
   const [stats, setStats] = useState({ totalSites: 0, activeSites: 0 })
   const [userRole, setUserRole] = useState<string>('')
+  
+  // Invitation code states
+  const [invitationCode, setInvitationCode] = useState('')
+  const [isUsingCode, setIsUsingCode] = useState(false)
+  const [codeError, setCodeError] = useState('')
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -74,8 +79,8 @@ export default function DashboardPage() {
           // Code used successfully, refresh user role and sites
           const newRole = await fetchUserRole()
           if (newRole === 'approved') {
-            // If user is now approved, fetch sites immediately
-            await fetchSites()
+            // If user is now approved, fetch sites immediately with the new role
+            await fetchSites(newRole)
           }
         } else {
           console.warn('Invitation code could not be used:', result.error)
@@ -103,14 +108,57 @@ export default function DashboardPage() {
     }
   }
 
-  const fetchSites = async () => {
+  const handleUseInvitationCode = async () => {
+    if (!invitationCode.trim()) {
+      setCodeError('Lütfen bir davet kodu girin')
+      return
+    }
+
+    setIsUsingCode(true)
+    setCodeError('')
+
+    try {
+      const response = await fetch('/api/invitation-codes/use', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code: invitationCode.trim()
+        }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        // Code used successfully, refresh user role and sites
+        const newRole = await fetchUserRole()
+        if (newRole === 'approved') {
+          // If user is now approved, fetch sites immediately with the new role
+          await fetchSites(newRole)
+        }
+        setInvitationCode('')
+      } else {
+        setCodeError(result.error || 'Kod kullanılırken hata oluştu')
+      }
+    } catch (error) {
+      console.error('Error using invitation code:', error)
+      setCodeError('Kod kullanılırken hata oluştu')
+    } finally {
+      setIsUsingCode(false)
+    }
+  }
+
+  const fetchSites = async (role?: string) => {
     if (!user) return
+    
+    const currentRole = role || userRole
     
     try {
       let allSites: Site[] = []
 
       // If user is admin, fetch all sites
-      if (userRole === 'admin') {
+      if (currentRole === 'admin') {
         const { data: allSitesData, error: allSitesError } = await supabase
           .from('pages')
           .select('*')
@@ -222,68 +270,62 @@ export default function DashboardPage() {
   return (
     <RoleGuard requireDashboardAccess={true}>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-        {/* Modern Navigation with Glassmorphism */}
-        <nav className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-indigo-500/10"></div>
-          <div className="relative backdrop-blur-sm bg-white/80 border-b border-white/20 shadow-lg">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center h-20">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                    <Globe className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                      linkfy.
-                    </h1>
-                  </div>
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <Globe className="h-6 w-6 text-blue-600" />
+                  <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <Users className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm font-medium text-gray-700">
+                    {user?.email}
+                  </span>
                 </div>
                 
-                <div className="flex items-center space-x-4">
-                  <div className="hidden sm:block px-4 py-2 bg-white/50 backdrop-blur-sm rounded-xl border border-white/30">
-                    <span className="text-sm font-medium text-gray-700">
-                      {user?.email}
-                    </span>
-                  </div>
-                  
-                  {/* Admin Panel Link - Sadece admin kullanıcılar için */}
-                  {userRole === 'admin' && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => router.push('/admin')}
-                      className="flex items-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 text-white border-0 hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl transition-all duration-200"
-                    >
-                      <Settings className="h-4 w-4" />
-                      <span>Admin Panel</span>
-                    </Button>
-                  )}
-                  
-                  {/* Moderator Panel Link - Sadece moderatör kullanıcılar için */}
-                  {userRole === 'moderator' && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => router.push('/moderator')}
-                      className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white border-0 hover:from-orange-600 hover:to-orange-700 shadow-lg hover:shadow-xl transition-all duration-200"
-                    >
-                      <Shield className="h-4 w-4" />
-                      <span>Moderatör Panel</span>
-                    </Button>
-                  )}
-                  
-                  <button
-                    onClick={logout}
-                    className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl hover:bg-white/70 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+                {/* Admin Panel Link - Sadece admin kullanıcılar için */}
+                {userRole === 'admin' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push('/admin')}
+                    className="flex items-center space-x-2"
                   >
-                    <LogOut className="h-4 w-4" />
-                    <span>Çıkış</span>
-                  </button>
-                </div>
+                    <Settings className="h-4 w-4" />
+                    <span>Admin Panel</span>
+                  </Button>
+                )}
+                
+                {/* Moderator Panel Link - Sadece moderatör kullanıcılar için */}
+                {userRole === 'moderator' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push('/moderator')}
+                    className="flex items-center space-x-2"
+                  >
+                    <Shield className="h-4 w-4" />
+                    <span>Moderatör Panel</span>
+                  </Button>
+                )}
+                
+                <button
+                  onClick={logout}
+                  className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl hover:bg-white/70 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Çıkış Yap</span>
+                </button>
               </div>
             </div>
           </div>
-        </nav>
+        </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -387,37 +429,74 @@ export default function DashboardPage() {
               userRole === 'approved' ? (
                 <div className="text-center py-16">
                   <div className="relative inline-block mb-6">
-                    <div className="absolute inset-0 bg-gradient-to-r from-orange-200 to-yellow-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
-                    <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-yellow-100 rounded-3xl flex items-center justify-center relative">
-                      <Shield className="h-10 w-10 text-orange-600" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
+                    <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-3xl flex items-center justify-center relative">
+                      <Sparkles className="h-10 w-10 text-blue-600" />
                     </div>
                   </div>
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-2">Site Ataması Bekleniyor</h3>
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-2">Davet Kodunu Kullan</h3>
                   <p className="text-gray-500 mb-8 max-w-md mx-auto">
-                    Moderatör veya yönetici tarafından size site atanmasını bekleyin. 
-                    Atandığında burada görünecektir.
+                    Size verilen davet kodunu girerek site erişimi kazanabilirsiniz.
                   </p>
+                  
+                  {/* Invitation Code Form */}
+                  <div className="max-w-md mx-auto">
+                    <div className="space-y-4">
+                      <div>
+                        <input
+                          type="text"
+                          value={invitationCode}
+                          onChange={(e) => setInvitationCode(e.target.value.toUpperCase())}
+                          placeholder="Davet kodunu girin"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg font-mono tracking-wider"
+                          disabled={isUsingCode}
+                        />
+                      </div>
+                      
+                      {codeError && (
+                        <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                          {codeError}
+                        </div>
+                      )}
+                      
+                      <Button
+                        onClick={handleUseInvitationCode}
+                        disabled={isUsingCode || !invitationCode.trim()}
+                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                      >
+                        {isUsingCode ? (
+                          <div className="flex items-center justify-center">
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            Kod kullanılıyor...
+                          </div>
+                        ) : (
+                          'Davet Kodunu Kullan'
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                  
                   <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
                     <div className="flex flex-col items-center text-center p-4">
-                      <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mb-2">
-                        <Shield className="h-5 w-5 text-orange-600" />
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
+                        <Shield className="h-5 w-5 text-blue-600" />
                       </div>
-                      <p className="text-sm font-medium text-gray-700">Güvenli Atama</p>
+                      <p className="text-sm font-medium text-gray-700">Güvenli Kod</p>
                       <p className="text-xs text-gray-500">Yetkili kişiler tarafından</p>
                     </div>
                     <div className="flex flex-col items-center text-center p-4">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
-                        <Globe className="h-5 w-5 text-blue-600" />
+                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-2">
+                        <Globe className="h-5 w-5 text-green-600" />
                       </div>
-                      <p className="text-sm font-medium text-gray-700">Otomatik Görünüm</p>
-                      <p className="text-xs text-gray-500">Atandığında burada</p>
+                      <p className="text-sm font-medium text-gray-700">Anında Erişim</p>
+                      <p className="text-xs text-gray-500">Kod girince aktif</p>
                     </div>
                     <div className="flex flex-col items-center text-center p-4">
-                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-2">
-                        <Zap className="h-5 w-5 text-green-600" />
+                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
+                        <Zap className="h-5 w-5 text-purple-600" />
                       </div>
-                      <p className="text-sm font-medium text-gray-700">Hızlı Erişim</p>
-                      <p className="text-xs text-gray-500">Anında kullanıma hazır</p>
+                      <p className="text-sm font-medium text-gray-700">Hızlı Başlangıç</p>
+                      <p className="text-xs text-gray-500">Hemen kullanıma hazır</p>
                     </div>
                   </div>
                 </div>
@@ -485,14 +564,6 @@ export default function DashboardPage() {
                                 {site.title}
                               </h3>
                               <div className="flex items-center space-x-2">
-                                {/* Admin badge */}
-                                {userRole === 'admin' && (
-                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    <Shield className="w-3 h-3 mr-1" />
-                                    Admin
-                                  </span>
-                                )}
-                                
                                 {/* Permission type badge */}
                                 {site.permission_type && userRole !== 'admin' && (
                                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -512,16 +583,6 @@ export default function DashboardPage() {
                               <Link2 className="h-4 w-4 text-blue-500" />
                               <span className="font-mono bg-gray-100 px-2 py-1 rounded text-xs">
                                 /{site.site_slug}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <ExternalLink className="h-4 w-4 text-green-500" />
-                              <span className="truncate">
-                                {site.target_url === 'https://placeholder.empty'
-                                  ? '(İçerik yok)'
-                                  : site.target_url.startsWith('https://text/') 
-                                  ? decodeURIComponent(site.target_url.replace('https://text/', ''))
-                                  : site.target_url}
                               </span>
                             </div>
                             <div className="flex items-center space-x-2 text-xs text-gray-500">
@@ -572,8 +633,8 @@ export default function DashboardPage() {
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
-                            {/* Delete button - only for owners or admin */}
-                            {(!site.permission_type || userRole === 'admin') && (
+                            {/* Delete button - only for admin/moderator */}
+                            {(userRole === 'admin' || userRole === 'moderator') && (
                               <Button
                                 variant="ghost"
                                 size="sm"
