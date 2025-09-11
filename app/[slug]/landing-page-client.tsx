@@ -307,23 +307,38 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         /* Responsive font sizes */
         .responsive-title {
           font-size: ${titleStyles?.titleFontSize || '3.5rem'} !important;
-          color: ${titleStyles?.titleColor || '#111827'} !important;
+          color: ${titleStyles?.titleColor || titleColor || '#111827'} !important;
           font-family: ${titleStyles?.titleFontFamily || 'Inter, sans-serif'} !important;
+          font-weight: ${titleStyles?.titleFontWeight || '600'} !important;
+          letter-spacing: ${titleStyles?.titleLetterSpacing || '-0.02em'} !important;
+          line-height: ${titleStyles?.titleLineHeight || '1.1'} !important;
+          text-align: ${titleStyles?.textAlign || 'center'} !important;
+          margin: ${styles.titleMargin || '0'} !important;
         }
         
         .responsive-description {
           font-size: ${titleStyles?.descriptionFontSize || '1.125rem'} !important;
           color: ${titleStyles?.descriptionColor || '#6b7280'} !important;
           font-family: ${titleStyles?.descriptionFontFamily || 'Inter, sans-serif'} !important;
+          font-weight: ${titleStyles?.descriptionFontWeight || '400'} !important;
+          letter-spacing: ${titleStyles?.descriptionLetterSpacing || '0'} !important;
+          line-height: ${titleStyles?.descriptionLineHeight || '1.6'} !important;
+          text-align: ${titleStyles?.textAlign || 'center'} !important;
+          margin: ${styles.descriptionMargin || '0'} !important;
+          max-width: ${titleStyles?.descriptionMaxWidth || '100%'} !important;
         }
         
         @media (max-width: 768px) {
           .responsive-title {
             font-size: ${titleStyles?.titleFontSizeMobile || '2.25rem'} !important;
+            color: ${titleStyles?.titleColor || titleColor || '#111827'} !important;
+            font-family: ${titleStyles?.titleFontFamily || 'Inter, sans-serif'} !important;
           }
           
           .responsive-description {
             font-size: ${titleStyles?.descriptionFontSizeMobile || '1rem'} !important;
+            color: ${titleStyles?.descriptionColor || '#6b7280'} !important;
+            font-family: ${titleStyles?.descriptionFontFamily || 'Inter, sans-serif'} !important;
           }
         }
         
@@ -514,44 +529,19 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                  </motion.div>
 
                 {/* Name/Title */}
-                {(() => {
-                  return (
-                     <motion.h1 
-                       className="responsive-title"
-                       style={{ 
-                         fontSize: titleStyles.titleFontSize,
-                         fontWeight: titleStyles.titleFontWeight,
-                         color: titleStyles.titleColor || titleColor,
-                         margin: styles.titleMargin,
-                         letterSpacing: titleStyles.titleLetterSpacing,
-                         fontFamily: titleStyles.titleFontFamily,
-                         lineHeight: titleStyles.titleLineHeight,
-                         textAlign: titleStyles.textAlign
-                       }}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      {config.title}
-                    </motion.h1>
-                  )
-                })()}
+                <motion.h1 
+                  className="responsive-title"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {config.title}
+                </motion.h1>
 
                 {/* Description */}
                 {config.meta?.description && (
                   <motion.p 
                     className="responsive-description"
-                    style={{ 
-                      fontSize: titleStyles.descriptionFontSize,
-                      color: titleStyles.descriptionColor,
-                      margin: styles.descriptionMargin,
-                      lineHeight: titleStyles.descriptionLineHeight,
-                      fontFamily: titleStyles.descriptionFontFamily || 'Helvetica, Arial, sans-serif',
-                      fontWeight: titleStyles.descriptionFontWeight,
-                      letterSpacing: titleStyles.descriptionLetterSpacing,
-                      textAlign: titleStyles.textAlign,
-                      maxWidth: titleStyles.descriptionMaxWidth
-                    }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
