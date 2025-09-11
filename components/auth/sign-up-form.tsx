@@ -72,49 +72,67 @@ export default function SignUpForm() {
     setErrors({})
     
     try {
+      // Prepare redirect URL with invitation code if provided
+      let redirectUrl = `${window.location.origin}/auth/callback`
+      if (invitationCode.trim()) {
+        redirectUrl += `?invitation_code=${encodeURIComponent(invitationCode.trim())}`
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          emailRedirectTo: redirectUrl
         }
       })
 
       if (error) {
         setErrors({ form: error.message })
         setIsLoading(false)
-      } else if (data.user) {
-        // If invitation code is provided, use it
-        if (invitationCode.trim()) {
-          try {
-            const response = await fetch('/api/invitation-codes/use', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                code: invitationCode.trim()
-              })
-            })
+        return
+      }
 
-            const result = await response.json()
-            if (!result.success) {
-              console.warn('Invitation code could not be used:', result.error)
-              // Continue with normal signup even if code fails
-            }
-          } catch (codeError) {
-            console.warn('Error using invitation code:', codeError)
-            // Continue with normal signup even if code fails
-          }
-        }
-
+      if (data.user) {
         setIsSuccess(true)
+        
         // User might need to confirm email depending on Supabase settings
         if (data.session) {
+          // If user is immediately signed in, try to use invitation code
+          if (invitationCode.trim()) {
+            try {
+              const response = await fetch('/api/invitation-codes/use', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  code: invitationCode.trim()
+                })
+              })
+
+              const result = await response.json()
+              if (result.success) {
+                // Code used successfully, redirect to dashboard
+                setTimeout(() => {
+                  router.push('/dashboard')
+                  router.refresh()
+                }, 1000)
+                return
+              } else {
+                console.warn('Invitation code could not be used:', result.error)
+                // Continue with normal flow
+              }
+            } catch (codeError) {
+              console.warn('Error using invitation code:', codeError)
+              // Continue with normal flow
+            }
+          }
+          
+          // Normal redirect to dashboard
           setTimeout(() => {
             router.push('/dashboard')
             router.refresh()
-          }, 500)
+          }, 1000)
         }
       }
     } catch (err) {
