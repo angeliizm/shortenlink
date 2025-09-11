@@ -62,8 +62,8 @@ export function BackgroundSelector({
     try {
       await onSave(selectedPreset.id, controlValues)
       toast({
-        title: "Background updated",
-        description: `Applied "${selectedPreset.name}" to your site`,
+        title: "Arka plan güncellendi",
+        description: `"${selectedPreset.name}" sitenize uygulandı`,
       })
       // Reset state before closing
       setSelectedPreset(null)
@@ -71,8 +71,8 @@ export function BackgroundSelector({
       onClose()
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to save background preference",
+        title: "Hata",
+        description: "Arka plan tercihi kaydedilemedi",
         variant: "destructive",
       })
     } finally {
@@ -85,8 +85,8 @@ export function BackgroundSelector({
     try {
       await onSave('', {})
       toast({
-        title: "Back to default",
-        description: "Background has been reset",
+        title: "Varsayılana döndürüldü",
+        description: "Arka plan sıfırlandı",
       })
       // Reset state before closing
       setSelectedPreset(null)
@@ -94,8 +94,8 @@ export function BackgroundSelector({
       onClose()
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to reset background",
+        title: "Hata",
+        description: "Arka plan sıfırlanamadı",
         variant: "destructive",
       })
     } finally {
@@ -123,8 +123,8 @@ export function BackgroundSelector({
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Choose a background</h2>
-              <p className="text-sm text-gray-500">Set the mood for this site</p>
+              <h2 className="text-lg font-semibold text-gray-900">Arka Plan Seçin</h2>
+              <p className="text-sm text-gray-500">Siteniz için ruh halini belirleyin</p>
             </div>
             <button
               onClick={onClose}
@@ -150,7 +150,7 @@ export function BackgroundSelector({
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-sm">
                     <p className="text-sm font-medium text-gray-700">
-                      {selectedPreset ? selectedPreset.name : 'Default Background'}
+                      {selectedPreset ? selectedPreset.name : 'Varsayılan Arka Plan'}
                     </p>
                   </div>
                 </div>
@@ -193,7 +193,7 @@ export function BackgroundSelector({
             {/* Controls */}
             {selectedPreset?.controls && selectedPreset.controls.length > 0 && (
               <div className="space-y-3 pt-3 border-t border-gray-100">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Customize</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Özelleştir</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {selectedPreset.controls.map((control) => (
                     <div key={control.id} className="space-y-1">
@@ -250,14 +250,14 @@ export function BackgroundSelector({
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              Use default
+              Varsayılanı kullan
             </button>
             <div className="flex gap-2">
               <button
                 onClick={onClose}
                 className="px-4 py-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
-                Cancel
+                İptal
               </button>
               <button
                 onClick={handleSave}
@@ -269,7 +269,7 @@ export function BackgroundSelector({
                     : 'bg-gray-300 cursor-not-allowed'
                 )}
               >
-                {isSaving ? 'Saving...' : 'Save'}
+                {isSaving ? 'Kaydediliyor...' : 'Kaydet'}
               </button>
             </div>
           </div>

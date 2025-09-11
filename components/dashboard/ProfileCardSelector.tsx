@@ -48,9 +48,9 @@ export function ProfileCardSelector({
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
             <div>
-              <h2 className="text-xl font-semibold">Choose Profile Card Style</h2>
+              <h2 className="text-xl font-semibold">Profil Kartı Stili Seçin</h2>
               <p className="text-sm text-gray-500 mt-1">
-                Select the design style for your profile card
+                Profil kartınız için tasarım stilini seçin
               </p>
             </div>
             <Button
@@ -141,14 +141,14 @@ export function ProfileCardSelector({
           {/* Footer */}
           <div className="flex items-center justify-between p-6 border-t bg-gray-50">
             <div className="text-sm text-gray-500">
-              Selected: {getProfilePresetById(selectedPresetId)?.name || 'None'}
+              Seçilen: {getProfilePresetById(selectedPresetId)?.name || 'Hiçbiri'}
             </div>
             <div className="flex items-center gap-3">
               <Button variant="outline" onClick={onClose}>
-                Cancel
+                İptal
               </Button>
               <Button onClick={handleSave}>
-                Apply Card Style
+                Kart Stilini Uygula
               </Button>
             </div>
           </div>

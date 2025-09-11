@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import LoadingScreen from '@/components/ui/LoadingScreen';
 import { AlertCircle, Clock, Shield, Users, Ticket, Key } from 'lucide-react';
 
 interface RoleGuardProps {
@@ -140,14 +141,7 @@ export default function RoleGuard({
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-sm text-gray-600">Yetki kontrol ediliyor...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Yetki kontrol ediliyor..." />;
   }
 
   if (!hasAccess) {

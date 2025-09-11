@@ -50,9 +50,9 @@ export function TitleFontSelector({
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
             <div>
-              <h2 className="text-xl font-semibold">Choose Title Font Style</h2>
+              <h2 className="text-xl font-semibold">Başlık Font Stili Seçin</h2>
               <p className="text-sm text-gray-500 mt-1">
-                Select the font style for your site title
+                Sitenizin başlığı için font stilini seçin
               </p>
             </div>
             <Button
@@ -69,7 +69,7 @@ export function TitleFontSelector({
           <div className="p-6 overflow-y-auto max-h-[60vh]">
 
             {/* Font Presets */}
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Font Styles</h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Font Stilleri</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {titleFontPresets.map((preset) => (
                 <div
@@ -99,7 +99,7 @@ export function TitleFontSelector({
                           textAlign: 'center'
                         }}
                       >
-                        {currentTitle || 'Sample Title'}
+                        {currentTitle || 'Örnek Başlık'}
                       </span>
                     </div>
                     <p className="text-xs font-medium text-center text-gray-700">
@@ -114,14 +114,14 @@ export function TitleFontSelector({
           {/* Footer */}
           <div className="flex items-center justify-between p-6 border-t bg-gray-50">
             <div className="text-sm text-gray-500">
-              Selected: {getTitleFontPresetById(selectedPresetId)?.name || 'None'}
+              Seçilen: {getTitleFontPresetById(selectedPresetId)?.name || 'Hiçbiri'}
             </div>
             <div className="flex items-center gap-3">
               <Button variant="outline" onClick={onClose}>
-                Cancel
+                İptal
               </Button>
               <Button onClick={handleSave}>
-                Apply Font Style
+                Font Stilini Uygula
               </Button>
             </div>
           </div>

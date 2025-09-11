@@ -16,7 +16,7 @@ import { profilePresets, defaultProfilePresetId } from '@/lib/profile-presets'
 import { titleFontPresets, defaultTitleFontPresetId } from '@/lib/title-font-presets'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import PageHeader from '@/components/ui/PageHeader'
-import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type, User, Edit } from 'lucide-react'
+import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type, User, Edit, Eye } from 'lucide-react'
 import { BackgroundPreviewChip } from '@/components/dashboard/BackgroundPreviewChip'
 import { BackgroundSelector } from '@/components/dashboard/BackgroundSelector'
 import { TitleFontSelector } from '@/components/dashboard/TitleFontSelector'
@@ -673,6 +673,19 @@ export default function EditSitePage({ params }: PageProps) {
         showBackButton={true}
         backUrl="/dashboard"
         backLabel="Dashboard"
+        rightContent={
+          formData.site_slug && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.open(`/${formData.site_slug}`, '_blank')}
+              className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70 hover:border-gray-300 transition-all duration-200"
+            >
+              <Eye className="w-4 h-4" />
+              Site Önizle
+            </Button>
+          )
+        }
       />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
