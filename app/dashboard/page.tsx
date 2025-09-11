@@ -45,8 +45,42 @@ export default function DashboardPage() {
       router.push('/')
     } else if (isAuthenticated && user) {
       fetchUserRole()
+      checkPendingInvitationCode()
     }
   }, [isLoading, isAuthenticated, router, user])
+
+  const checkPendingInvitationCode = async () => {
+    if (!user) return
+    
+    try {
+      const pendingCode = localStorage.getItem('pending_invitation_code')
+      if (pendingCode) {
+        // Remove from localStorage first
+        localStorage.removeItem('pending_invitation_code')
+        
+        // Try to use the invitation code
+        const response = await fetch('/api/invitation-codes/use', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            code: pendingCode
+          })
+        })
+
+        const result = await response.json()
+        if (result.success) {
+          // Code used successfully, refresh the page to update role
+          window.location.reload()
+        } else {
+          console.warn('Invitation code could not be used:', result.error)
+        }
+      }
+    } catch (error) {
+      console.warn('Error using pending invitation code:', error)
+    }
+  }
 
   useEffect(() => {
     if (user && userRole) {
