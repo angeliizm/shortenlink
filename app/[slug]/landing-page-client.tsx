@@ -207,6 +207,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   const currentTitleStylePreset = titleStylePresets.find(p => p.id === titleFontPresetId) || titleStylePresets.find(p => p.id === defaultTitleFontPresetId)!
   const titleStyles = currentTitleStylePreset.styles
   
+  // Get title font preset for color and font
+  const titleFontPreset = getTitleFontPresetById(titleFontPresetId) || getTitleFontPresetById(defaultTitleFontPresetId)!
+  
   // Get profile styles for responsive CSS
   const profilePreset = getProfilePresetById(profilePresetId) || getProfilePresetById(defaultProfilePresetId)!
   const styles = profilePreset.styles
@@ -307,10 +310,10 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         /* Responsive font sizes */
         .responsive-title {
           font-size: ${titleStyles?.titleFontSize || '3.5rem'} !important;
-          color: ${titleStyles?.titleColor || titleColor || '#111827'} !important;
-          font-family: ${titleStyles?.titleFontFamily || 'Inter, sans-serif'} !important;
-          font-weight: ${titleStyles?.titleFontWeight || '600'} !important;
-          letter-spacing: ${titleStyles?.titleLetterSpacing || '-0.02em'} !important;
+          color: ${config.titleColor || titleColor || '#111827'} !important;
+          font-family: ${titleFontPreset?.fontFamily || 'Inter, sans-serif'} !important;
+          font-weight: ${titleFontPreset?.fontWeight || '600'} !important;
+          letter-spacing: ${titleFontPreset?.letterSpacing || '-0.02em'} !important;
           line-height: ${titleStyles?.titleLineHeight || '1.1'} !important;
           text-align: ${titleStyles?.textAlign || 'center'} !important;
           margin: ${styles.titleMargin || '0'} !important;
@@ -331,8 +334,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         @media (max-width: 768px) {
           .responsive-title {
             font-size: ${titleStyles?.titleFontSizeMobile || '2.25rem'} !important;
-            color: ${titleStyles?.titleColor || titleColor || '#111827'} !important;
-            font-family: ${titleStyles?.titleFontFamily || 'Inter, sans-serif'} !important;
           }
           
           .responsive-description {
@@ -529,14 +530,30 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                  </motion.div>
 
                 {/* Name/Title */}
-                <motion.h1 
-                  className="responsive-title"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  {config.title}
-                </motion.h1>
+                {(() => {
+                  const titleFontPreset = getTitleFontPresetById(titleFontPresetId) || getTitleFontPresetById(defaultTitleFontPresetId)!
+                  
+                  return (
+                    <motion.h1 
+                      className="responsive-title"
+                      style={{ 
+                        fontSize: titleStyles.titleFontSize,
+                        fontWeight: titleFontPreset.fontWeight,
+                        color: config.titleColor || titleColor || '#111827',
+                        margin: styles.titleMargin,
+                        letterSpacing: titleFontPreset.letterSpacing,
+                        fontFamily: titleFontPreset.fontFamily,
+                        lineHeight: titleStyles.titleLineHeight,
+                        textAlign: titleStyles.textAlign
+                      }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {config.title}
+                    </motion.h1>
+                  )
+                })()}
 
                 {/* Description */}
                 {config.meta?.description && (

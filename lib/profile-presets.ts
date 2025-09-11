@@ -17,12 +17,8 @@ export interface ProfilePreset {
     avatarShadow: string
     avatarBackground: string
     
-    // Title styles
-    titleFontSize: string
-    titleFontWeight: string
-    titleColor: string
+    // Title styles (positioning only)
     titleMargin: string
-    titleLetterSpacing?: string
     
     // Description styles
     descriptionFontSize: string
@@ -54,11 +50,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 25px rgba(0, 255, 65, 0.6), 0 0 50px rgba(0, 255, 65, 0.3)',
       avatarBackground: 'linear-gradient(135deg, #00ff41 0%, #00cc33 100%)',
       
-      titleFontSize: '32px',
-      titleFontWeight: '900',
-      titleColor: '#00ff41',
       titleMargin: '0 0 12px 0',
-      titleLetterSpacing: '2px',
       
       descriptionFontSize: '16px',
       descriptionColor: '#00ff88',
@@ -86,12 +78,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 30px rgba(255, 255, 255, 0.5), 0 10px 30px rgba(0, 0, 0, 0.3)',
       avatarBackground: 'linear-gradient(135deg, #ff006e 0%, #8338ec 50%, #3a86ff 100%)',
       
-      titleFontSize: '36px',
-      titleFontWeight: '800',
-      titleColor: '#ffffff',
       titleMargin: '0 0 15px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '18px',
       descriptionColor: 'rgba(255, 255, 255, 0.95)',
       descriptionMargin: '0',
@@ -118,12 +105,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 20px rgba(139, 92, 246, 0.7), 0 6px 20px rgba(0, 0, 0, 0.3)',
       avatarBackground: 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)',
       
-      titleFontSize: '30px',
-      titleFontWeight: '700',
-      titleColor: '#8b5cf6',
       titleMargin: '0 0 10px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '17px',
       descriptionColor: '#c4b5fd',
       descriptionMargin: '0',
@@ -150,9 +132,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 8px 25px rgba(59, 130, 246, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)',
       avatarBackground: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
       
-      titleFontSize: '32px',
-      titleFontWeight: '600',
-      titleColor: '#1e40af',
       titleMargin: '0 0 12px 0',
       
       descriptionFontSize: '18px',
@@ -180,12 +159,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 25px rgba(255, 255, 255, 0.6), 0 8px 25px rgba(0, 0, 0, 0.2)',
       avatarBackground: 'linear-gradient(135deg, #ff0080 0%, #40e0d0 100%)',
       
-      titleFontSize: '34px',
-      titleFontWeight: '800',
-      titleColor: '#ffffff',
       titleMargin: '0 0 14px 0',
-      titleLetterSpacing: '2px',
-      
       descriptionFontSize: '19px',
       descriptionColor: 'rgba(255, 255, 255, 0.9)',
       descriptionMargin: '0',
@@ -212,12 +186,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 0 1px #ffffff, 0 4px 15px rgba(0, 0, 0, 0.2)',
       avatarBackground: 'linear-gradient(135deg, #000000 0%, #333333 100%)',
       
-      titleFontSize: '28px',
-      titleFontWeight: '900',
-      titleColor: '#000000',
       titleMargin: '0 0 8px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '16px',
       descriptionColor: '#666666',
       descriptionMargin: '0',
@@ -244,12 +213,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 20px rgba(255, 215, 0, 0.6), 0 6px 20px rgba(0, 0, 0, 0.4)',
       avatarBackground: 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)',
       
-      titleFontSize: '32px',
-      titleFontWeight: '700',
-      titleColor: '#ffd700',
       titleMargin: '0 0 12px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '18px',
       descriptionColor: '#fbbf24',
       descriptionMargin: '0',
@@ -275,9 +239,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 20px rgba(6, 182, 212, 0.5), 0 6px 20px rgba(0, 0, 0, 0.3)',
       avatarBackground: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
       
-      titleFontSize: '30px',
-      titleFontWeight: '600',
-      titleColor: '#06b6d4',
       titleMargin: '0 0 10px 0',
       
       descriptionFontSize: '17px',
@@ -305,12 +266,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 25px rgba(255, 255, 255, 0.5), 0 6px 20px rgba(0, 0, 0, 0.3)',
       avatarBackground: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
       
-      titleFontSize: '33px',
-      titleFontWeight: '800',
-      titleColor: '#ffffff',
       titleMargin: '0 0 13px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '18px',
       descriptionColor: 'rgba(255, 255, 255, 0.95)',
       descriptionMargin: '0',
@@ -336,9 +292,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 18px rgba(16, 185, 129, 0.5), 0 5px 18px rgba(0, 0, 0, 0.3)',
       avatarBackground: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
       
-      titleFontSize: '29px',
-      titleFontWeight: '600',
-      titleColor: '#10b981',
       titleMargin: '0 0 10px 0',
       
       descriptionFontSize: '16px',
@@ -366,12 +319,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 30px rgba(138, 43, 226, 0.8), 0 0 60px rgba(138, 43, 226, 0.4)',
       avatarBackground: 'linear-gradient(135deg, #8a2be2 0%, #4b0082 100%)',
       
-      titleFontSize: '35px',
-      titleFontWeight: '800',
-      titleColor: '#8a2be2',
       titleMargin: '0 0 14px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '19px',
       descriptionColor: '#dda0dd',
       descriptionMargin: '0',
@@ -398,12 +346,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 25px rgba(255, 20, 147, 0.8), 0 0 50px rgba(255, 20, 147, 0.4)',
       avatarBackground: 'linear-gradient(135deg, #ff1493 0%, #ff69b4 100%)',
       
-      titleFontSize: '31px',
-      titleFontWeight: '700',
-      titleColor: '#ff1493',
       titleMargin: '0 0 11px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '17px',
       descriptionColor: '#ffb6c1',
       descriptionMargin: '0',
@@ -430,9 +373,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 20px rgba(0, 188, 212, 0.5), 0 6px 20px rgba(0, 0, 0, 0.2)',
       avatarBackground: 'linear-gradient(135deg, #00bcd4 0%, #0097a7 100%)',
       
-      titleFontSize: '30px',
-      titleFontWeight: '600',
-      titleColor: '#006064',
       titleMargin: '0 0 10px 0',
       
       descriptionFontSize: '17px',
@@ -460,12 +400,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 25px rgba(255, 255, 255, 0.6), 0 8px 25px rgba(0, 0, 0, 0.2)',
       avatarBackground: 'linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%)',
       
-      titleFontSize: '33px',
-      titleFontWeight: '800',
-      titleColor: '#ffffff',
       titleMargin: '0 0 13px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '18px',
       descriptionColor: 'rgba(255, 255, 255, 0.95)',
       descriptionMargin: '0',
@@ -491,9 +426,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 22px rgba(59, 130, 246, 0.6), 0 6px 22px rgba(0, 0, 0, 0.3)',
       avatarBackground: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
       
-      titleFontSize: '30px',
-      titleFontWeight: '600',
-      titleColor: '#3b82f6',
       titleMargin: '0 0 10px 0',
       
       descriptionFontSize: '17px',
@@ -522,12 +454,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 25px rgba(255, 255, 0, 0.7), 0 0 50px rgba(255, 255, 0, 0.3)',
       avatarBackground: 'linear-gradient(135deg, #ffff00 0%, #ffd700 100%)',
       
-      titleFontSize: '32px',
-      titleFontWeight: '700',
-      titleColor: '#ffff00',
       titleMargin: '0 0 12px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '18px',
       descriptionColor: '#ffeb3b',
       descriptionMargin: '0',
@@ -554,9 +481,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 20px rgba(233, 30, 99, 0.4), 0 6px 20px rgba(0, 0, 0, 0.2)',
       avatarBackground: 'linear-gradient(135deg, #e91e63 0%, #ad1457 100%)',
       
-      titleFontSize: '32px',
-      titleFontWeight: '600',
-      titleColor: '#ad1457',
       titleMargin: '0 0 12px 0',
       
       descriptionFontSize: '18px',
@@ -585,9 +509,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 18px rgba(156, 163, 175, 0.5), 0 5px 18px rgba(0, 0, 0, 0.3)',
       avatarBackground: 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',
       
-      titleFontSize: '29px',
-      titleFontWeight: '600',
-      titleColor: '#f3f4f6',
       titleMargin: '0 0 10px 0',
       
       descriptionFontSize: '17px',
@@ -616,9 +537,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 25px rgba(255, 255, 255, 0.3), 0 8px 25px rgba(0, 0, 0, 0.2)',
       avatarBackground: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%)',
       
-      titleFontSize: '34px',
-      titleFontWeight: '600',
-      titleColor: 'rgba(255, 255, 255, 0.9)',
       titleMargin: '0 0 13px 0',
       
       descriptionFontSize: '19px',
@@ -646,12 +564,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 25px rgba(252, 165, 165, 0.6), 0 6px 25px rgba(0, 0, 0, 0.3)',
       avatarBackground: 'linear-gradient(135deg, #fca5a5 0%, #f87171 100%)',
       
-      titleFontSize: '33px',
-      titleFontWeight: '800',
-      titleColor: '#fca5a5',
       titleMargin: '0 0 13px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '18px',
       descriptionColor: '#fecaca',
       descriptionMargin: '0',
@@ -679,9 +592,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
       avatarBackground: 'linear-gradient(135deg, #6c757d 0%, #495057 100%)',
       
-      titleFontSize: '28px',
-      titleFontWeight: '600',
-      titleColor: '#495057',
       titleMargin: '0 0 8px 0',
       
       descriptionFontSize: '16px',
@@ -710,9 +620,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 6px 20px rgba(139, 69, 19, 0.15)',
       avatarBackground: 'linear-gradient(135deg, #d2691e 0%, #cd853f 100%)',
       
-      titleFontSize: '30px',
-      titleFontWeight: '600',
-      titleColor: '#8b4513',
       titleMargin: '0 0 10px 0',
       
       descriptionFontSize: '17px',
@@ -741,9 +648,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 5px 18px rgba(59, 130, 246, 0.2)',
       avatarBackground: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
       
-      titleFontSize: '29px',
-      titleFontWeight: '600',
-      titleColor: '#1e40af',
       titleMargin: '0 0 9px 0',
       
       descriptionFontSize: '16px',
@@ -773,9 +677,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 8px 25px rgba(102, 126, 234, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)',
       avatarBackground: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       
-      titleFontSize: '32px',
-      titleFontWeight: '700',
-      titleColor: '#4c1d95',
       titleMargin: '0 0 12px 0',
       
       descriptionFontSize: '18px',
@@ -804,12 +705,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 30px rgba(255, 255, 255, 0.4), 0 10px 30px rgba(0, 0, 0, 0.2)',
       avatarBackground: 'linear-gradient(135deg, #ee7752 0%, #e73c7e 50%, #23a6d5 100%)',
       
-      titleFontSize: '36px',
-      titleFontWeight: '800',
-      titleColor: '#ffffff',
       titleMargin: '0 0 15px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '19px',
       descriptionColor: 'rgba(255, 255, 255, 0.9)',
       descriptionMargin: '0',
@@ -836,12 +732,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 35px rgba(255, 255, 255, 0.5), 0 12px 35px rgba(0, 0, 0, 0.2)',
       avatarBackground: 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #fd79a8)',
       
-      titleFontSize: '38px',
-      titleFontWeight: '900',
-      titleColor: '#ffffff',
       titleMargin: '0 0 16px 0',
-      titleLetterSpacing: '2px',
-      
       descriptionFontSize: '20px',
       descriptionColor: 'rgba(255, 255, 255, 0.95)',
       descriptionMargin: '0',
@@ -869,9 +760,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 8px 25px rgba(156, 146, 172, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2)',
       avatarBackground: 'linear-gradient(135deg, #9c92ac 0%, #6b5b95 100%)',
       
-      titleFontSize: '31px',
-      titleFontWeight: '600',
-      titleColor: '#4a4a4a',
       titleMargin: '0 0 11px 0',
       
       descriptionFontSize: '17px',
@@ -900,12 +788,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 25px rgba(255, 255, 255, 0.4), 0 8px 25px rgba(0, 0, 0, 0.3)',
       avatarBackground: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%)',
       
-      titleFontSize: '33px',
-      titleFontWeight: '700',
-      titleColor: 'rgba(255, 255, 255, 0.9)',
       titleMargin: '0 0 13px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '18px',
       descriptionColor: 'rgba(255, 255, 255, 0.7)',
       descriptionMargin: '0',
@@ -932,12 +815,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 30px rgba(120, 119, 198, 0.3), 0 10px 30px rgba(0, 0, 0, 0.1)',
       avatarBackground: 'linear-gradient(135deg, #7877c6 0%, #a855f7 100%)',
       
-      titleFontSize: '35px',
-      titleFontWeight: '700',
-      titleColor: '#4c1d95',
       titleMargin: '0 0 14px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '19px',
       descriptionColor: '#5b21b6',
       descriptionMargin: '0',
@@ -965,12 +843,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 30px rgba(255, 255, 255, 0.3), 0 10px 30px rgba(0, 0, 0, 0.4)',
       avatarBackground: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
       
-      titleFontSize: '34px',
-      titleFontWeight: '800',
-      titleColor: 'rgba(255, 255, 255, 0.9)',
       titleMargin: '0 0 14px 0',
-      titleLetterSpacing: '2px',
-      
       descriptionFontSize: '19px',
       descriptionColor: 'rgba(255, 255, 255, 0.6)',
       descriptionMargin: '0',
@@ -997,12 +870,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 25px rgba(0, 255, 0, 0.6), 0 0 50px rgba(0, 255, 0, 0.3)',
       avatarBackground: 'linear-gradient(135deg, #00ff00 0%, #00cc00 100%)',
       
-      titleFontSize: '30px',
-      titleFontWeight: '900',
-      titleColor: '#00ff00',
       titleMargin: '0 0 10px 0',
-      titleLetterSpacing: '3px',
-      
       descriptionFontSize: '17px',
       descriptionColor: '#00cc00',
       descriptionMargin: '0',
@@ -1030,12 +898,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 30px rgba(0, 255, 255, 0.8), 0 0 60px rgba(0, 255, 255, 0.4)',
       avatarBackground: 'linear-gradient(135deg, #00ffff 0%, #0099cc 100%)',
       
-      titleFontSize: '32px',
-      titleFontWeight: '900',
-      titleColor: '#00ffff',
       titleMargin: '0 0 12px 0',
-      titleLetterSpacing: '2px',
-      
       descriptionFontSize: '18px',
       descriptionColor: '#00ccff',
       descriptionMargin: '0',
@@ -1062,12 +925,7 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 0 35px rgba(138, 43, 226, 0.8), 0 0 70px rgba(138, 43, 226, 0.4)',
       avatarBackground: 'linear-gradient(135deg, #8a2be2 0%, #6a1b9a 100%)',
       
-      titleFontSize: '33px',
-      titleFontWeight: '800',
-      titleColor: '#8a2be2',
       titleMargin: '0 0 13px 0',
-      titleLetterSpacing: '1px',
-      
       descriptionFontSize: '18px',
       descriptionColor: '#ba68c8',
       descriptionMargin: '0',
@@ -1095,9 +953,6 @@ export const profilePresets: ProfilePreset[] = [
       avatarShadow: '0 8px 25px rgba(116, 185, 255, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2)',
       avatarBackground: 'linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)',
       
-      titleFontSize: '32px',
-      titleFontWeight: '600',
-      titleColor: '#0984e3',
       titleMargin: '0 0 12px 0',
       
       descriptionFontSize: '18px',

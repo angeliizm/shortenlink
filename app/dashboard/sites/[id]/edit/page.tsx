@@ -72,6 +72,7 @@ export default function EditSitePage({ params }: PageProps) {
   
   // Title font preset state
   const [titleStylePresetId, setTitleStylePresetId] = useState<string>(defaultTitleFontPresetId)
+  const [titleColor, setTitleColor] = useState<string>('#111827')
   
   // Profile preset state
   const [profilePresetId, setProfilePresetId] = useState<string>(defaultProfilePresetId)
@@ -171,6 +172,11 @@ export default function EditSitePage({ params }: PageProps) {
         }
       }
 
+      // Load title color from database
+      if (page.title_color) {
+        setTitleColor(page.title_color)
+      }
+
 
       // Load avatar URL from database first, then localStorage as fallback
       if (page.avatar_url) {
@@ -243,6 +249,7 @@ export default function EditSitePage({ params }: PageProps) {
           avatar_url: avatarUrl,
           profile_preset_id: profilePresetId,
           title_font_preset_id: titleStylePresetId,
+          title_color: titleColor,
           updated_at: new Date().toISOString()
         })
         .eq('id', siteId)
@@ -765,6 +772,46 @@ export default function EditSitePage({ params }: PageProps) {
             </CardContent>
           </Card>
 
+          {/* Title Color Card */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="h-5 w-5" />
+                Title Color
+              </CardTitle>
+              <CardDescription>
+                Choose the color for your title text
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div 
+                    className="w-12 h-12 rounded-lg border-2 border-gray-200 flex items-center justify-center"
+                    style={{ backgroundColor: titleColor }}
+                  >
+                    <span className="text-white font-bold">Aa</span>
+                  </div>
+                  <div>
+                    <Label htmlFor="titleColor" className="text-sm font-medium">
+                      Color
+                    </Label>
+                    <Input
+                      id="titleColor"
+                      type="color"
+                      value={titleColor}
+                      onChange={(e) => setTitleColor(e.target.value)}
+                      className="w-20 h-8 p-1 border rounded cursor-pointer"
+                    />
+                  </div>
+                </div>
+                <div className="text-sm text-gray-500">
+                  Current color: {titleColor}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -813,7 +860,7 @@ export default function EditSitePage({ params }: PageProps) {
                       <div
                         className="absolute bottom-1 left-1 right-1 h-1 rounded"
                         style={{
-                          background: profilePresets.find(p => p.id === profilePresetId)?.styles.titleColor || '#1f2937',
+                          background: titleColor || '#1f2937',
                           opacity: 0.7
                         }}
                       />
