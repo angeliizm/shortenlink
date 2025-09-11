@@ -91,10 +91,21 @@ export default function RoleGuard({
       
       if (!user) return;
 
-      // Admin rolünü ata
+      // First, delete existing role if it exists
+      const { error: deleteError } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (deleteError) {
+        console.warn('Error deleting existing role:', deleteError);
+        // Continue anyway, might not exist
+      }
+
+      // Then insert the new admin role
       const { error } = await supabase
         .from('user_roles')
-        .upsert({
+        .insert({
           user_id: user.id,
           role: 'admin',
           notes: 'Self-assigned admin role',
