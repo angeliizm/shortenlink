@@ -22,6 +22,8 @@ interface Site {
   is_enabled: boolean
   created_at: string
   updated_at: string
+  owner_id?: string
+  permission_type?: string
 }
 
 
@@ -60,18 +62,49 @@ export default function DashboardPage() {
     if (!user) return
     
     try {
-      const { data, error } = await supabase
+      // Fetch owned sites
+      const { data: ownedSites, error: ownedError } = await supabase
         .from('pages')
         .select('*')
         .eq('owner_id', user.id)
         .order('updated_at', { ascending: false })
 
-      if (error) throw error
+      if (ownedError) throw ownedError
+
+      // Fetch sites with permissions
+      const { data: permissionSites, error: permissionError } = await supabase
+        .from('site_permissions')
+        .select(`
+          permission_type,
+          pages!inner(*)
+        `)
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+
+      if (permissionError) throw permissionError
+
+      // Combine owned sites and permission sites
+      const ownedSitesList = ownedSites || []
+      const permissionSitesList = permissionSites?.map((p: any) => ({
+        ...p.pages,
+        permission_type: p.permission_type
+      })) || []
+
+      // Remove duplicates (in case user owns a site and also has permission)
+      const allSites: Site[] = [...ownedSitesList]
+      permissionSitesList.forEach((permissionSite: any) => {
+        if (!allSites.find(site => site.id === permissionSite.id)) {
+          allSites.push(permissionSite)
+        }
+      })
+
+      // Sort by updated_at
+      allSites.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+
+      setSites(allSites)
       
-      setSites(data || [])
-      
-      const totalSites = data?.length || 0
-      const activeSites = data?.filter((site: any) => site.is_enabled).length || 0
+      const totalSites = allSites.length
+      const activeSites = allSites.filter((site: any) => site.is_enabled).length
       
       setStats({ totalSites, activeSites })
     } catch (error) {
@@ -301,18 +334,31 @@ export default function DashboardPage() {
                               <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                                 {site.title}
                               </h3>
-                              <span 
-                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                  site.is_enabled 
-                                    ? 'bg-green-100 text-green-800' 
-                                    : 'bg-gray-100 text-gray-600'
-                                }`}
-                              >
-                                <div className={`w-2 h-2 rounded-full mr-1.5 ${
-                                  site.is_enabled ? 'bg-green-400' : 'bg-gray-400'
-                                }`} />
-                                {site.is_enabled ? 'Aktif' : 'Pasif'}
-                              </span>
+                              <div className="flex items-center space-x-2">
+                                <span 
+                                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                    site.is_enabled 
+                                      ? 'bg-green-100 text-green-800' 
+                                      : 'bg-gray-100 text-gray-600'
+                                  }`}
+                                >
+                                  <div className={`w-2 h-2 rounded-full mr-1.5 ${
+                                    site.is_enabled ? 'bg-green-400' : 'bg-gray-400'
+                                  }`} />
+                                  {site.is_enabled ? 'Aktif' : 'Pasif'}
+                                </span>
+                                
+                                {/* Permission type badge */}
+                                {site.permission_type && (
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <Shield className="w-3 h-3 mr-1" />
+                                    {site.permission_type === 'view' ? 'Görüntüleme' : 
+                                     site.permission_type === 'edit' ? 'Düzenleme' : 
+                                     site.permission_type === 'analytics' ? 'Analitik' : 
+                                     site.permission_type}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                           
@@ -342,6 +388,7 @@ export default function DashboardPage() {
                       
                       <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                         <div className="flex items-center space-x-1">
+                          {/* View button - always available */}
                           <Button
                             variant="ghost"
                             size="sm"
@@ -352,38 +399,60 @@ export default function DashboardPage() {
                             <Eye className="h-4 w-4 mr-1" />
                             <span className="text-xs">Görüntüle</span>
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => router.push(`/dashboard/analytics/${site.site_slug}`)}
-                            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-                            title="Analitik"
-                          >
-                            <BarChart className="h-4 w-4 mr-1" />
-                            <span className="text-xs">Analitik</span>
-                          </Button>
+                          
+                          {/* Analytics button - only for analytics permission or owner */}
+                          {(site.permission_type === 'analytics' || !site.permission_type) && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => router.push(`/dashboard/analytics/${site.site_slug}`)}
+                              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                              title="Analitik"
+                            >
+                              <BarChart className="h-4 w-4 mr-1" />
+                              <span className="text-xs">Analitik</span>
+                            </Button>
+                          )}
                         </div>
                         
-                        <div className="flex items-center space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => router.push(`/dashboard/sites/${site.id}/edit`)}
-                            className="text-gray-600 hover:text-gray-700 hover:bg-gray-50"
-                            title="Siteyi Düzenle"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setDeleteTarget(site)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            title="Siteyi Sil"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        {/* Edit and Delete buttons - only for owners */}
+                        {!site.permission_type && (
+                          <div className="flex items-center space-x-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => router.push(`/dashboard/sites/${site.id}/edit`)}
+                              className="text-gray-600 hover:text-gray-700 hover:bg-gray-50"
+                              title="Siteyi Düzenle"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeleteTarget(site)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              title="Siteyi Sil"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+                        
+                        {/* Edit button for edit permission */}
+                        {site.permission_type === 'edit' && (
+                          <div className="flex items-center space-x-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => router.push(`/dashboard/sites/${site.id}/edit`)}
+                              className="text-gray-600 hover:text-gray-700 hover:bg-gray-50"
+                              title="Siteyi Düzenle"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
