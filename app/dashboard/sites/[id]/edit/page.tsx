@@ -172,9 +172,15 @@ export default function EditSitePage({ params }: PageProps) {
         }
       }
 
-      // Load title color from database
+      // Load title color from database first, then localStorage
       if (page.title_color) {
         setTitleColor(page.title_color)
+        localStorage.setItem(`title-color-${siteId}`, page.title_color)
+      } else {
+        const savedTitleColor = localStorage.getItem(`title-color-${siteId}`)
+        if (savedTitleColor) {
+          setTitleColor(savedTitleColor)
+        }
       }
 
 
@@ -725,88 +731,94 @@ export default function EditSitePage({ params }: PageProps) {
             </CardContent>
           </Card>
 
+          {/* Title Font & Color Card */}
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Type className="h-5 w-5" />
-                Title Font Style
+                Title Font & Color
               </CardTitle>
               <CardDescription>
-                Customize the font style of your site title
+                Choose the font style and color for your title
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-16 h-16 rounded-lg border border-gray-200 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                    <span
-                      style={{
-                        fontFamily: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontFamily || 'Helvetica',
-                        fontSize: '10px',
-                        fontWeight: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontWeight || '600',
-                        color: '#1f2937',
-                        letterSpacing: titleFontPresets.find(p => p.id === titleStylePresetId)?.letterSpacing || '-0.02em'
-                      }}
+              <div className="space-y-6">
+                {/* Font Style Section */}
+                <div>
+                  <Label className="text-sm font-medium mb-3 block">Font Style</Label>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-16 h-16 rounded-lg border border-gray-200 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                        <span
+                          style={{
+                            fontFamily: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontFamily || 'Helvetica',
+                            fontSize: '10px',
+                            fontWeight: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontWeight || '600',
+                            color: titleColor,
+                            letterSpacing: titleFontPresets.find(p => p.id === titleStylePresetId)?.letterSpacing || '-0.02em'
+                          }}
+                        >
+                          Aa
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">
+                          {titleFontPresets.find(p => p.id === titleStylePresetId)?.name || 'Modern Sans'}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Click to change font style
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setTitleFontSelectorOpen(true)}
                     >
-                      Aa
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">
-                      {titleFontPresets.find(p => p.id === titleStylePresetId)?.name || 'Modern Sans'}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Click to change font style
-                    </p>
+                      <Type className="h-4 w-4 mr-2" />
+                      Change Font
+                    </Button>
                   </div>
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setTitleFontSelectorOpen(true)}
-                >
-                  <Type className="h-4 w-4 mr-2" />
-                  Change Font
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Title Color Card */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Palette className="h-5 w-5" />
-                Title Color
-              </CardTitle>
-              <CardDescription>
-                Choose the color for your title text
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div 
-                    className="w-12 h-12 rounded-lg border-2 border-gray-200 flex items-center justify-center"
-                    style={{ backgroundColor: titleColor }}
-                  >
-                    <span className="text-white font-bold">Aa</span>
+                {/* Color Section */}
+                <div>
+                  <Label className="text-sm font-medium mb-3 block">Text Color</Label>
+                  <div className="flex items-center gap-4">
+                    <div 
+                      className="w-12 h-12 rounded-lg border-2 border-gray-200 flex items-center justify-center"
+                      style={{ backgroundColor: titleColor }}
+                    >
+                      <span 
+                        className="font-bold"
+                        style={{ 
+                          color: titleColor,
+                          fontFamily: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontFamily || 'Helvetica',
+                          fontWeight: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontWeight || '600'
+                        }}
+                      >
+                        Aa
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        id="titleColor"
+                        type="color"
+                        value={titleColor}
+                        onChange={(e) => {
+                          setTitleColor(e.target.value)
+                          if (siteId) {
+                            localStorage.setItem(`title-color-${siteId}`, e.target.value)
+                          }
+                        }}
+                        className="w-20 h-8 p-1 border rounded cursor-pointer"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        {titleColor}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="titleColor" className="text-sm font-medium">
-                      Color
-                    </Label>
-                    <Input
-                      id="titleColor"
-                      type="color"
-                      value={titleColor}
-                      onChange={(e) => setTitleColor(e.target.value)}
-                      className="w-20 h-8 p-1 border rounded cursor-pointer"
-                    />
-                  </div>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Current color: {titleColor}
                 </div>
               </div>
             </CardContent>
