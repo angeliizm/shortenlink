@@ -101,7 +101,7 @@ export function ProfileCardSelector({
                       <div
                         className="absolute bottom-1 left-1 right-1 h-1.5 rounded"
                         style={{
-                          background: preset.styles.titleColor,
+                          background: '#1f2937',
                           opacity: 0.7
                         }}
                       />
