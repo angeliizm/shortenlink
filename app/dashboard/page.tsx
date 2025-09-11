@@ -404,20 +404,13 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           ) : userRole === 'approved' ? (
-            <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Key className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Site Erişimi</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Davet kodunuz varsa site erişimi için kullanabilirsiniz
-                </p>
+            <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
+              <CardContent className="p-6">
                 <Button 
                   onClick={() => setIsInvitationCodeOpen(true)}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="w-full h-16 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 text-lg font-medium"
                 >
-                  <Key className="w-4 h-4 mr-2" />
+                  <Key className="w-5 h-5 mr-3" />
                   Kod Girin
                 </Button>
               </CardContent>
