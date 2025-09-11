@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic'
 // Dynamically import SignUpForm with no SSR
 const SignUpForm = dynamic(() => import('@/components/auth/sign-up-form'), {
   ssr: false,
-  loading: () => <div>Loading...</div>
+  loading: () => <div>Yükleniyor...</div>
 })
 
 export default function RegisterPage() {
@@ -21,7 +21,7 @@ export default function RegisterPage() {
       
       {/* Content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>Yükleniyor...</div>}>
           <SignUpForm />
         </Suspense>
       </div>

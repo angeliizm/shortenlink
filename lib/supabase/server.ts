@@ -31,8 +31,12 @@ export function createClient() {
 }
 
 export function createServiceRoleClient() {
-  const url = 'https://coufslfrsxvlzbwitzct.supabase.co'
-  const serviceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvdWZzbGZyc3h2bHpiendpdHpjdCIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE3MzQ3NDgyNDksImV4cCI6MjA1MDMyNDI0OX0.7Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8'
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  
+  if (!url || !serviceKey) {
+    throw new Error('Missing Supabase environment variables. Please check your .env.local file.')
+  }
   
   return createSupabaseClient<Database>(url, serviceKey)
 }
