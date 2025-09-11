@@ -74,7 +74,10 @@ export default function SignUpForm() {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
-        password
+        password,
+        options: {
+          emailRedirectTo: undefined
+        }
       })
 
       if (error) {

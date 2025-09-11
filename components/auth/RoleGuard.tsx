@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { AlertCircle, Clock, Shield, Users, Crown, Ticket, Key } from 'lucide-react';
+import { AlertCircle, Clock, Shield, Users, Ticket, Key } from 'lucide-react';
 
 interface RoleGuardProps {
   children: React.ReactNode;
@@ -26,7 +26,6 @@ export default function RoleGuard({
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
-  const [isMakingAdmin, setIsMakingAdmin] = useState(false);
   
   // Invitation code states
   const [invitationCode, setInvitationCode] = useState('');
@@ -91,46 +90,6 @@ export default function RoleGuard({
     router.push(fallbackPath);
   };
 
-  const handleMakeAdmin = async () => {
-    setIsMakingAdmin(true);
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) return;
-
-      // First, delete existing role if it exists
-      const { error: deleteError } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (deleteError) {
-        console.warn('Error deleting existing role:', deleteError);
-        // Continue anyway, might not exist
-      }
-
-      // Then insert the new admin role
-      const { error } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: user.id,
-          role: 'admin',
-          notes: 'Self-assigned admin role',
-          assigned_at: new Date().toISOString()
-        } as any);
-
-      if (error) throw error;
-
-      // Sayfayı yenile
-      window.location.reload();
-    } catch (error) {
-      console.error('Error making admin:', error);
-      alert('Admin olma işlemi başarısız oldu. Lütfen tekrar deneyin.');
-    } finally {
-      setIsMakingAdmin(false);
-    }
-  };
 
   const handleUseInvitationCode = async () => {
     if (!invitationCode.trim()) {
@@ -279,33 +238,6 @@ export default function RoleGuard({
                   </div>
                 </div>
                 
-                {/* Admin Olma Butonu */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                  <div className="text-center">
-                    <Crown className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                    <h3 className="text-lg font-semibold text-blue-900 mb-2">Geliştirici Modu</h3>
-                    <p className="text-sm text-blue-700 mb-4">
-                      Test amaçlı olarak kendinize admin yetkisi verebilirsiniz.
-                    </p>
-                    <Button
-                      onClick={handleMakeAdmin}
-                      disabled={isMakingAdmin}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      {isMakingAdmin ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Admin Yapılıyor...
-                        </>
-                      ) : (
-                        <>
-                          <Crown className="w-4 h-4 mr-2" />
-                          Beni Admin Yap
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
               </>
             ) : (
               <>

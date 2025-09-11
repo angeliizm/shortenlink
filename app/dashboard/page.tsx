@@ -126,21 +126,33 @@ export default function DashboardPage() {
         // Fetch sites with permissions
         const { data: permissionSites, error: permissionError } = await supabase
           .from('site_permissions')
-          .select(`
-            permission_type,
-            pages!inner(*)
-          `)
+          .select('permission_type, site_slug')
           .eq('user_id', user.id)
           .eq('is_active', true)
 
         if (permissionError) throw permissionError
 
+        // Get site details for each permission
+        const permissionSitesList: any[] = []
+        if (permissionSites && permissionSites.length > 0) {
+          for (const permission of permissionSites) {
+            const { data: siteData, error: siteError } = await supabase
+              .from('pages')
+              .select('*')
+              .eq('site_slug', permission.site_slug)
+              .single()
+            
+            if (!siteError && siteData) {
+              permissionSitesList.push({
+                ...siteData,
+                permission_type: permission.permission_type
+              })
+            }
+          }
+        }
+
         // Combine owned sites and permission sites
         const ownedSitesList = ownedSites || []
-        const permissionSitesList = permissionSites?.map((p: any) => ({
-          ...p.pages,
-          permission_type: p.permission_type
-        })) || []
 
         // Remove duplicates (in case user owns a site and also has permission)
         allSites = [...ownedSitesList]
