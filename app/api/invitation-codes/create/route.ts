@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     const generatedCode = Math.random().toString(36).substring(2, 14).toUpperCase()
 
     // Create invitation codes for each site
-    const invitationCodes = []
+    const invitationCodes: any[] = []
     for (const site of sites) {
       const { data: invitationCode, error: createError } = await supabase
         .from('invitation_codes')
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
           site_slug: site.slug,
           expires_at,
           created_by: user.id
-        })
+        } as any)
         .select()
         .single()
 
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        code: codeData,
+        code: generatedCode,
         sites: invitationCodes
       }
     })
