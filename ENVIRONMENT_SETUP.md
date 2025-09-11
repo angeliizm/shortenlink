@@ -10,6 +10,7 @@ Proje root dizininde `.env.local` dosyası oluşturun ve aşağıdaki değişken
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 
 # Site URL (Production)
 NEXT_PUBLIC_SITE_URL=https://yourdomain.com
@@ -23,7 +24,9 @@ NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 1. [Supabase Dashboard](https://supabase.com/dashboard)'a gidin
 2. Projenizi seçin
 3. **Settings** > **API** bölümüne gidin
-4. **Project URL** ve **anon public** key'i kopyalayın
+4. **Project URL**, **anon public** key ve **service_role** key'i kopyalayın
+
+**Önemli:** Service Role Key çok güçlü bir key'dir ve sadece server-side işlemler için kullanılmalıdır. Bu key'i asla client-side kodda kullanmayın!
 
 ## Güvenlik Notları
 
