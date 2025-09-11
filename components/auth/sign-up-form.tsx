@@ -76,7 +76,7 @@ export default function SignUpForm() {
         email,
         password,
         options: {
-          emailRedirectTo: undefined
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/callback`
         }
       })
 
