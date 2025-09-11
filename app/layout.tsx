@@ -6,8 +6,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Shorten Link',
-  description: 'URL shortener with dynamic pages and analytics',
+  title: 'Linkfy.',
+  description: 'Linkfy. bir Deniz Aksoy Medya projesidir.',
 }
 
 export default function RootLayout({

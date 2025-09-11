@@ -23,13 +23,13 @@ export function AvatarUploader({ siteId, currentAvatarUrl, onAvatarChange }: Ava
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      setUploadError('Only image files are allowed')
+      setUploadError('Sadece resim dosyalarına izin verilir')
       return
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setUploadError('File size must be less than 5MB')
+      setUploadError('Dosya boyutu 5MB\'den küçük olmalıdır')
       return
     }
 
@@ -50,7 +50,7 @@ export function AvatarUploader({ siteId, currentAvatarUrl, onAvatarChange }: Ava
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || 'Upload failed')
+        throw new Error(result.error || 'Yükleme başarısız')
       }
 
       onAvatarChange(result.url)
@@ -60,7 +60,7 @@ export function AvatarUploader({ siteId, currentAvatarUrl, onAvatarChange }: Ava
       setTimeout(() => setUploadSuccess(false), 3000)
 
     } catch (error: any) {
-      setUploadError(error.message || 'Upload failed')
+      setUploadError(error.message || 'Yükleme başarısız')
     } finally {
       setIsUploading(false)
     }
@@ -102,7 +102,7 @@ export function AvatarUploader({ siteId, currentAvatarUrl, onAvatarChange }: Ava
           <div className="relative">
             <img
               src={currentAvatarUrl}
-              alt="Current avatar"
+              alt="Mevcut avatar"
               className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
             />
             <button
@@ -113,8 +113,8 @@ export function AvatarUploader({ siteId, currentAvatarUrl, onAvatarChange }: Ava
             </button>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-700">Current Avatar</p>
-            <p className="text-xs text-gray-500">Click X to remove</p>
+            <p className="text-sm font-medium text-gray-700">Mevcut Avatar</p>
+            <p className="text-xs text-gray-500">Kaldırmak için X'e tıklayın</p>
           </div>
         </div>
       )}
@@ -131,12 +131,12 @@ export function AvatarUploader({ siteId, currentAvatarUrl, onAvatarChange }: Ava
           {isUploading ? (
             <>
               <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin mr-2" />
-              UpYükleniyor...
+              Yükleniyor...
             </>
           ) : (
             <>
               <Upload className="w-4 h-4 mr-2" />
-              {currentAvatarUrl ? 'Change Avatar' : 'Upload Avatar'}
+              {currentAvatarUrl ? 'Avatar Değiştir' : 'Avatar Yükle'}
             </>
           )}
         </Button>
@@ -176,7 +176,7 @@ export function AvatarUploader({ siteId, currentAvatarUrl, onAvatarChange }: Ava
           >
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-green-600" />
-              <p className="text-sm text-green-600">Avatar uploaded successfully!</p>
+              <p className="text-sm text-green-600">Avatar başarıyla yüklendi!</p>
             </div>
           </motion.div>
         )}
