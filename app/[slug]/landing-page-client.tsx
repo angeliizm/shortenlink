@@ -623,6 +623,28 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
       >
         {/* Content area - now simplified since title is in profile card */}
 
+        {/* Premium Display Text with visual hierarchy */}
+        {displayText && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-8 relative"
+          >
+            {/* Background decoration */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-50 via-transparent to-pink-50 rounded-xl blur-2xl opacity-40" />
+            
+             <p className="relative text-lg md:text-xl lg:text-2xl text-gray-800 text-center font-semibold leading-relaxed tracking-tight" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>
+               <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                 {displayText}
+               </span>
+             </p>
+            
+            {/* Subtle quote marks for emphasis */}
+            <div className="absolute -left-4 -top-2 text-4xl text-purple-200 font-serif opacity-50">"</div>
+            <div className="absolute -right-4 -bottom-2 text-4xl text-purple-200 font-serif opacity-50 rotate-180">"</div>
+          </motion.div>
+        )}
 
         {/* Premium Enhanced Description with SEO focus */}
         {config.meta?.description && (
