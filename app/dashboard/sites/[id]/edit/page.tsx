@@ -323,52 +323,6 @@ export default function EditSitePage({ params }: PageProps) {
     }
   }
 
-  const handleAutoSave = async () => {
-    if (!user || !siteId) return
-    
-    try {
-      // Sadece eylem butonlarını kaydet
-      for (let index = 0; index < actions.length; index++) {
-        const action = actions[index]
-        if (action.id) {
-          // Update existing action
-          const { error: updateError } = await (supabase as any)
-            .from('page_actions')
-            .update({
-              label: action.label,
-              href: action.href,
-              variant: action.variant,
-              preset: action.preset,
-              description: action.description,
-              sort_order: index,
-              is_enabled: action.is_enabled,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', action.id)
-        
-          if (updateError) throw updateError
-        } else {
-          // Create new action
-          const { error: insertError } = await (supabase as any)
-            .from('page_actions')
-            .insert({
-              page_id: siteId,
-              label: action.label,
-              href: action.href,
-              variant: action.variant,
-              preset: action.preset,
-              description: action.description,
-              sort_order: index,
-              is_enabled: action.is_enabled
-            })
-          
-          if (insertError) throw insertError
-        }
-      }
-    } catch (err: any) {
-      console.error('Auto-save error:', err)
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -526,13 +480,6 @@ export default function EditSitePage({ params }: PageProps) {
     const newActions = [...actions]
     newActions[index] = { ...newActions[index], [field]: value }
     setActions(newActions)
-    
-    // Otomatik kaydetme - eylem butonları değiştiğinde
-    if (field === 'label' || field === 'href' || field === 'is_enabled') {
-      setTimeout(() => {
-        handleAutoSave()
-      }, 1000) // 1 saniye bekle
-    }
   }
   
   const removeAction = (index: number) => {

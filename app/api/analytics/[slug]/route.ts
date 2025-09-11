@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getUserRole } from '@/lib/auth/roles';
 
 type PageData = {
   owner_id: string;
@@ -62,34 +63,45 @@ export async function GET(
     if (slug === 'test-analytics-site') {
       isOwner = true;
     } else {
-      // Verify user owns this site
+      // Verify user has permission to view analytics for this site
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         console.log('[Analytics API] No authenticated user');
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
 
-      const { data: page, error: pageError } = await supabase
-        .from('pages')
-        .select('owner_id, site_slug')
-        .eq('site_slug', slug)
-        .single() as { data: PageData | null; error: any };
+      // Check if user has permission to view analytics for this site
+      const userRole = await getUserRole(user.id);
+      const isAdminOrModerator = userRole === 'admin' || userRole === 'moderator';
+      
+      if (isAdminOrModerator) {
+        // Admin and moderator can view analytics for any site
+        console.log(`[Analytics API] ${userRole} user accessing analytics for site: ${slug}`);
+        isOwner = true;
+      } else {
+        // For regular users, check if they own the site
+        const { data: page, error: pageError } = await supabase
+          .from('pages')
+          .select('owner_id, site_slug')
+          .eq('site_slug', slug)
+          .single() as { data: PageData | null; error: any };
 
-      if (pageError) {
-        console.log(`[Analytics API] Error fetching page: ${pageError.message}`);
-        return NextResponse.json({ error: 'Site not found' }, { status: 404 });
-      }
+        if (pageError) {
+          console.log(`[Analytics API] Error fetching page: ${pageError.message}`);
+          return NextResponse.json({ error: 'Site not found' }, { status: 404 });
+        }
 
-      if (!page) {
-        console.log('[Analytics API] Page not found');
-        return NextResponse.json({ error: 'Site not found' }, { status: 404 });
-      }
+        if (!page) {
+          console.log('[Analytics API] Page not found');
+          return NextResponse.json({ error: 'Site not found' }, { status: 404 });
+        }
 
-      if (page.owner_id !== user.id) {
-        console.log('[Analytics API] User does not own this site');
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        if (page.owner_id !== user.id) {
+          console.log('[Analytics API] User does not own this site');
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+        isOwner = true;
       }
-      isOwner = true;
     }
 
     // Set default date range to last 30 days if not provided
