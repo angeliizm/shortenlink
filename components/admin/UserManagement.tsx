@@ -107,40 +107,21 @@ export default function UserManagement() {
 
     setIsDeleting(true);
     try {
-      // Kullanıcının sahip olduğu siteleri sil
-      const { error: sitesError } = await supabase
-        .from('pages')
-        .delete()
-        .eq('owner_id', deletingUser.id);
+      const response = await fetch('/api/admin/delete-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: deletingUser.id
+        })
+      });
 
-      if (sitesError) {
-        console.warn('Error deleting user sites:', sitesError);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Kullanıcı silinirken hata oluştu');
       }
-
-      // Kullanıcının izinlerini sil
-      const { error: permissionsError } = await supabase
-        .from('site_permissions')
-        .delete()
-        .eq('user_id', deletingUser.id);
-
-      if (permissionsError) {
-        console.warn('Error deleting user permissions:', permissionsError);
-      }
-
-      // Kullanıcının rolünü sil
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', deletingUser.id);
-
-      if (roleError) {
-        console.warn('Error deleting user role:', roleError);
-      }
-
-      // Kullanıcıyı auth.users tablosundan sil
-      const { error: authError } = await supabase.auth.admin.deleteUser(deletingUser.id);
-
-      if (authError) throw authError;
 
       await fetchUsers();
       setDeletingUser(null);
