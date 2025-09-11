@@ -85,7 +85,7 @@ export default function EditSitePage({ params }: PageProps) {
         setSiteId(resolvedParams.id)
       } catch (error) {
         console.error('Failed to resolve params:', error)
-        setError('Failed to load page parameters')
+        setError('Sayfa parametreleri yüklenemedi')
         setIsLoading(false)
       }
     }
@@ -114,7 +114,7 @@ export default function EditSitePage({ params }: PageProps) {
         .single() as { data: any, error: any }
       
       if (pageError || !page) {
-        setError('Site not found or you do not have permission to edit it')
+        setError('Site bulunamadı veya düzenleme izniniz yok')
         return
       }
       
@@ -209,7 +209,7 @@ export default function EditSitePage({ params }: PageProps) {
         }
       }
     } catch (err) {
-      setError('Failed to load site data')
+      setError('Site verileri yüklenemedi')
     } finally {
       setIsLoading(false)
     }
@@ -224,7 +224,7 @@ export default function EditSitePage({ params }: PageProps) {
     
     // Validate slug
     if (!/^[a-z0-9\-]+$/.test(formData.site_slug)) {
-      setError('Slug can only contain lowercase letters, numbers, and hyphens')
+      setError('URL adresi sadece küçük harfler, rakamlar ve tire içerebilir')
       return
     }
     
@@ -312,11 +312,11 @@ export default function EditSitePage({ params }: PageProps) {
         }
       }
       
-      setSuccess('Site updated successfully!')
+      setSuccess('Site başarıyla güncellendi!')
       setDeletedActionIds([])
       fetchSiteData() // Refresh data
     } catch (err: any) {
-      setError(err.message || 'Failed to update site')
+      setError(err.message || 'Site güncellenemedi')
     } finally {
       setIsSaving(false)
     }
@@ -484,7 +484,7 @@ export default function EditSitePage({ params }: PageProps) {
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
-          <p className="mt-2 text-gray-600">Loading site...</p>
+          <p className="mt-2 text-gray-600">Site yükleniyor...</p>
         </div>
       </div>
     )
@@ -502,11 +502,11 @@ export default function EditSitePage({ params }: PageProps) {
                 onClick={() => router.push('/dashboard')}
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
+                Panoya Dön
               </Button>
               <div className="flex items-center space-x-2">
                 <Globe className="h-5 w-5 text-blue-600" />
-                <h1 className="text-lg font-semibold">Edit Site</h1>
+                <h1 className="text-lg font-semibold">Site Düzenle</h1>
               </div>
             </div>
             
@@ -514,7 +514,7 @@ export default function EditSitePage({ params }: PageProps) {
               onClick={() => window.open(`/${formData.site_slug}`, '_blank')}
               variant="outline"
             >
-              Preview Site
+              Siteyi Önizle
             </Button>
           </div>
         </div>
@@ -524,26 +524,26 @@ export default function EditSitePage({ params }: PageProps) {
         <form onSubmit={handleSubmit}>
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Site Configuration</CardTitle>
+              <CardTitle>Site Yapılandırması</CardTitle>
               <CardDescription>
-                Update your site settings and appearance
+                Site ayarlarınızı ve görünümünü güncelleyin
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Site Title*</Label>
+                  <Label htmlFor="title">Site Başlığı*</Label>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="My Awesome Site"
+                    placeholder="Harika Sitem"
                     required
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="slug">URL Slug*</Label>
+                  <Label htmlFor="slug">URL Adresi*</Label>
                   <Input
                     id="slug"
                     value={formData.site_slug}
@@ -568,7 +568,7 @@ export default function EditSitePage({ params }: PageProps) {
                     checked={formData.is_enabled}
                     onCheckedChange={(checked) => setFormData({ ...formData, is_enabled: checked })}
                   />
-                  <span className="ml-2">Site is {formData.is_enabled ? 'enabled' : 'disabled'}</span>
+                  <span className="ml-2">Site {formData.is_enabled ? 'aktif' : 'pasif'}</span>
                 </Label>
               </div>
             </CardContent>
@@ -578,9 +578,9 @@ export default function EditSitePage({ params }: PageProps) {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Action Buttons</CardTitle>
+                  <CardTitle>Eylem Butonları</CardTitle>
                   <CardDescription>
-                    Configure buttons that appear on your site
+                    Sitenizde görünecek butonları yapılandırın
                   </CardDescription>
                 </div>
                 <Button
@@ -590,14 +590,14 @@ export default function EditSitePage({ params }: PageProps) {
                   onClick={addAction}
                 >
                   <Plus className="h-4 w-4 mr-1" />
-                  Add Action
+                  Eylem Ekle
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
               {actions.length === 0 ? (
                 <p className="text-center text-gray-500 py-4">
-                  No actions configured. Add action buttons to provide quick links for your visitors.
+                  Henüz eylem yapılandırılmamış. Ziyaretçileriniz için hızlı bağlantılar sağlamak üzere eylem butonları ekleyin.
                 </p>
               ) : (
                 <div className="space-y-4">
@@ -617,7 +617,7 @@ export default function EditSitePage({ params }: PageProps) {
                           <GripVertical className="h-4 w-4 text-gray-400" />
                         </span>
                         <div className="flex-1 text-sm font-medium text-gray-700">
-                          Action {index + 1}
+                          Eylem {index + 1}
                         </div>
                         <Switch
                           checked={action.is_enabled}
@@ -637,11 +637,11 @@ export default function EditSitePage({ params }: PageProps) {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                           <Label htmlFor={`label-${index}`} className="text-sm font-medium">
-                            Label
+                            Etiket
                           </Label>
                           <Input
                             id={`label-${index}`}
-                            placeholder="Button text"
+                            placeholder="Buton metni"
                             value={action.label}
                             onChange={(e) => updateAction(index, 'label', e.target.value)}
                             className="mt-1"
@@ -661,7 +661,7 @@ export default function EditSitePage({ params }: PageProps) {
                         </div>
                         <div>
                           <Label htmlFor={`preset-${index}`} className="text-sm font-medium">
-                            Style
+                            Stil
                           </Label>
                           <PresetSelector
                             value={action.preset}
@@ -671,11 +671,11 @@ export default function EditSitePage({ params }: PageProps) {
                         </div>
                         <div>
                           <Label htmlFor={`description-${index}`} className="text-sm font-medium">
-                            Description (optional)
+                            Açıklama (isteğe bağlı)
                           </Label>
                           <Textarea
                             id={`description-${index}`}
-                            placeholder="Brief description of this action..."
+                            placeholder="Bu eylem hakkında kısa açıklama..."
                             value={action.description || ''}
                             onChange={(e) => updateAction(index, 'description', e.target.value)}
                             className="mt-1 min-h-[60px]"
@@ -694,10 +694,10 @@ export default function EditSitePage({ params }: PageProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Palette className="h-5 w-5" />
-                Background Settings
+                Arka Plan Ayarları
               </CardTitle>
               <CardDescription>
-                Customize the background appearance of your site
+                Sitenizin arka plan görünümünü özelleştirin
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -710,12 +710,12 @@ export default function EditSitePage({ params }: PageProps) {
                   <div>
                     <p className="text-sm font-medium">
                       {backgroundPreferences[siteId]?.preset_id 
-                        ? `Custom background applied` 
-                        : 'Using default background'
+                        ? `Özel arka plan uygulandı` 
+                        : 'Varsayılan arka plan kullanılıyor'
                       }
                     </p>
                     <p className="text-xs text-gray-500">
-                      Click to change background style
+                      Arka plan stilini değiştirmek için tıklayın
                     </p>
                   </div>
                 </div>
@@ -725,7 +725,7 @@ export default function EditSitePage({ params }: PageProps) {
                   onClick={() => setBackgroundSelectorOpen(true)}
                 >
                   <Palette className="h-4 w-4 mr-2" />
-                  Change Background
+                  Arka Planı Değiştir
                 </Button>
               </div>
             </CardContent>
@@ -736,17 +736,17 @@ export default function EditSitePage({ params }: PageProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Type className="h-5 w-5" />
-                Title Font & Color
+                Başlık Fontu & Rengi
               </CardTitle>
               <CardDescription>
-                Choose the font style and color for your title
+                Başlığınız için font stili ve rengi seçin
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
                 {/* Font Style Section */}
                 <div>
-                  <Label className="text-sm font-medium mb-3 block">Font Style</Label>
+                  <Label className="text-sm font-medium mb-3 block">Font Stili</Label>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-16 h-16 rounded-lg border border-gray-200 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
@@ -767,7 +767,7 @@ export default function EditSitePage({ params }: PageProps) {
                           {titleFontPresets.find(p => p.id === titleStylePresetId)?.name || 'Modern Sans'}
                         </p>
                         <p className="text-xs text-gray-500">
-                          Click to change font style
+                          Font stilini değiştirmek için tıklayın
                         </p>
                       </div>
                     </div>
@@ -777,14 +777,14 @@ export default function EditSitePage({ params }: PageProps) {
                       onClick={() => setTitleFontSelectorOpen(true)}
                     >
                       <Type className="h-4 w-4 mr-2" />
-                      Change Font
+                      Fontu Değiştir
                     </Button>
                   </div>
                 </div>
 
                 {/* Color Section */}
                 <div>
-                  <Label className="text-sm font-medium mb-3 block">Text Color</Label>
+                  <Label className="text-sm font-medium mb-3 block">Metin Rengi</Label>
                   <div className="flex items-center gap-4">
                     <div 
                       className="w-12 h-12 rounded-lg border-2 border-gray-200 flex items-center justify-center"
@@ -828,16 +828,16 @@ export default function EditSitePage({ params }: PageProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Profile Card Style
+                Profil Kartı Stili
               </CardTitle>
               <CardDescription>
-                Customize the design style and avatar of your profile card
+                Profil kartınızın tasarım stilini ve avatarını özelleştirin
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Avatar Upload Section */}
               <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Profile Avatar</h4>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Profil Avatarı</h4>
                 <AvatarUploader
                   siteId={siteId}
                   currentAvatarUrl={avatarUrl}
@@ -847,7 +847,7 @@ export default function EditSitePage({ params }: PageProps) {
 
               {/* Style Selection Section */}
               <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Card Style</h4>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Kart Stili</h4>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div
@@ -882,7 +882,7 @@ export default function EditSitePage({ params }: PageProps) {
                         {profilePresets.find(p => p.id === profilePresetId)?.name || 'Minimal Clean'}
                       </p>
                       <p className="text-xs text-gray-500">
-                        Click to change card style
+                        Kart stilini değiştirmek için tıklayın
                       </p>
                     </div>
                   </div>
@@ -892,7 +892,7 @@ export default function EditSitePage({ params }: PageProps) {
                     onClick={() => setProfileCardSelectorOpen(true)}
                   >
                     <User className="h-4 w-4 mr-2" />
-                    Change Style
+                    Stili Değiştir
                   </Button>
                 </div>
               </div>
@@ -917,11 +917,11 @@ export default function EditSitePage({ params }: PageProps) {
               variant="outline"
               onClick={() => router.push('/dashboard')}
             >
-              Cancel
+              İptal
             </Button>
             <Button type="submit" disabled={isSaving}>
               <Save className="h-4 w-4 mr-2" />
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {isSaving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
             </Button>
           </div>
         </form>
