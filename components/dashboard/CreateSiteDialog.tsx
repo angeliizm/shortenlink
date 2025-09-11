@@ -121,21 +121,25 @@ export default function CreateSiteDialog({ open, onOpenChange, onSuccess }: Crea
       if (!open) resetForm()
       onOpenChange(open)
     }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Plus className="w-5 h-5 text-blue-600" />
+          <DialogHeader className="text-center pb-6">
+            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center mb-4">
+              <Plus className="w-8 h-8 text-purple-600" />
+            </div>
+            <DialogTitle className="text-2xl font-bold text-gray-900">
               Yeni Site Oluştur
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-gray-600 mt-2">
               Yeni dinamik sitenizi oluşturun. Diğer ayarları daha sonra düzenleyebilirsiniz.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Site Adı*</Label>
+          <div className="space-y-6 py-4">
+            <div className="space-y-3">
+              <Label htmlFor="title" className="text-sm font-medium text-gray-700">
+                Site Adı*
+              </Label>
               <Input
                 id="title"
                 value={formData.title}
@@ -150,56 +154,82 @@ export default function CreateSiteDialog({ open, onOpenChange, onSuccess }: Crea
                   }
                 }}
                 placeholder="Harika Sitem"
+                className="h-12 text-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                 required
               />
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="slug">URL Adı*</Label>
-              <Input
-                id="slug"
-                value={formData.site_slug}
-                onChange={(e) => setFormData({ 
-                  ...formData, 
-                  site_slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')
-                })}
-                placeholder="harika-sitem"
-                pattern="^[a-z0-9-]+$"
-                required
-              />
-              <p className="text-xs text-gray-500">/{formData.site_slug || 'url-adiniz'}</p>
+            <div className="space-y-3">
+              <Label htmlFor="slug" className="text-sm font-medium text-gray-700">
+                URL Adı*
+              </Label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 text-sm">linkfy.com/</span>
+                </div>
+                <Input
+                  id="slug"
+                  value={formData.site_slug}
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    site_slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')
+                  })}
+                  placeholder="harika-sitem"
+                  pattern="^[a-z0-9-]+$"
+                  className="h-12 text-lg pl-24 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  required
+                />
+              </div>
+              <p className="text-xs text-gray-500">
+                Sadece küçük harfler, rakamlar ve tire kullanabilirsiniz
+              </p>
             </div>
             
             {error && (
-              <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
-                {error}
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
           
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
-            >
-              İptal
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading || !formData.title.trim() || !formData.site_slug.trim()}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              {isLoading ? (
-                <div className="flex items-center">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Oluşturuluyor...
-                </div>
-              ) : (
-                'Site Oluştur'
-              )}
-            </Button>
+          <DialogFooter className="pt-6 border-t border-gray-200">
+            <div className="flex gap-3 w-full">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isLoading}
+                className="flex-1 h-12 border-gray-300 hover:bg-gray-50"
+              >
+                İptal
+              </Button>
+              <Button
+                type="submit"
+                disabled={isLoading || !formData.title.trim() || !formData.site_slug.trim()}
+                className="flex-1 h-12 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Oluşturuluyor...
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Site Oluştur
+                  </div>
+                )}
+              </Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>
