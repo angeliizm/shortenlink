@@ -495,7 +495,7 @@ export default function SitePermissions() {
             <Input
               id="site-search"
               type="text"
-              placeholder="Site adı, slug veya kullanıcı email'i ile ara..."
+              placeholder="Site adı, uzantısı veya kullanıcı email'i ile ara..."
               value={siteSearchTerm}
               onChange={(e) => setSiteSearchTerm(e.target.value)}
               className="w-full"

@@ -208,6 +208,19 @@ export default function DashboardPage() {
                     </Button>
                   )}
                   
+                  {/* Moderator Panel Link - Sadece moderatör kullanıcılar için */}
+                  {userRole === 'moderator' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push('/moderator')}
+                      className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white border-0 hover:from-orange-600 hover:to-orange-700 shadow-lg hover:shadow-xl transition-all duration-200"
+                    >
+                      <Shield className="h-4 w-4" />
+                      <span>Moderatör Panel</span>
+                    </Button>
+                  )}
+                  
                   <button
                     onClick={logout}
                     className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl hover:bg-white/70 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
