@@ -43,12 +43,38 @@ export default function SitePermissions() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [users, setUsers] = useState<{id: string, email: string}[]>([]);
   const [userSearchTerm, setUserSearchTerm] = useState<string>('');
+  const [siteSearchTerm, setSiteSearchTerm] = useState<string>('');
 
   const supabase = createClient();
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Site bazlı gruplama
+  const groupedPermissions = permissions
+    .filter(p => p.is_active)
+    .reduce((acc, permission) => {
+      const siteSlug = permission.site_slug;
+      if (!acc[siteSlug]) {
+        acc[siteSlug] = [];
+      }
+      acc[siteSlug].push(permission);
+      return acc;
+    }, {} as Record<string, SitePermission[]>);
+
+  // Filtrelenmiş siteler (arama terimine göre)
+  const filteredSites = sites.filter(site => 
+    site.title.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
+    site.site_slug.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
+    site.owner_email.toLowerCase().includes(siteSearchTerm.toLowerCase())
+  );
+
+  // Filtrelenmiş izinler (arama terimine göre)
+  const filteredPermissions = permissions.filter(permission => 
+    permission.user_email.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
+    permission.site_slug.toLowerCase().includes(siteSearchTerm.toLowerCase())
+  );
 
   const fetchData = async () => {
     try {
@@ -443,72 +469,146 @@ export default function SitePermissions() {
             Mevcut İzinler
           </CardTitle>
           <CardDescription className="text-gray-600">
-            Verilen site izinlerini yönetin
+            Verilen site izinlerini site bazlı olarak yönetin
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {permissions.filter(p => p.is_active).map((permission) => (
-              <div key={permission.id} className="group relative backdrop-blur-sm bg-white/60 border border-white/30 rounded-2xl p-6 hover:bg-white/80 hover:shadow-xl transition-all duration-300">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-4 mb-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center">
-                        <Globe className="w-6 h-6 text-gray-600" />
+          {/* Arama Kutusu */}
+          <div className="mb-6">
+            <Label htmlFor="site-search" className="text-sm font-medium text-gray-700 mb-2 block">
+              Site veya Kullanıcı Ara
+            </Label>
+            <Input
+              id="site-search"
+              type="text"
+              placeholder="Site adı, slug veya kullanıcı email'i ile ara..."
+              value={siteSearchTerm}
+              onChange={(e) => setSiteSearchTerm(e.target.value)}
+              className="w-full"
+            />
+          </div>
+
+          <div className="space-y-6">
+            {Object.entries(groupedPermissions)
+              .filter(([siteSlug]) => {
+                if (!siteSearchTerm) return true;
+                const site = sites.find(s => s.site_slug === siteSlug);
+                return site && (
+                  site.title.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
+                  site.site_slug.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
+                  site.owner_email.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
+                  groupedPermissions[siteSlug].some(p => 
+                    p.user_email.toLowerCase().includes(siteSearchTerm.toLowerCase())
+                  )
+                );
+              })
+              .map(([siteSlug, sitePermissions]) => {
+                const site = sites.find(s => s.site_slug === siteSlug);
+                if (!site) return null;
+
+                return (
+                  <div key={siteSlug} className="backdrop-blur-sm bg-white/60 border border-white/30 rounded-2xl p-6">
+                    {/* Site Header */}
+                    <div className="flex items-center gap-4 mb-4 pb-4 border-b border-gray-200">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
+                        <Globe className="w-6 h-6 text-blue-600" />
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 text-lg">{permission.user_email}</h3>
-                        <p className="text-sm text-gray-600">Site: {permission.site_slug}</p>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 text-lg">{site.title}</h3>
+                        <p className="text-sm text-gray-600">/{site.site_slug} • Sahip: {site.owner_email}</p>
                       </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span>İzin: {getPermissionTypeLabel(permission.permission_type)}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span>Verilme: {formatDistanceToNow(new Date(permission.granted_at), { addSuffix: true })}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                        <span>
-                          {permission.expires_at 
-                            ? `Bitiş: ${formatDistanceToNow(new Date(permission.expires_at), { addSuffix: true })}`
-                            : 'Süresiz'
-                          }
+                      <div className="text-right">
+                        <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
+                          {sitePermissions.length} İzin
                         </span>
                       </div>
                     </div>
-                    <div className="mt-3">
-                      <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors ${getPermissionTypeColor(permission.permission_type)}`}>
-                        {getPermissionTypeLabel(permission.permission_type)}
-                      </span>
+
+                    {/* Site Permissions */}
+                    <div className="space-y-3">
+                      {sitePermissions.map((permission) => (
+                        <div key={permission.id} className="group relative backdrop-blur-sm bg-white/80 border border-white/40 rounded-xl p-4 hover:bg-white/90 hover:shadow-lg transition-all duration-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
+                                  <Users className="w-4 h-4 text-gray-600" />
+                                </div>
+                                <div>
+                                  <h4 className="font-medium text-gray-900">{permission.user_email}</h4>
+                                  <p className="text-xs text-gray-500">
+                                    Verilme: {formatDistanceToNow(new Date(permission.granted_at), { addSuffix: true })}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm text-gray-600">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                  <span>İzin: {getPermissionTypeLabel(permission.permission_type)}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                                  <span>
+                                    {permission.expires_at 
+                                      ? `Bitiş: ${formatDistanceToNow(new Date(permission.expires_at), { addSuffix: true })}`
+                                      : 'Süresiz'
+                                    }
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="mt-2">
+                                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors ${getPermissionTypeColor(permission.permission_type)}`}>
+                                  {getPermissionTypeLabel(permission.permission_type)}
+                                </span>
+                              </div>
+                            </div>
+                          
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleRevokePermission(permission.id)}
+                                className="bg-red-50 backdrop-blur-sm border-red-200 hover:bg-red-100 hover:border-red-300 text-red-600 transition-all duration-200"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                İptal Et
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleRevokePermission(permission.id)}
-                      className="bg-red-50 backdrop-blur-sm border-red-200 hover:bg-red-100 hover:border-red-300 text-red-600 transition-all duration-200"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      İptal Et
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
+                );
+              })}
             
-            {permissions.filter(p => p.is_active).length === 0 && (
+            {Object.keys(groupedPermissions).length === 0 && (
               <div className="text-center py-16">
                 <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-4">
                   <Shield className="w-12 h-12 text-gray-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz İzin Verilmemiş</h3>
                 <p className="text-gray-500">Kullanıcılara site izni vermek için yukarıdaki formu kullanın.</p>
+              </div>
+            )}
+
+            {siteSearchTerm && Object.entries(groupedPermissions).filter(([siteSlug]) => {
+              const site = sites.find(s => s.site_slug === siteSlug);
+              return site && (
+                site.title.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
+                site.site_slug.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
+                site.owner_email.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
+                groupedPermissions[siteSlug].some(p => 
+                  p.user_email.toLowerCase().includes(siteSearchTerm.toLowerCase())
+                )
+              );
+            }).length === 0 && (
+              <div className="text-center py-16">
+                <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                  <Globe className="w-12 h-12 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Arama Sonucu Bulunamadı</h3>
+                <p className="text-gray-500">"{siteSearchTerm}" için sonuç bulunamadı. Farklı bir arama terimi deneyin.</p>
               </div>
             )}
           </div>

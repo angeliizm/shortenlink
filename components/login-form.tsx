@@ -9,7 +9,9 @@ export default function LoginForm() {
   const [rememberMe, setRememberMe] = useState(false)
   const [errors, setErrors] = useState<{ email?: string; password?: string; api?: string }>({})
   const [isLoading, setIsLoading] = useState(false)
-  const { login } = useAuth()
+  const [isResending, setIsResending] = useState(false)
+  const [resendSuccess, setResendSuccess] = useState(false)
+  const { login, resendConfirmation } = useAuth()
 
   const validateForm = (): boolean => {
     const newErrors: { email?: string; password?: string } = {}
@@ -43,10 +45,40 @@ export default function LoginForm() {
       // Navigation is handled by the auth store
       // Keep loading state true as we're redirecting
     } catch (error) {
-      setErrors({ 
-        api: error instanceof Error ? error.message : 'Login failed. Please try again.' 
-      })
+      const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.'
+      
+      // Check if it's an email confirmation error
+      if (errorMessage.toLowerCase().includes('email not confirmed') || 
+          errorMessage.toLowerCase().includes('email_not_confirmed')) {
+        setErrors({ 
+          api: 'Email adresiniz doğrulanmamış. Lütfen email adresinizi kontrol edin ve doğrulama linkine tıklayın.'
+        })
+      } else {
+        setErrors({ api: errorMessage })
+      }
       setIsLoading(false)
+    }
+  }
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      setErrors({ api: 'Lütfen email adresinizi girin.' })
+      return
+    }
+
+    setIsResending(true)
+    setResendSuccess(false)
+    
+    try {
+      await resendConfirmation(email)
+      setResendSuccess(true)
+      setErrors({})
+    } catch (error) {
+      setErrors({ 
+        api: error instanceof Error ? error.message : 'Tekrar mail gönderilemedi. Lütfen tekrar deneyin.' 
+      })
+    } finally {
+      setIsResending(false)
     }
   }
 
@@ -164,6 +196,28 @@ export default function LoginForm() {
           {errors.api && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-600">{errors.api}</p>
+              {/* Show resend button for email confirmation errors */}
+              {(errors.api.includes('doğrulanmamış') || errors.api.includes('email not confirmed')) && (
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    onClick={handleResendConfirmation}
+                    disabled={isResending || !email}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isResending ? 'Gönderiliyor...' : 'Tekrar Mail Gönder'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Resend Success */}
+          {resendSuccess && (
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-600">
+                Doğrulama maili tekrar gönderildi. Lütfen email adresinizi kontrol edin.
+              </p>
             </div>
           )}
 

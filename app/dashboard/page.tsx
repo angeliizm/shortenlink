@@ -12,6 +12,7 @@ import DeleteSiteDialog from '@/components/dashboard/DeleteSiteDialog'
 import RoleGuard from '@/components/auth/RoleGuard'
 import { getUserRole } from '@/lib/auth/roles'
 import { formatDistanceToNow } from 'date-fns'
+import { tr } from 'date-fns/locale'
 
 interface Site {
   id: string
@@ -252,18 +253,21 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
           
-          <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
-            <CardContent className="p-6">
-              <Button 
-                onClick={() => setIsCreateOpen(true)}
-                className="w-full h-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 group-hover:scale-105"
-                size="lg"
-              >
-                <Plus className="h-6 w-6 mr-2" />
-                Yeni Site Oluştur
-              </Button>
-            </CardContent>
-          </Card>
+          {/* Yeni Site Oluştur butonu - sadece admin ve sahipler için */}
+          {(userRole === 'admin' || !userRole) && (
+            <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+              <CardContent className="p-6">
+                <Button 
+                  onClick={() => setIsCreateOpen(true)}
+                  className="w-full h-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 group-hover:scale-105"
+                  size="lg"
+                >
+                  <Plus className="h-6 w-6 mr-2" />
+                  Yeni Site Oluştur
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Modern Sites List */}
@@ -273,10 +277,10 @@ export default function DashboardPage() {
               <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
                 <Globe className="w-5 h-5 text-blue-600" />
               </div>
-              Siteleriniz
+              Siteler
             </CardTitle>
             <CardDescription className="text-gray-600">
-              Dinamik sitelerinizi yönetin ve yapılandırmalarını düzenleyin
+              Erişime sahip olduğun tüm siteler burada listelenir
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -406,7 +410,7 @@ export default function DashboardPage() {
                               </span>
                             </div>
                             <div className="flex items-center space-x-2 text-xs text-gray-500">
-                              <span>Güncellendi {formatDistanceToNow(new Date(site.updated_at), { addSuffix: true })}</span>
+                              <span>Güncellendi {formatDistanceToNow(new Date(site.updated_at), { addSuffix: true, locale: tr })}</span>
                             </div>
                           </div>
                         </div>
@@ -453,7 +457,8 @@ export default function DashboardPage() {
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
-                            {userRole === 'admin' && (
+                            {/* Delete button - only for owners or admin */}
+                            {(!site.permission_type || userRole === 'admin') && (
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -467,7 +472,7 @@ export default function DashboardPage() {
                           </div>
                         )}
                         
-                        {/* Edit button for edit permission (non-admin) */}
+                        {/* Edit button for edit permission (non-admin, non-owner) */}
                         {site.permission_type === 'edit' && userRole !== 'admin' && (
                           <div className="flex items-center space-x-1">
                             <Button

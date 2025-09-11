@@ -12,6 +12,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   register: (email: string, password: string) => Promise<void>
+  resendConfirmation: (email: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -95,6 +96,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // The auth state change listener will handle navigation
   }
 
+  const resendConfirmation = async (email: string) => {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email,
+    })
+
+    if (error) {
+      throw new Error(error.message || 'Failed to resend confirmation email')
+    }
+  }
+
   const value: AuthContextType = {
     user,
     isLoading,
@@ -102,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     logout,
     register,
+    resendConfirmation,
   }
 
   return (
