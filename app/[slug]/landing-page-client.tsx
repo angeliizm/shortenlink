@@ -865,26 +865,27 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           </motion.div>
         )}
       </motion.div>
-      </div>
       
-      {/* Footer - Outside main container */}
+      {/* Footer - Inside main container */}
       <motion.footer 
-        className="relative z-10 w-full max-w-md mx-auto px-4 py-4"
+        className="relative z-10 w-full max-w-md mx-auto px-4 py-3 mt-6"
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(10px)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+          backgroundColor: 'rgba(0, 0, 0, 0.1)',
+          backdropFilter: 'blur(8px)',
+          borderRadius: '12px',
+          border: '1px solid rgba(255, 255, 255, 0.1)'
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="text-center">
-          <p className="text-xs text-gray-300 opacity-80">
+          <p className="text-xs text-white opacity-70">
             Bu site Deniz Aksoy Medya tarafından geliştirilmiştir.
           </p>
         </div>
       </motion.footer>
+      </div>
 
       {/* Enhanced Background Picker Modal with Animation */}
       <AnimatePresence>
