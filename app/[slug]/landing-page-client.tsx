@@ -881,7 +881,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
       >
         <div className="text-center">
           <p className="text-xs text-white opacity-70">
-            Bu site Deniz Aksoy Medya tarafından geliştirilmiştir.
+            Linkfy. bir Deniz Aksoy Medya projesidir.
           </p>
         </div>
       </motion.footer>
