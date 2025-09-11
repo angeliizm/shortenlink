@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if code is expired
-    if (invitationCode.expires_at && new Date(invitationCode.expires_at) < new Date()) {
+    if ((invitationCode as any).expires_at && new Date((invitationCode as any).expires_at) < new Date()) {
       return NextResponse.json(
         { error: 'Kod süresi dolmuş' },
         { status: 400 }
@@ -59,9 +59,9 @@ export async function POST(request: NextRequest) {
       .upsert({
         user_id: user.id,
         role: 'approved',
-        assigned_by: invitationCode.created_by,
+        assigned_by: (invitationCode as any).created_by,
         notes: 'Invitation code ile onaylandı'
-      })
+      } as any)
 
     if (roleError) {
       throw roleError
@@ -71,11 +71,11 @@ export async function POST(request: NextRequest) {
     const { error: siteError } = await supabase
       .from('pages')
       .upsert({
-        site_slug: invitationCode.site_slug,
-        title: invitationCode.site_title,
-        owner_id: invitationCode.created_by,
+        site_slug: (invitationCode as any).site_slug,
+        title: (invitationCode as any).site_title,
+        owner_id: (invitationCode as any).created_by,
         is_enabled: true
-      }, { onConflict: 'site_slug' })
+      } as any, { onConflict: 'site_slug' })
 
     if (siteError) {
       throw siteError
@@ -88,28 +88,28 @@ export async function POST(request: NextRequest) {
         .from('site_permissions')
         .upsert({
           user_id: user.id,
-          site_slug: invitationCode.site_slug,
+          site_slug: (invitationCode as any).site_slug,
           permission_type: permission,
-          granted_by: invitationCode.created_by,
+          granted_by: (invitationCode as any).created_by,
           is_active: true
-        }, { onConflict: 'user_id,site_slug,permission_type' })
+        } as any, { onConflict: 'user_id,site_slug,permission_type' })
     }
 
     // Mark code as used
-    await supabase
+    await (supabase as any)
       .from('invitation_codes')
       .update({
         is_used: true,
         used_by: user.id,
         used_at: new Date().toISOString()
       })
-      .eq('id', invitationCode.id)
+      .eq('id', (invitationCode as any).id)
 
     return NextResponse.json({
       success: true,
       message: 'Kod başarıyla kullanıldı. Site erişiminiz aktif edildi.',
-      site_slug: invitationCode.site_slug,
-      site_title: invitationCode.site_title
+      site_slug: (invitationCode as any).site_slug,
+      site_title: (invitationCode as any).site_title
     })
 
   } catch (error) {
