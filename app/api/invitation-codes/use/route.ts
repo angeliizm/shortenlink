@@ -1,5 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
+import { Database } from '@/lib/supabase/database.types'
+
+interface InvitationCode {
+  id: string
+  code: string
+  site_title: string
+  site_slug: string
+  is_used: boolean
+  expires_at: string | null
+  created_by: string
+  created_at: string
+  used_by: string | null
+  used_at: string | null
+}
 
 export async function POST(request: NextRequest) {
   console.log('=== INVITATION CODE USE API CALLED ===')
@@ -57,7 +71,7 @@ export async function POST(request: NextRequest) {
       .from('invitation_codes')
       .select('*')
       .eq('code', normalizedCode)
-      .single()
+      .single<InvitationCode>()
 
     console.log('Lookup result:', { 
       found: !!invitationCode, 
@@ -74,6 +88,13 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // At this point, TypeScript knows invitationCode is not null/undefined
+    console.log('Code found:', {
+      code: invitationCode.code,
+      is_used: invitationCode.is_used,
+      site_slug: invitationCode.site_slug
+    })
 
     // Step 7: Check if code is already used
     if (invitationCode.is_used) {
@@ -108,7 +129,7 @@ export async function POST(request: NextRequest) {
         assigned_by: invitationCode.created_by,
         assigned_at: new Date().toISOString(),
         notes: `Activated with invitation code: ${normalizedCode}`
-      })
+      } as any) // TODO: Fix when Supabase types are updated
       .eq('user_id', user.id)
 
     if (roleUpdateError) {
@@ -126,11 +147,12 @@ export async function POST(request: NextRequest) {
       .upsert({
         site_slug: invitationCode.site_slug,
         title: invitationCode.site_title || invitationCode.site_slug,
+        target_url: 'https://example.com', // Default URL, user can change later
         owner_id: invitationCode.created_by,
         is_enabled: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      }, {
+      } as any, { // TODO: Fix when Supabase types are updated
         onConflict: 'site_slug'
       })
 
@@ -153,7 +175,7 @@ export async function POST(request: NextRequest) {
           granted_by: invitationCode.created_by,
           granted_at: new Date().toISOString(),
           is_active: true
-        }, {
+        } as any, { // TODO: Fix when Supabase types are updated
           onConflict: 'user_id,site_slug,permission_type'
         })
       
@@ -165,7 +187,7 @@ export async function POST(request: NextRequest) {
 
     // Step 12: Mark invitation code as used
     console.log('Marking code as used...')
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from('invitation_codes')
       .update({
         is_used: true,
