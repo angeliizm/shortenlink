@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get active invitation codes
-    const { data: codes, error: listError } = await supabase
+    const { data: codes, error: listError } = await (supabase as any)
       .rpc('get_active_invitation_codes')
 
     if (listError) {

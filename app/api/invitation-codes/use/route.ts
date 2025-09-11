@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || '127.0.0.1'
 
     // Use the invitation code
-    const { data: result, error: useError } = await supabase
+    const { data: result, error: useError } = await (supabase as any)
       .rpc('use_invitation_code', {
         invitation_code: code.toUpperCase(),
         user_ip: ip

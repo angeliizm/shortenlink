@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate unique code
-    const { data: codeData, error: codeError } = await supabase
+    const { data: codeData, error: codeError } = await (supabase as any)
       .rpc('generate_invitation_code')
 
     if (codeError) {
