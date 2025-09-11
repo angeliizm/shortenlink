@@ -73,6 +73,83 @@ export default function EditSitePage({ params }: PageProps) {
   const [buttonPresetSelectorOpen, setButtonPresetSelectorOpen] = useState(false)
   const [currentActionIndex, setCurrentActionIndex] = useState<number>(0)
   
+  // URL unique kontrolü için state
+  const [urlError, setUrlError] = useState<string>('')
+  const [isCheckingUrl, setIsCheckingUrl] = useState<boolean>(false)
+  
+  // Hata mesajlarını Türkçe'ye çeviren fonksiyon
+  const translateError = (error: string): string => {
+    const errorLower = error.toLowerCase()
+    
+    if (errorLower.includes('valid_href')) {
+      return 'Sayfa eylemlerinde URL yazılmadığı için kaydedilmiyor. Lütfen tüm eylemler için geçerli URL girin.'
+    }
+    if (errorLower.includes('duplicate key') && errorLower.includes('site_slug')) {
+      return 'Bu URL adresi zaten kullanılıyor. Lütfen farklı bir URL adresi girin.'
+    }
+    if (errorLower.includes('duplicate key') && errorLower.includes('href')) {
+      return 'Bu URL adresi zaten kullanılıyor. Lütfen farklı bir URL adresi girin.'
+    }
+    if (errorLower.includes('unique constraint')) {
+      return 'Bu URL adresi zaten kullanılıyor. Lütfen farklı bir URL adresi girin.'
+    }
+    if (errorLower.includes('check constraint')) {
+      return 'Girilen veriler geçersiz. Lütfen tüm alanları doğru şekilde doldurun.'
+    }
+    if (errorLower.includes('foreign key')) {
+      return 'Bağlantı hatası. Lütfen sayfayı yenileyin ve tekrar deneyin.'
+    }
+    if (errorLower.includes('not null')) {
+      return 'Zorunlu alanlar boş bırakılamaz. Lütfen tüm gerekli alanları doldurun.'
+    }
+    if (errorLower.includes('invalid input')) {
+      return 'Geçersiz veri girişi. Lütfen verileri kontrol edin.'
+    }
+    if (errorLower.includes('permission denied')) {
+      return 'Bu işlem için yetkiniz bulunmuyor.'
+    }
+    if (errorLower.includes('connection')) {
+      return 'Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.'
+    }
+    
+    return error // Eğer tanınmayan bir hata ise orijinal mesajı döndür
+  }
+  
+  // URL unique kontrolü fonksiyonu
+  const checkUrlUnique = async (url: string) => {
+    if (!url.trim()) {
+      setUrlError('')
+      return true
+    }
+    
+    setIsCheckingUrl(true)
+    setUrlError('')
+    
+    try {
+      const { data, error } = await supabase
+        .from('pages')
+        .select('id')
+        .eq('site_slug', url.trim())
+        .neq('id', siteId) // Mevcut site hariç
+      
+      if (error) throw error
+      
+      if (data && data.length > 0) {
+        setUrlError('Bu URL adresi zaten kullanılıyor. Lütfen farklı bir URL adresi girin.')
+        return false
+      }
+      
+      setUrlError('')
+      return true
+    } catch (error) {
+      console.error('URL kontrol hatası:', error)
+      setUrlError('URL kontrol edilirken hata oluştu')
+      return false
+    } finally {
+      setIsCheckingUrl(false)
+    }
+  }
+  
   // Title font preset state
   const [titleStylePresetId, setTitleStylePresetId] = useState<string>(defaultTitleFontPresetId)
   const [titleColor, setTitleColor] = useState<string>('#111827')
@@ -243,6 +320,27 @@ export default function EditSitePage({ params }: PageProps) {
       return
     }
     
+    // URL unique kontrolü
+    if (urlError) {
+      setError('Lütfen URL adresi hatasını düzeltin')
+      return
+    }
+    
+    // Son kontrol için URL unique kontrolü
+    const isUrlUnique = await checkUrlUnique(formData.site_slug)
+    if (!isUrlUnique) {
+      setError('Bu URL adresi zaten kullanılıyor. Lütfen farklı bir URL adresi girin.')
+      return
+    }
+    
+    // Eylem butonları için URL kontrolü
+    for (const action of actions) {
+      if (action.is_enabled && (!action.href || action.href.trim() === '')) {
+        setError('Aktif eylem butonları için URL adresi zorunludur. Lütfen tüm aktif butonlar için URL girin.')
+        return
+      }
+    }
+    
     setIsSaving(true)
     
     try {
@@ -332,7 +430,8 @@ export default function EditSitePage({ params }: PageProps) {
       setDeletedActionIds([])
       fetchSiteData() // Refresh data
     } catch (err: any) {
-      setError(err.message || 'Site güncellenemedi')
+      const translatedError = translateError(err.message || 'Site güncellenemedi')
+      setError(translatedError)
     } finally {
       setIsSaving(false)
     }
@@ -560,18 +659,40 @@ export default function EditSitePage({ params }: PageProps) {
                 
                 <div className="space-y-2">
                   <Label htmlFor="slug">URL Adresi*</Label>
-                  <Input
-                    id="slug"
-                    value={formData.site_slug}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      site_slug: e.target.value.toLowerCase().replace(/[^a-z0-9\-]/g, '')
-                    })}
-                    placeholder="my-site"
-                    pattern="[a-z0-9\-]+"
-                    required
-                  />
-                  <p className="text-xs text-gray-500">/{formData.site_slug}</p>
+                  <div className="relative">
+                    <Input
+                      id="slug"
+                      value={formData.site_slug}
+                      onChange={async (e) => {
+                        const newSlug = e.target.value.toLowerCase().replace(/[^a-z0-9\-]/g, '')
+                        setFormData({ 
+                          ...formData, 
+                          site_slug: newSlug
+                        })
+                        
+                        // URL unique kontrolü (debounce ile)
+                        if (newSlug && newSlug !== formData.site_slug) {
+                          setTimeout(() => {
+                            checkUrlUnique(newSlug)
+                          }, 500)
+                        }
+                      }}
+                      placeholder="my-site"
+                      pattern="[a-z0-9\-]+"
+                      required
+                      className={urlError ? 'border-red-500 focus:border-red-500' : ''}
+                    />
+                    {isCheckingUrl && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    )}
+                  </div>
+                  {urlError ? (
+                    <p className="text-xs text-red-600 mt-1">{urlError}</p>
+                  ) : (
+                    <p className="text-xs text-gray-500">/{formData.site_slug}</p>
+                  )}
                 </div>
               </div>
               
