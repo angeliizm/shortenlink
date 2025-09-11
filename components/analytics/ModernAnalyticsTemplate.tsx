@@ -12,15 +12,17 @@ import {
 import { 
   Calendar, Users, Eye, MousePointer, DollarSign, Target, 
   ArrowUpRight, ArrowDownRight, BarChart3, TrendingUp,
-  Activity, Globe, Smartphone, Monitor, Tablet
+  Activity, Globe, Smartphone, Monitor, Tablet, ArrowLeft
 } from 'lucide-react';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { useRouter } from 'next/navigation';
 
 interface ModernAnalyticsTemplateProps {
   siteSlug: string;
 }
 
 export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTemplateProps) {
+  const router = useRouter();
   const [dateRange, setDateRange] = useState('30d');
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState<any>(null);
@@ -287,6 +289,17 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
                  <nav className="flex space-x-8">
                  </nav>
               </div>
+              
+              {/* Dashboard'a geri dönüş */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/dashboard')}
+                className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70 hover:border-gray-300 transition-all duration-200"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Dashboard
+              </Button>
             </div>
             <div className="flex items-center space-x-4">
               <Select value={dateRange} onValueChange={setDateRange}>

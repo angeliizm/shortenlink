@@ -8,6 +8,8 @@ import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shiel
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import PageHeader from '@/components/ui/PageHeader'
 import CreateSiteDialog from '@/components/dashboard/CreateSiteDialog'
 import DeleteSiteDialog from '@/components/dashboard/DeleteSiteDialog'
 import RoleGuard from '@/components/auth/RoleGuard'
@@ -52,6 +54,9 @@ export default function DashboardPage() {
   // Filter states
   const [searchTerm, setSearchTerm] = useState('')
   const [filteredSites, setFilteredSites] = useState<Site[]>([])
+  
+  // Invitation code popup state
+  const [isInvitationCodeOpen, setIsInvitationCodeOpen] = useState(false)
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -146,6 +151,7 @@ export default function DashboardPage() {
           await fetchSites(newRole)
         }
         setInvitationCode('')
+        setIsInvitationCodeOpen(false) // Close the popup
       } else {
         setCodeError(result.error || 'Kod kullanılırken hata oluştu')
       }
@@ -306,62 +312,59 @@ export default function DashboardPage() {
   return (
     <RoleGuard requireDashboardAccess={true}>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <Globe className="h-6 w-6 text-blue-600" />
-                  <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
-                </div>
+        {/* Modern Header */}
+        <PageHeader
+          title="linkfy."
+          subtitle="Dashboard"
+          icon={<Globe className="w-6 h-6 text-white" />}
+          showBackButton={false}
+          rightContent={
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <Users className="h-4 w-4 text-gray-500" />
+                <span className="text-sm font-medium text-gray-700">
+                  {user?.email}
+                </span>
               </div>
               
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <Users className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm font-medium text-gray-700">
-                    {user?.email}
-                  </span>
-                </div>
-                
-                {/* Admin Panel Link - Sadece admin kullanıcılar için */}
-                {userRole === 'admin' && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push('/admin')}
-                    className="flex items-center space-x-2"
-                  >
-                    <Settings className="h-4 w-4" />
-                    <span>Admin Panel</span>
-                  </Button>
-                )}
-                
-                {/* Moderator Panel Link - Sadece moderatör kullanıcılar için */}
-                {userRole === 'moderator' && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push('/moderator')}
-                    className="flex items-center space-x-2"
-                  >
-                    <Shield className="h-4 w-4" />
-                    <span>Moderatör Panel</span>
-                  </Button>
-                )}
-                
-                <button
-                  onClick={logout}
-                  className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl hover:bg-white/70 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+              {/* Admin Panel Link - Sadece admin kullanıcılar için */}
+              {userRole === 'admin' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push('/admin')}
+                  className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70 hover:border-gray-300 transition-all duration-200"
                 >
-                  <LogOut className="h-4 w-4" />
-                  <span>Çıkış Yap</span>
-                </button>
-              </div>
+                  <Settings className="h-4 w-4" />
+                  Admin Panel
+                </Button>
+              )}
+              
+              {/* Moderator Panel Link - Sadece moderatör kullanıcılar için */}
+              {userRole === 'moderator' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push('/moderator')}
+                  className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70 hover:border-gray-300 transition-all duration-200"
+                >
+                  <Shield className="h-4 w-4" />
+                  Moderatör Panel
+                </Button>
+              )}
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={logout}
+                className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70 hover:border-gray-300 transition-all duration-200"
+              >
+                <LogOut className="h-4 w-4" />
+                Çıkış Yap
+              </Button>
             </div>
-          </div>
-        </div>
+          }
+        />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -420,7 +423,7 @@ export default function DashboardPage() {
                   Davet kodunuz varsa site erişimi için kullanabilirsiniz
                 </p>
                 <Button 
-                  onClick={() => setIsCreateOpen(true)}
+                  onClick={() => setIsInvitationCodeOpen(true)}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   <Key className="w-4 h-4 mr-2" />
@@ -767,6 +770,65 @@ export default function DashboardPage() {
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         onConfirm={handleDeleteSite}
       />
+      
+      {/* Invitation Code Dialog */}
+      <Dialog open={isInvitationCodeOpen} onOpenChange={setIsInvitationCodeOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Key className="w-5 h-5 text-blue-600" />
+              Davet Kodu Kullan
+            </DialogTitle>
+            <DialogDescription>
+              Size verilen davet kodunu girerek site erişimi kazanabilirsiniz.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Input
+                type="text"
+                value={invitationCode}
+                onChange={(e) => setInvitationCode(e.target.value.toUpperCase())}
+                placeholder="Davet kodunu girin"
+                className="text-center text-lg font-mono tracking-wider"
+                disabled={isUsingCode}
+              />
+            </div>
+            
+            {codeError && (
+              <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                {codeError}
+              </div>
+            )}
+            
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsInvitationCodeOpen(false)}
+                className="flex-1"
+                disabled={isUsingCode}
+              >
+                İptal
+              </Button>
+              <Button
+                onClick={handleUseInvitationCode}
+                disabled={isUsingCode || !invitationCode.trim()}
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                {isUsingCode ? (
+                  <div className="flex items-center justify-center">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Kullanılıyor...
+                  </div>
+                ) : (
+                  'Kodu Kullan'
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       </div>
     </RoleGuard>

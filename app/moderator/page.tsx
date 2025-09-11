@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import PageHeader from '@/components/ui/PageHeader'
 import { toast } from 'sonner'
 import { getUserRole } from '@/lib/auth/roles'
 import InvitationCodes from '@/components/admin/InvitationCodes'
@@ -353,45 +354,34 @@ export default function ModeratorPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.push('/dashboard')}
-                className="flex items-center space-x-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>Dashboard'a Dön</span>
-              </Button>
-              <div className="h-6 w-px bg-gray-300" />
-              <div className="flex items-center space-x-2">
-                <Shield className="h-6 w-6 text-orange-600" />
-                <h1 className="text-xl font-bold text-gray-900">Moderatör Panel</h1>
-              </div>
+      {/* Modern Header */}
+      <PageHeader
+        title="linkfy."
+        subtitle="Moderatör Panel"
+        icon={<Shield className="w-6 h-6 text-white" />}
+        showBackButton={true}
+        backUrl="/dashboard"
+        backLabel="Dashboard"
+        rightContent={
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
+              <Users className="h-4 w-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">
+                {user?.email}
+              </span>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Users className="h-4 w-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">
-                  {user?.email}
-                </span>
-              </div>
-              
-              <button
-                onClick={logout}
-                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl hover:bg-white/70 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
-              >
-                <span>Çıkış Yap</span>
-              </button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={logout}
+              className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70 hover:border-gray-300 transition-all duration-200"
+            >
+              Çıkış Yap
+            </Button>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

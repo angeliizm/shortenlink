@@ -15,7 +15,8 @@ import { defaultPresetId } from '@/lib/button-presets'
 import { profilePresets, defaultProfilePresetId } from '@/lib/profile-presets'
 import { titleFontPresets, defaultTitleFontPresetId } from '@/lib/title-font-presets'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type, User } from 'lucide-react'
+import PageHeader from '@/components/ui/PageHeader'
+import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type, User, Edit } from 'lucide-react'
 import { BackgroundPreviewChip } from '@/components/dashboard/BackgroundPreviewChip'
 import { BackgroundSelector } from '@/components/dashboard/BackgroundSelector'
 import { TitleFontSelector } from '@/components/dashboard/TitleFontSelector'
@@ -674,33 +675,14 @@ export default function EditSitePage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.push('/dashboard')}
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Panoya Dön
-              </Button>
-              <div className="flex items-center space-x-2">
-                <Globe className="h-5 w-5 text-blue-600" />
-                <h1 className="text-lg font-semibold">Site Düzenle</h1>
-              </div>
-            </div>
-            
-            <Button
-              onClick={() => window.open(`/${formData.site_slug}`, '_blank')}
-              variant="outline"
-            >
-              Siteyi Önizle
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <PageHeader
+        title="linkfy."
+        subtitle="Site Düzenle"
+        icon={<Edit className="w-6 h-6 text-white" />}
+        showBackButton={true}
+        backUrl="/dashboard"
+        backLabel="Dashboard"
+      />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit}>
