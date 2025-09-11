@@ -135,7 +135,7 @@ export default function DashboardPage() {
         // Get site details for each permission
         const permissionSitesList: any[] = []
         if (permissionSites && permissionSites.length > 0) {
-          for (const permission of permissionSites) {
+          for (const permission of permissionSites as Array<{permission_type: string, site_slug: string}>) {
             const { data: siteData, error: siteError } = await supabase
               .from('pages')
               .select('*')
@@ -144,7 +144,7 @@ export default function DashboardPage() {
             
             if (!siteError && siteData) {
               permissionSitesList.push({
-                ...siteData,
+                ...(siteData as any),
                 permission_type: permission.permission_type
               })
             }

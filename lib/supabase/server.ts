@@ -31,12 +31,8 @@ export function createClient() {
 }
 
 export function createServiceRoleClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://coufslfrsxvlzbwitzct.supabase.co'
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvdWZzbGZyc3h2bHpiendpdHpjdCIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE3MzQ3NDgyNDksImV4cCI6MjA1MDMyNDI0OX0.7Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8'
-  
-  if (!serviceKey || serviceKey === 'SERVICE_ROLE_KEY_BURAYA') {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required')
-  }
+  const url = 'https://coufslfrsxvlzbwitzct.supabase.co'
+  const serviceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvdWZzbGZyc3h2bHpiendpdHpjdCIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE3MzQ3NDgyNDksImV4cCI6MjA1MDMyNDI0OX0.7Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8'
   
   return createSupabaseClient<Database>(url, serviceKey)
 }

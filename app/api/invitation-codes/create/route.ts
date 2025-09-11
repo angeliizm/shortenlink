@@ -92,22 +92,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate unique code with service role client
-    const serviceSupabase = createServiceRoleClient()
-    const { data: codeData, error: codeError } = await (serviceSupabase as any)
-      .rpc('generate_invitation_code')
-
-    if (codeError) {
-      throw codeError
-    }
+    // Generate unique code manually
+    const generatedCode = Math.random().toString(36).substring(2, 14).toUpperCase()
 
     // Create invitation codes for each site
     const invitationCodes = []
     for (const site of sites) {
-      const { data: invitationCode, error: createError } = await (serviceSupabase
-        .from('invitation_codes') as any)
+      const { data: invitationCode, error: createError } = await supabase
+        .from('invitation_codes')
         .insert({
-          code: codeData as string,
+          code: generatedCode,
           site_title: site.title,
           site_slug: site.slug,
           expires_at,

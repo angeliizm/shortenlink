@@ -14,10 +14,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get active invitation codes with service role client
-    const serviceSupabase = createServiceRoleClient()
-    const { data: codes, error: listError } = await (serviceSupabase as any)
-      .rpc('get_active_invitation_codes')
+    // Get active invitation codes directly
+    const { data: codes, error: listError } = await supabase
+      .from('invitation_codes')
+      .select('*')
+      .eq('is_used', false)
+      .order('created_at', { ascending: false })
 
     if (listError) {
       throw listError
