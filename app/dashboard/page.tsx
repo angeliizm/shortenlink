@@ -4,7 +4,7 @@ import { useAuth } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shield, Sparkles, BarChart, Palette, Settings, Users } from 'lucide-react'
+import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shield, Sparkles, BarChart, Palette, Settings, Users, Key } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import CreateSiteDialog from '@/components/dashboard/CreateSiteDialog'
@@ -376,13 +376,20 @@ export default function DashboardPage() {
           ) : userRole === 'approved' ? (
             <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
               <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Shield className="w-8 h-8 text-orange-600" />
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Key className="w-8 h-8 text-blue-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Site Ataması Bekleniyor</h3>
-                <p className="text-sm text-gray-600">
-                  Moderatör veya yönetici tarafından size site atanmasını bekleyin
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Site Erişimi</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Davet kodunuz varsa site erişimi için kullanabilirsiniz
                 </p>
+                <Button 
+                  onClick={() => setIsCreateOpen(true)}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  <Key className="w-4 h-4 mr-2" />
+                  Kod Girin
+                </Button>
               </CardContent>
             </Card>
           ) : (

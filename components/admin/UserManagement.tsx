@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { UserRole, roleDescriptions, roleColors } from '@/lib/auth/roles';
-import { Users, Shield, Edit, Search } from 'lucide-react';
+import { Users, Shield, Edit, Search, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface User {
@@ -34,6 +34,8 @@ export default function UserManagement() {
   const [newRole, setNewRole] = useState<UserRole>('pending');
   const [roleNotes, setRoleNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingUser, setDeletingUser] = useState<User | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const supabase = createClient();
 
@@ -90,6 +92,64 @@ export default function UserManagement() {
       console.error('Error updating role:', error);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deletingUser) return;
+
+    // Admin hesapları silinemez
+    if (deletingUser.role === 'admin') {
+      alert('Admin hesapları silinemez!');
+      setDeletingUser(null);
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      // Kullanıcının sahip olduğu siteleri sil
+      const { error: sitesError } = await supabase
+        .from('pages')
+        .delete()
+        .eq('owner_id', deletingUser.id);
+
+      if (sitesError) {
+        console.warn('Error deleting user sites:', sitesError);
+      }
+
+      // Kullanıcının izinlerini sil
+      const { error: permissionsError } = await supabase
+        .from('site_permissions')
+        .delete()
+        .eq('user_id', deletingUser.id);
+
+      if (permissionsError) {
+        console.warn('Error deleting user permissions:', permissionsError);
+      }
+
+      // Kullanıcının rolünü sil
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', deletingUser.id);
+
+      if (roleError) {
+        console.warn('Error deleting user role:', roleError);
+      }
+
+      // Kullanıcıyı auth.users tablosundan sil
+      const { error: authError } = await supabase.auth.admin.deleteUser(deletingUser.id);
+
+      if (authError) throw authError;
+
+      await fetchUsers();
+      setDeletingUser(null);
+      alert('Kullanıcı başarıyla silindi!');
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Kullanıcı silinirken hata oluştu: ' + (error as any).message);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -342,6 +402,70 @@ export default function UserManagement() {
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
+
+                    {/* Silme Butonu - Admin hesapları hariç */}
+                    {user.role !== 'admin' && (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setDeletingUser(user)}
+                            className="bg-white/50 backdrop-blur-sm border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600 hover:text-red-700 transition-all duration-200"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Sil
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-white/95 backdrop-blur-md border-white/30 shadow-2xl">
+                          <DialogHeader>
+                            <DialogTitle className="text-xl font-semibold text-red-600">Kullanıcıyı Sil</DialogTitle>
+                            <DialogDescription className="text-gray-600">
+                              <strong>{user.email}</strong> kullanıcısını silmek istediğinizden emin misiniz?
+                              <br />
+                              <span className="text-red-600 font-medium">Bu işlem geri alınamaz!</span>
+                            </DialogDescription>
+                          </DialogHeader>
+                          
+                          <div className="bg-red-50/50 border border-red-200/50 rounded-lg p-4">
+                            <h4 className="font-semibold text-red-800 mb-2">Silinecek Veriler:</h4>
+                            <ul className="text-sm text-red-700 space-y-1">
+                              <li>• Kullanıcı hesabı (auth.users)</li>
+                              <li>• Kullanıcı rolü (user_roles)</li>
+                              <li>• Sahip olduğu siteler ({user.owned_sites_count} adet)</li>
+                              <li>• Verilen izinler ({user.granted_permissions_count} adet)</li>
+                            </ul>
+                          </div>
+                          
+                          <DialogFooter className="pt-4">
+                            <Button
+                              variant="outline"
+                              onClick={() => setDeletingUser(null)}
+                              className="border-gray-300 hover:bg-gray-50"
+                            >
+                              İptal
+                            </Button>
+                            <Button
+                              onClick={handleDeleteUser}
+                              disabled={isDeleting}
+                              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
+                            >
+                              {isDeleting ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                  Siliniyor...
+                                </>
+                              ) : (
+                                <>
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Kullanıcıyı Sil
+                                </>
+                              )}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    )}
                   </div>
                 </div>
               </div>
