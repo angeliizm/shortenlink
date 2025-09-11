@@ -59,8 +59,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Use service role client for invitation codes table access
+    const serviceSupabase = createServiceRoleClient()
+    
     // Check if any site_slug already exists in invitation_codes table
-    const { data: existingCodes } = await supabase
+    const { data: existingCodes } = await serviceSupabase
       .from('invitation_codes')
       .select('site_slug')
       .in('site_slug', slugs)
@@ -94,11 +97,12 @@ export async function POST(request: NextRequest) {
 
     // Generate unique code manually
     const generatedCode = Math.random().toString(36).substring(2, 14).toUpperCase()
+    console.log('Generated code:', generatedCode)
 
     // Create invitation codes for each site
     const invitationCodes: any[] = []
     for (const site of sites) {
-      const { data: invitationCode, error: createError } = await supabase
+      const { data: invitationCode, error: createError } = await serviceSupabase
         .from('invitation_codes')
         .insert({
           code: generatedCode,
@@ -111,9 +115,11 @@ export async function POST(request: NextRequest) {
         .single()
 
       if (createError) {
+        console.log('Create error:', createError)
         throw createError
       }
 
+      console.log('Created invitation code:', invitationCode)
       invitationCodes.push(invitationCode)
     }
 

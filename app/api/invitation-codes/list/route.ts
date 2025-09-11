@@ -14,14 +14,20 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Use service role client for invitation codes table access
+    const serviceSupabase = createServiceRoleClient()
+    
     // Get active invitation codes directly
-    const { data: codes, error: listError } = await supabase
+    const { data: codes, error: listError } = await serviceSupabase
       .from('invitation_codes')
       .select('*')
       .eq('is_used', false)
       .order('created_at', { ascending: false })
 
+    console.log('List codes result:', { codes, listError })
+
     if (listError) {
+      console.log('List error:', listError)
       throw listError
     }
 

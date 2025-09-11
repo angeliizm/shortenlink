@@ -30,17 +30,25 @@ export async function POST(request: NextRequest) {
     const forwarded = request.headers.get('x-forwarded-for')
     const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || '127.0.0.1'
 
+    // Use service role client for invitation codes table access
+    const serviceSupabase = createServiceRoleClient()
+    
     // Use the invitation code manually (without RPC)
-    const { data: invitationCode, error: codeError } = await supabase
+    console.log('Looking for code:', code.toUpperCase())
+    
+    const { data: invitationCode, error: codeError } = await serviceSupabase
       .from('invitation_codes')
       .select('*')
       .eq('code', code.toUpperCase())
       .eq('is_used', false)
       .single()
 
+    console.log('Code query result:', { invitationCode, codeError })
+
     if (codeError || !invitationCode) {
+      console.log('Code not found or error:', codeError)
       return NextResponse.json(
-        { error: 'Geçersiz veya süresi dolmuş kod' },
+        { error: 'Geçersiz veya süresi dolmuş kod', debug: { code: code.toUpperCase(), error: codeError?.message } },
         { status: 400 }
       )
     }
@@ -96,7 +104,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Mark code as used
-    await (supabase as any)
+    await serviceSupabase
       .from('invitation_codes')
       .update({
         is_used: true,

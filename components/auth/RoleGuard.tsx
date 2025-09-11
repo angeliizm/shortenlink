@@ -120,7 +120,7 @@ export default function RoleGuard({
 
       const result = await response.json();
 
-      if (result.success) {
+      if (response.ok && result.success) {
         // Success - redirect to dashboard
         router.push('/dashboard');
       } else {
