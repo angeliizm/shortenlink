@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getUserRole } from '@/lib/auth/roles';
 
 type PageData = {
   owner_id: string;
@@ -71,8 +70,17 @@ export async function GET(
       }
 
       // Check if user has permission to view analytics for this site
-      const userRole = await getUserRole(user.id);
+      // Use server-side Supabase to check user role
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+      
+      const userRole = (roleData as { role: string } | null)?.role || 'pending';
       const isAdminOrModerator = userRole === 'admin' || userRole === 'moderator';
+      
+      console.log(`[Analytics API] User ID: ${user.id}, Role: ${userRole}, IsAdminOrModerator: ${isAdminOrModerator}`);
       
       if (isAdminOrModerator) {
         // Admin and moderator can view analytics for any site
