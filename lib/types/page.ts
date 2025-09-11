@@ -30,6 +30,7 @@ export interface PageConfig {
   profilePresetId?: string
   titleFontPresetId?: string
   titleColor?: string
+  titleFontSize?: number
   backgroundPreference?: {
     presetId: string
     controlValues: Record<string, string | number>

@@ -66,6 +66,7 @@ function transformPageData(data: any, bgPrefs?: any, titlePrefs?: any): PageConf
     profilePresetId: data.profile_preset_id,
     titleFontPresetId: data.title_font_preset_id,
     titleColor: data.title_color,
+    titleFontSize: data.title_font_size,
     backgroundPreference: bgPrefs ? {
       presetId: bgPrefs.preset_id,
       controlValues: bgPrefs.control_values || {}

@@ -34,6 +34,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   const [profilePresetId, setProfilePresetId] = useState<string>(config.profilePresetId || defaultProfilePresetId)
   const [titleFontPresetId, setTitleFontPresetId] = useState<string>(config.titleFontPresetId || defaultTitleFontPresetId)
   const [titleColor, setTitleColor] = useState<string>(config.titleColor || '#1f2937')
+  const [titleFontSize, setTitleFontSize] = useState<number>(config.titleFontSize || 28)
   const [avatarUrl, setAvatarUrl] = useState<string>('')
   
   // Listen for preset changes from edit page (if same site)
@@ -47,6 +48,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
       }
       if (e.key === `title-color-${config.id}` && e.newValue) {
         setTitleColor(e.newValue)
+      }
+      if (e.key === `title-font-size-${config.id}` && e.newValue) {
+        setTitleFontSize(parseInt(e.newValue) || 28)
       }
       if (e.key === `avatar-url-${config.id}` && e.newValue) {
         setAvatarUrl(e.newValue)
@@ -134,6 +138,16 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         const savedTitleColor = localStorage.getItem(`title-color-${config.id}`)
         if (savedTitleColor) {
           setTitleColor(savedTitleColor)
+        }
+      }
+
+      // Title font size: check database first via config
+      if (config.titleFontSize) {
+        setTitleFontSize(config.titleFontSize)
+      } else {
+        const savedTitleFontSize = localStorage.getItem(`title-font-size-${config.id}`)
+        if (savedTitleFontSize) {
+          setTitleFontSize(parseInt(savedTitleFontSize) || 28)
         }
       }
 
@@ -309,7 +323,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         
         /* Responsive font sizes */
         .responsive-title {
-          font-size: ${titleStyles?.titleFontSize || '3.5rem'} !important;
+          font-size: ${titleFontSize}px !important;
           color: ${config.titleColor || titleColor || '#111827'} !important;
           font-family: ${titleFontPreset?.fontFamily || 'Inter, sans-serif'} !important;
           font-weight: ${titleFontPreset?.fontWeight || '600'} !important;
@@ -333,7 +347,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         
         @media (max-width: 768px) {
           .responsive-title {
-            font-size: ${titleStyles?.titleFontSizeMobile || '2.25rem'} !important;
+            font-size: ${Math.max(titleFontSize * 0.7, 20)}px !important;
           }
           
           .responsive-description {
@@ -537,7 +551,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     <motion.h1 
                       className="responsive-title"
                       style={{ 
-                        fontSize: titleStyles.titleFontSize,
+                        fontSize: `${titleFontSize}px`,
                         fontWeight: titleFontPreset.fontWeight,
                         color: config.titleColor || titleColor || '#111827',
                         margin: styles.titleMargin,

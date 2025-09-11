@@ -191,7 +191,7 @@ export default function EditSitePage({ params }: PageProps) {
       } else {
         const savedTitleFontSize = localStorage.getItem(`title-font-size-${siteId}`)
         if (savedTitleFontSize) {
-          setTitleFontSize(parseInt(savedTitleFontSize) || 32)
+          setTitleFontSize(parseInt(savedTitleFontSize) || 28)
         }
       }
 
@@ -864,7 +864,7 @@ export default function EditSitePage({ params }: PageProps) {
                             max="72"
                             value={titleFontSize}
                             onChange={(e) => {
-                              const newSize = parseInt(e.target.value) || 32
+                              const newSize = parseInt(e.target.value) || 28
                               setTitleFontSize(Math.min(Math.max(newSize, 12), 72))
                               if (siteId) {
                                 localStorage.setItem(`title-font-size-${siteId}`, newSize.toString())
