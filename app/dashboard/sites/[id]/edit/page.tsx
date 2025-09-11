@@ -13,11 +13,13 @@ import { PresetSelector } from '@/components/ui/preset-selector'
 import { defaultPresetId } from '@/lib/button-presets'
 import { profilePresets, defaultProfilePresetId } from '@/lib/profile-presets'
 import { titleFontPresets, defaultTitleFontPresetId } from '@/lib/title-font-presets'
+import { titleStylePresets } from '@/lib/title-style-presets'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type, User } from 'lucide-react'
+import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type, User, Eye } from 'lucide-react'
 import { BackgroundPreviewChip } from '@/components/dashboard/BackgroundPreviewChip'
 import { BackgroundSelector } from '@/components/dashboard/BackgroundSelector'
 import { TitleFontSelector } from '@/components/dashboard/TitleFontSelector'
+import { TitleStyleSelector } from '@/components/dashboard/TitleStyleSelector'
 import { ProfileCardSelector } from '@/components/dashboard/ProfileCardSelector'
 import { AvatarUploader } from '@/components/dashboard/AvatarUploader'
 import { backgroundPresets, applyPresetControls } from '@/lib/background-presets'
@@ -68,10 +70,12 @@ export default function EditSitePage({ params }: PageProps) {
   
   // Modal states
   const [titleFontSelectorOpen, setTitleFontSelectorOpen] = useState(false)
+  const [titleStyleSelectorOpen, setTitleStyleSelectorOpen] = useState(false)
   const [profileCardSelectorOpen, setProfileCardSelectorOpen] = useState(false)
   
   // Title font preset state
   const [titleStylePresetId, setTitleStylePresetId] = useState<string>(defaultTitleFontPresetId)
+  const [titleStylePreset, setTitleStylePreset] = useState<string>('clean-minimal')
   const [titleColor, setTitleColor] = useState<string>('#111827')
   const [titleFontSize, setTitleFontSize] = useState<number>(32)
   
@@ -173,6 +177,17 @@ export default function EditSitePage({ params }: PageProps) {
         }
       }
 
+      // Load title style preset from database first, then localStorage
+      if (page.title_style_preset_id) {
+        setTitleStylePreset(page.title_style_preset_id)
+        localStorage.setItem(`title-style-preset-${siteId}`, page.title_style_preset_id)
+      } else {
+        const savedTitleStylePreset = localStorage.getItem(`title-style-preset-${siteId}`)
+        if (savedTitleStylePreset) {
+          setTitleStylePreset(savedTitleStylePreset)
+        }
+      }
+
       // Load title color from database first, then localStorage
       if (page.title_color) {
         setTitleColor(page.title_color)
@@ -267,6 +282,7 @@ export default function EditSitePage({ params }: PageProps) {
           avatar_url: avatarUrl,
           profile_preset_id: profilePresetId,
           title_font_preset_id: titleStylePresetId,
+          title_style_preset_id: titleStylePreset,
           title_color: titleColor,
           title_font_size: titleFontSize,
           updated_at: new Date().toISOString()
@@ -431,6 +447,34 @@ export default function EditSitePage({ params }: PageProps) {
           }
         } catch (err) {
           console.error('Error saving title style:', err)
+        }
+      }
+    }
+  }
+
+  const handleTitleStylePresetSave = async (presetId: string) => {
+    // Save to state and localStorage for immediate preview
+    setTitleStylePreset(presetId)
+    
+    if (siteId) {
+      localStorage.setItem(`title-style-preset-${siteId}`, presetId)
+      
+      // Save to database
+      if (user?.id) {
+        try {
+          const { error } = await (supabase as any)
+            .from('pages')
+            .update({ 
+              title_style_preset_id: presetId
+            })
+            .eq('id', siteId)
+            .eq('owner_id', user.id)
+        
+          if (error) {
+            console.error('Failed to save title style preset to database:', error)
+          }
+        } catch (err) {
+          console.error('Error saving title style preset:', err)
         }
       }
     }
@@ -795,6 +839,34 @@ export default function EditSitePage({ params }: PageProps) {
                   </div>
                 </div>
 
+                {/* Style Section */}
+                <div>
+                  <Label className="text-sm font-medium mb-3 block">Başlık Stili</Label>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-16 h-16 rounded-lg border border-gray-200 flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100">
+                        <span className="text-purple-600 font-bold text-lg">Aa</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">
+                          {titleStylePresets.find(p => p.id === titleStylePreset)?.name || 'Clean Minimal'}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Başlık stilini değiştirmek için tıklayın
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setTitleStyleSelectorOpen(true)}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Stil Seç
+                    </Button>
+                  </div>
+                </div>
+
                 {/* Color and Font Size Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Color Section */}
@@ -1009,6 +1081,18 @@ export default function EditSitePage({ params }: PageProps) {
             currentTitle={formData.title}
             onSave={handleTitleStyleSave}
             onClose={() => setTitleFontSelectorOpen(false)}
+          />
+        )}
+
+        {/* Title Style Selector Dialog */}
+        {titleStyleSelectorOpen && (
+          <TitleStyleSelector
+            siteId={siteId}
+            currentPresetId={titleStylePreset}
+            currentTitle={formData.title}
+            currentDescription={formData.description}
+            onSave={handleTitleStylePresetSave}
+            onClose={() => setTitleStyleSelectorOpen(false)}
           />
         )}
 
