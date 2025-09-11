@@ -16,49 +16,59 @@ export async function POST(request: NextRequest) {
 
     // Get request body
     const body = await request.json()
-    const { site_title, site_slug, expires_in } = body
+    const { sites, expires_in } = body
 
     // Validate input
-    if (!site_title || !site_slug) {
+    if (!sites || !Array.isArray(sites) || sites.length === 0) {
       return NextResponse.json(
-        { error: 'Site adı ve uzantısı gerekli' },
+        { error: 'En az bir site bilgisi gerekli' },
         { status: 400 }
       )
     }
 
-    // Validate site_slug format (alphanumeric and hyphens only)
-    if (!/^[a-zA-Z0-9-]+$/.test(site_slug)) {
-      return NextResponse.json(
-        { error: 'Site uzantısı sadece harf, rakam ve tire içerebilir' },
-        { status: 400 }
-      )
+    // Validate each site
+    for (let i = 0; i < sites.length; i++) {
+      const site = sites[i]
+      if (!site.title || !site.slug) {
+        return NextResponse.json(
+          { error: `${i + 1}. site için ad ve uzantısı gerekli` },
+          { status: 400 }
+        )
+      }
+
+      // Validate site_slug format (alphanumeric and hyphens only)
+      if (!/^[a-zA-Z0-9-]+$/.test(site.slug)) {
+        return NextResponse.json(
+          { error: `${i + 1}. site uzantısı sadece harf, rakam ve tire içerebilir` },
+          { status: 400 }
+        )
+      }
     }
 
-    // Check if site_slug already exists in pages table
-    const { data: existingSite } = await supabase
+    // Check if any site_slug already exists in pages table
+    const slugs = sites.map(site => site.slug)
+    const { data: existingSites } = await supabase
       .from('pages')
       .select('site_slug')
-      .eq('site_slug', site_slug)
-      .single()
+      .in('site_slug', slugs)
 
-    if (existingSite) {
+    if (existingSites && existingSites.length > 0) {
       return NextResponse.json(
-        { error: 'Bu site uzantısı zaten kullanılıyor' },
+        { error: `Bu site uzantıları zaten kullanılıyor: ${existingSites.map((s: any) => s.site_slug).join(', ')}` },
         { status: 409 }
       )
     }
 
-    // Check if site_slug already exists in invitation_codes table
-    const { data: existingCode } = await supabase
+    // Check if any site_slug already exists in invitation_codes table
+    const { data: existingCodes } = await supabase
       .from('invitation_codes')
       .select('site_slug')
-      .eq('site_slug', site_slug)
+      .in('site_slug', slugs)
       .eq('is_used', false)
-      .single()
 
-    if (existingCode) {
+    if (existingCodes && existingCodes.length > 0) {
       return NextResponse.json(
-        { error: 'Bu site uzantısı için zaten bir kod mevcut' },
+        { error: `Bu site uzantıları için zaten kod mevcut: ${existingCodes.map((c: any) => c.site_slug).join(', ')}` },
         { status: 409 }
       )
     }
@@ -90,26 +100,34 @@ export async function POST(request: NextRequest) {
       throw codeError
     }
 
-    // Create invitation code
-    const { data: invitationCode, error: createError } = await (supabase
-      .from('invitation_codes') as any)
-      .insert({
-        code: codeData as string,
-        site_title: site_title as string,
-        site_slug: site_slug as string,
-        expires_at,
-        created_by: user.id
-      })
-      .select()
-      .single()
+    // Create invitation codes for each site
+    const invitationCodes = []
+    for (const site of sites) {
+      const { data: invitationCode, error: createError } = await (supabase
+        .from('invitation_codes') as any)
+        .insert({
+          code: codeData as string,
+          site_title: site.title,
+          site_slug: site.slug,
+          expires_at,
+          created_by: user.id
+        })
+        .select()
+        .single()
 
-    if (createError) {
-      throw createError
+      if (createError) {
+        throw createError
+      }
+
+      invitationCodes.push(invitationCode)
     }
 
     return NextResponse.json({
       success: true,
-      data: invitationCode
+      data: {
+        code: codeData,
+        sites: invitationCodes
+      }
     })
 
   } catch (error) {

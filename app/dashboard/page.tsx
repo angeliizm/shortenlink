@@ -266,8 +266,33 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
           
-          {/* Yeni Site Oluştur butonu - sadece admin ve sahipler için */}
-          {(userRole === 'admin' || !userRole) && (
+          {/* Site Oluşturma veya Bekleme Kartı */}
+          {userRole === 'admin' ? (
+            <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+              <CardContent className="p-6">
+                <Button 
+                  onClick={() => setIsCreateOpen(true)}
+                  className="w-full h-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 group-hover:scale-105"
+                  size="lg"
+                >
+                  <Plus className="h-6 w-6 mr-2" />
+                  Yeni Site Oluştur
+                </Button>
+              </CardContent>
+            </Card>
+          ) : userRole === 'approved' ? (
+            <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Shield className="w-8 h-8 text-orange-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Site Ataması Bekleniyor</h3>
+                <p className="text-sm text-gray-600">
+                  Moderatör veya yönetici tarafından size site atanmasını bekleyin
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
             <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
               <CardContent className="p-6">
                 <Button 
@@ -308,49 +333,88 @@ export default function DashboardPage() {
                 </div>
               </div>
             ) : sites.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="relative inline-block mb-6">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-3xl flex items-center justify-center relative">
-                    <Globe className="h-10 w-10 text-blue-600" />
+              userRole === 'approved' ? (
+                <div className="text-center py-16">
+                  <div className="relative inline-block mb-6">
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-200 to-yellow-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
+                    <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-yellow-100 rounded-3xl flex items-center justify-center relative">
+                      <Shield className="h-10 w-10 text-orange-600" />
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-2">Site Ataması Bekleniyor</h3>
+                  <p className="text-gray-500 mb-8 max-w-md mx-auto">
+                    Moderatör veya yönetici tarafından size site atanmasını bekleyin. 
+                    Atandığında burada görünecektir.
+                  </p>
+                  <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                    <div className="flex flex-col items-center text-center p-4">
+                      <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mb-2">
+                        <Shield className="h-5 w-5 text-orange-600" />
+                      </div>
+                      <p className="text-sm font-medium text-gray-700">Güvenli Atama</p>
+                      <p className="text-xs text-gray-500">Yetkili kişiler tarafından</p>
+                    </div>
+                    <div className="flex flex-col items-center text-center p-4">
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
+                        <Globe className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <p className="text-sm font-medium text-gray-700">Otomatik Görünüm</p>
+                      <p className="text-xs text-gray-500">Atandığında burada</p>
+                    </div>
+                    <div className="flex flex-col items-center text-center p-4">
+                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-2">
+                        <Zap className="h-5 w-5 text-green-600" />
+                      </div>
+                      <p className="text-sm font-medium text-gray-700">Hızlı Erişim</p>
+                      <p className="text-xs text-gray-500">Anında kullanıma hazır</p>
+                    </div>
                   </div>
                 </div>
-                <h3 className="text-2xl font-semibold text-gray-900 mb-2">Henüz site yok</h3>
-                <p className="text-gray-500 mb-8 max-w-md mx-auto">
-                  İlk dinamik sitenizi oluşturarak başlayın. Sadece birkaç saniye sürer!
-                </p>
-                <Button 
-                  onClick={() => setIsCreateOpen(true)}
-                  size="lg"
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
-                >
-                  <Plus className="h-5 w-5 mr-2" />
-                  İlk Sitenizi Oluşturun
-                </Button>
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-                  <div className="flex flex-col items-center text-center p-4">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
-                      <Zap className="h-5 w-5 text-blue-600" />
+              ) : (
+                <div className="text-center py-16">
+                  <div className="relative inline-block mb-6">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
+                    <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-3xl flex items-center justify-center relative">
+                      <Globe className="h-10 w-10 text-blue-600" />
                     </div>
-                    <p className="text-sm font-medium text-gray-700">Hızlı Kurulum</p>
-                    <p className="text-xs text-gray-500">60 saniyeden az</p>
                   </div>
-                  <div className="flex flex-col items-center text-center p-4">
-                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-2">
-                      <Shield className="h-5 w-5 text-green-600" />
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-2">Henüz site yok</h3>
+                  <p className="text-gray-500 mb-8 max-w-md mx-auto">
+                    İlk dinamik sitenizi oluşturarak başlayın. Sadece birkaç saniye sürer!
+                  </p>
+                  <Button 
+                    onClick={() => setIsCreateOpen(true)}
+                    size="lg"
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+                  >
+                    <Plus className="h-5 w-5 mr-2" />
+                    İlk Sitenizi Oluşturun
+                  </Button>
+                  <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                    <div className="flex flex-col items-center text-center p-4">
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
+                        <Zap className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <p className="text-sm font-medium text-gray-700">Hızlı Kurulum</p>
+                      <p className="text-xs text-gray-500">60 saniyeden az</p>
                     </div>
-                    <p className="text-sm font-medium text-gray-700">Güvenli</p>
-                    <p className="text-xs text-gray-500">RLS ile korumalı</p>
-                  </div>
-                  <div className="flex flex-col items-center text-center p-4">
-                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
-                      <Sparkles className="h-5 w-5 text-purple-600" />
+                    <div className="flex flex-col items-center text-center p-4">
+                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-2">
+                        <Shield className="h-5 w-5 text-green-600" />
+                      </div>
+                      <p className="text-sm font-medium text-gray-700">Güvenli</p>
+                      <p className="text-xs text-gray-500">RLS ile korumalı</p>
                     </div>
-                    <p className="text-sm font-medium text-gray-700">Özelleştirilebilir</p>
-                    <p className="text-xs text-gray-500">Markanız, tarzınız</p>
+                    <div className="flex flex-col items-center text-center p-4">
+                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
+                        <Sparkles className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <p className="text-sm font-medium text-gray-700">Özelleştirilebilir</p>
+                      <p className="text-xs text-gray-500">Markanız, tarzınız</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {sites.map((site) => (

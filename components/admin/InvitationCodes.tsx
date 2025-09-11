@@ -31,10 +31,11 @@ export default function InvitationCodes() {
   const supabase = createClient()
   
   // Create Code States
-  const [siteTitle, setSiteTitle] = useState('')
-  const [siteSlug, setSiteSlug] = useState('')
+  const [sites, setSites] = useState([{ title: '', slug: '' }])
   const [expiresIn, setExpiresIn] = useState('never')
   const [isCreating, setIsCreating] = useState(false)
+  const [createdCode, setCreatedCode] = useState<string | null>(null)
+  const [showCodePopup, setShowCodePopup] = useState(false)
   
   // List States
   const [codes, setCodes] = useState<InvitationCode[]>([])
@@ -64,16 +65,36 @@ export default function InvitationCodes() {
     }
   }
 
-  const createCode = async () => {
-    if (!siteTitle.trim() || !siteSlug.trim()) {
-      toast.error('Site adı ve uzantısı gerekli')
-      return
-    }
+  const addSite = () => {
+    setSites([...sites, { title: '', slug: '' }])
+  }
 
-    // Validate site slug format
-    if (!/^[a-zA-Z0-9-]+$/.test(siteSlug)) {
-      toast.error('Site uzantısı sadece harf, rakam ve tire içerebilir')
-      return
+  const removeSite = (index: number) => {
+    if (sites.length > 1) {
+      setSites(sites.filter((_, i) => i !== index))
+    }
+  }
+
+  const updateSite = (index: number, field: 'title' | 'slug', value: string) => {
+    const updatedSites = [...sites]
+    updatedSites[index][field] = value
+    setSites(updatedSites)
+  }
+
+  const createCode = async () => {
+    // Validate all sites
+    for (let i = 0; i < sites.length; i++) {
+      const site = sites[i]
+      if (!site.title.trim() || !site.slug.trim()) {
+        toast.error(`${i + 1}. site için ad ve uzantısı gerekli`)
+        return
+      }
+
+      // Validate site slug format
+      if (!/^[a-zA-Z0-9-]+$/.test(site.slug)) {
+        toast.error(`${i + 1}. site uzantısı sadece harf, rakam ve tire içerebilir`)
+        return
+      }
     }
 
     setIsCreating(true)
@@ -84,8 +105,7 @@ export default function InvitationCodes() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          site_title: siteTitle,
-          site_slug: siteSlug,
+          sites: sites,
           expires_in: expiresIn
         }),
       })
@@ -93,9 +113,9 @@ export default function InvitationCodes() {
       const result = await response.json()
 
       if (result.success) {
-        toast.success('Kod başarıyla oluşturuldu')
-        setSiteTitle('')
-        setSiteSlug('')
+        setCreatedCode(result.data.code)
+        setShowCodePopup(true)
+        setSites([{ title: '', slug: '' }])
         setExpiresIn('never')
         fetchCodes() // Refresh the list
       } else {
@@ -182,38 +202,80 @@ export default function InvitationCodes() {
                 Beklemede olan kullanıcılar için site oluşturucu kod üretin
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="site-title">Site Adı</Label>
-                  <Input
-                    id="site-title"
-                    placeholder="Örnek: Kişisel Blog"
-                    value={siteTitle}
-                    onChange={(e) => setSiteTitle(e.target.value)}
-                    disabled={isCreating}
-                  />
+            <CardContent className="space-y-8">
+              {/* Sites Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base font-semibold">Site Bilgileri</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addSite}
+                    className="flex items-center space-x-2 text-green-600 border-green-200 hover:bg-green-50"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Site Ekle</span>
+                  </Button>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="site-slug">Site Uzantısı</Label>
-                  <Input
-                    id="site-slug"
-                    placeholder="Örnek: kisisel-blog"
-                    value={siteSlug}
-                    onChange={(e) => setSiteSlug(e.target.value.toLowerCase())}
-                    disabled={isCreating}
-                  />
-                  <p className="text-xs text-gray-500">
-                    Sadece harf, rakam ve tire kullanın
-                  </p>
+                <div className="space-y-4">
+                  {sites.map((site, index) => (
+                    <div key={index} className="relative p-4 border border-gray-200 rounded-lg bg-gray-50/50">
+                      {sites.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeSite(index)}
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-100 text-red-600 hover:bg-red-200"
+                        >
+                          ×
+                        </Button>
+                      )}
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor={`site-title-${index}`}>
+                            Site Adı {sites.length > 1 && `#${index + 1}`}
+                          </Label>
+                          <Input
+                            id={`site-title-${index}`}
+                            placeholder="Örnek: Kişisel Blog"
+                            value={site.title}
+                            onChange={(e) => updateSite(index, 'title', e.target.value)}
+                            disabled={isCreating}
+                            className="bg-white"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor={`site-slug-${index}`}>
+                            Site Uzantısı {sites.length > 1 && `#${index + 1}`}
+                          </Label>
+                          <Input
+                            id={`site-slug-${index}`}
+                            placeholder="Örnek: kisisel-blog"
+                            value={site.slug}
+                            onChange={(e) => updateSite(index, 'slug', e.target.value.toLowerCase())}
+                            disabled={isCreating}
+                            className="bg-white"
+                          />
+                          <p className="text-xs text-gray-500">
+                            Sadece harf, rakam ve tire kullanın
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
+              {/* Expiration Section */}
               <div className="space-y-2">
-                <Label htmlFor="expires-in">Geçerlilik Süresi</Label>
+                <Label htmlFor="expires-in" className="text-base font-semibold">Geçerlilik Süresi</Label>
                 <Select value={expiresIn} onValueChange={setExpiresIn} disabled={isCreating}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -225,12 +287,23 @@ export default function InvitationCodes() {
                 </Select>
               </div>
 
+              {/* Create Button */}
               <Button 
                 onClick={createCode} 
-                disabled={isCreating || !siteTitle.trim() || !siteSlug.trim()}
-                className="w-full"
+                disabled={isCreating}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
               >
-                {isCreating ? 'Kod Oluşturuluyor...' : 'Kod Oluştur'}
+                {isCreating ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Kod Oluşturuluyor...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <Ticket className="h-5 w-5" />
+                    <span>Kod Oluştur</span>
+                  </div>
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -414,6 +487,65 @@ export default function InvitationCodes() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Code Created Popup */}
+      {showCodePopup && createdCode && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+            {/* Close Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCodePopup(false)}
+              className="absolute top-4 right-4 h-8 w-8 rounded-full hover:bg-gray-100"
+            >
+              ×
+            </Button>
+
+            {/* Success Icon */}
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Kod Başarıyla Oluşturuldu!</h3>
+              <p className="text-gray-600 text-sm">
+                Bu kodu beklemede olan kullanıcılara paylaşabilirsiniz
+              </p>
+            </div>
+
+            {/* Code Display */}
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <div className="text-center">
+                <p className="text-sm text-gray-600 mb-2">Davet Kodu</p>
+                <div className="font-mono text-2xl font-bold text-gray-900 bg-white rounded-lg p-3 border-2 border-dashed border-gray-300">
+                  {createdCode}
+                </div>
+              </div>
+            </div>
+
+            {/* Copy Button */}
+            <Button
+              onClick={() => {
+                copyToClipboard(createdCode)
+                setShowCodePopup(false)
+              }}
+              className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              <div className="flex items-center justify-center space-x-2">
+                <Copy className="h-5 w-5" />
+                <span>Kopyala ve Kapat</span>
+              </div>
+            </Button>
+
+            {/* Info */}
+            <div className="mt-4 text-center">
+              <p className="text-xs text-gray-500">
+                Kod kullanıldığında otomatik olarak site oluşturulacak ve kullanıcı onaylı statüye geçecektir
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

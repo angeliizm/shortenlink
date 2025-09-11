@@ -9,7 +9,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { createClient } from '@/lib/supabase/client'
 
 interface FormErrors {
-  name?: string
   email?: string
   password?: string
   confirmPassword?: string
@@ -18,7 +17,6 @@ interface FormErrors {
 }
 
 export default function SignUpForm() {
-  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -31,13 +29,6 @@ export default function SignUpForm() {
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {}
-    
-    // Name validation
-    if (!name) {
-      newErrors.name = 'Ad soyad gerekli'
-    } else if (name.length < 2) {
-      newErrors.name = 'Ad soyad en az 2 karakter olmalı'
-    }
     
     // Email validation
     if (!email) {
@@ -84,9 +75,6 @@ export default function SignUpForm() {
         email,
         password,
         options: {
-          data: {
-            name,
-          },
           emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       })
@@ -157,48 +145,6 @@ export default function SignUpForm() {
             </div>
           )}
 
-          {/* Name Field */}
-          <div className="space-y-2">
-            <label 
-              htmlFor="name" 
-              className="block text-sm font-medium text-gray-700"
-            >
-              Ad Soyad
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value)
-                if (errors.name) {
-                  setErrors({ ...errors, name: undefined })
-                }
-              }}
-              placeholder="Ahmet Yılmaz"
-              aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? 'name-error' : undefined}
-              disabled={isLoading}
-              className={`
-                w-full px-4 py-2.5 
-                bg-white border rounded-lg
-                text-gray-900 placeholder-gray-400
-                transition-all duration-200
-                ${errors.name 
-                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' 
-                  : 'border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-blue-500/20'
-                }
-                focus:outline-none focus:ring-4
-                disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50
-              `}
-              required
-            />
-            {errors.name && (
-              <p id="name-error" className="text-sm text-red-600 mt-1" role="alert">
-                {errors.name}
-              </p>
-            )}
-          </div>
 
           {/* Email Field */}
           <div className="space-y-2">
