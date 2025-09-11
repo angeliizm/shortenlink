@@ -186,13 +186,26 @@ export default function EditSitePage({ params }: PageProps) {
     }
     
     try {
-      // Fetch page data
-      const { data: page, error: pageError } = await supabase
+      // Check user role first
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single() as { data: any, error: any }
+      
+      const userRole = roleData?.role || 'pending'
+      
+      // Fetch page data - admin and moderator can edit any site
+      let pageQuery = supabase
         .from('pages')
         .select('*')
         .eq('id', siteId)
-        .eq('owner_id', user.id)
-        .single() as { data: any, error: any }
+      
+      if (userRole !== 'admin' && userRole !== 'moderator') {
+        pageQuery = pageQuery.eq('owner_id', user.id)
+      }
+      
+      const { data: page, error: pageError } = await pageQuery.single() as { data: any, error: any }
       
       if (pageError || !page) {
         setError('Site bulunamadı veya düzenleme izniniz yok')

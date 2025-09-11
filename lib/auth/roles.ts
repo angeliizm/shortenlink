@@ -71,9 +71,9 @@ export async function hasSitePermission(
       userId = user.id;
     }
 
-    // Admin her şeyi yapabilir
+    // Admin ve moderator her şeyi yapabilir
     const role = await getUserRole(userId);
-    if (role === 'admin') return true;
+    if (role === 'admin' || role === 'moderator') return true;
     
     // Pending kullanıcılar hiçbir şey yapamaz
     if (role === 'pending') return false;
@@ -126,9 +126,9 @@ export async function canDeleteSite(siteSlug: string, userId?: string): Promise<
       userId = user.id;
     }
 
-    // Admin her şeyi silebilir
+    // Admin ve moderator her şeyi silebilir
     const role = await getUserRole(userId);
-    if (role === 'admin') return true;
+    if (role === 'admin' || role === 'moderator') return true;
 
     // Sadece site sahibi silebilir
     const { data: pageData } = await supabase

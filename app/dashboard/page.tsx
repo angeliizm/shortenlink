@@ -157,8 +157,8 @@ export default function DashboardPage() {
     try {
       let allSites: Site[] = []
 
-      // If user is admin, fetch all sites
-      if (currentRole === 'admin') {
+      // If user is admin or moderator, fetch all sites
+      if (currentRole === 'admin' || currentRole === 'moderator') {
         const { data: allSitesData, error: allSitesError } = await supabase
           .from('pages')
           .select('*')
