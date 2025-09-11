@@ -21,15 +21,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: config.title,
     description: config.meta?.description,
     robots: config.meta?.noindex ? 'noindex' : 'index,follow',
+    // Profil fotoğrafını favicon olarak kullan
+    icons: config.avatarUrl ? {
+      icon: config.avatarUrl,
+      shortcut: config.avatarUrl,
+      apple: config.avatarUrl,
+    } : undefined,
     openGraph: {
       title: config.title,
       description: config.meta?.description,
       type: 'website',
+      // Profil fotoğrafını Open Graph image olarak da kullan
+      images: config.avatarUrl ? [config.avatarUrl] : undefined,
     },
     twitter: {
       card: 'summary_large_image',
       title: config.title,
       description: config.meta?.description,
+      // Profil fotoğrafını Twitter image olarak da kullan
+      images: config.avatarUrl ? [config.avatarUrl] : undefined,
     }
   }
 }
