@@ -4,7 +4,7 @@ import { useAuth } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { ArrowLeft, Shield, Users, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Shield, Users, CheckCircle, XCircle, AlertCircle, Ticket } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 import { getUserRole } from '@/lib/auth/roles'
+import InvitationCodes from '@/components/admin/InvitationCodes'
 
 interface User {
   id: string
@@ -108,8 +109,8 @@ export default function ModeratorPage() {
 
   const fetchAvailableSites = async () => {
     try {
-      const { data, error } = await supabase
-        .from('pages')
+      const { data, error } = await (supabase
+        .from('pages') as any)
         .select(`
           id,
           site_slug,
@@ -122,7 +123,7 @@ export default function ModeratorPage() {
 
       if (error) throw error
 
-      const sitesWithOwnerEmail = data?.map(site => ({
+      const sitesWithOwnerEmail = data?.map((site: any) => ({
         id: site.id,
         site_slug: site.site_slug,
         title: site.title,
@@ -141,8 +142,8 @@ export default function ModeratorPage() {
   const fetchExistingPermissions = async () => {
     try {
       setIsLoadingPermissions(true)
-      const { data, error } = await supabase
-        .from('site_permissions')
+      const { data, error } = await (supabase
+        .from('site_permissions') as any)
         .select(`
           id,
           user_id,
@@ -157,7 +158,7 @@ export default function ModeratorPage() {
 
       if (error) throw error
 
-      const permissionsWithDetails = data?.map(permission => ({
+      const permissionsWithDetails = data?.map((permission: any) => ({
         id: permission.id,
         user_id: permission.user_id,
         site_slug: permission.site_slug,
@@ -185,7 +186,7 @@ export default function ModeratorPage() {
 
     setIsSearching(true)
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .rpc('get_user_emails', { search_email: `%${searchEmail}%` })
 
       if (error) throw error
@@ -260,8 +261,8 @@ export default function ModeratorPage() {
         }
       }
 
-      const { error } = await supabase
-        .from('site_permissions')
+      const { error } = await (supabase
+        .from('site_permissions') as any)
         .insert(permissionsToInsert)
 
       if (error) throw error
@@ -395,9 +396,10 @@ export default function ModeratorPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="grant-permissions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="grant-permissions">Site İzni Ver</TabsTrigger>
             <TabsTrigger value="existing-permissions">Mevcut İzinler</TabsTrigger>
+            <TabsTrigger value="invitation-codes">Kod Oluşturucu</TabsTrigger>
           </TabsList>
 
           <TabsContent value="grant-permissions" className="space-y-6">
@@ -636,6 +638,10 @@ export default function ModeratorPage() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="invitation-codes" className="space-y-6">
+            <InvitationCodes />
           </TabsContent>
         </Tabs>
       </div>

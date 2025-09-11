@@ -6,7 +6,9 @@ import { createClient } from '@/lib/supabase/client';
 import { getUserRole, canAccessDashboard, UserRole } from '@/lib/auth/roles';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Clock, Shield, Users, Crown } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { AlertCircle, Clock, Shield, Users, Crown, Ticket, Key } from 'lucide-react';
 
 interface RoleGuardProps {
   children: React.ReactNode;
@@ -25,6 +27,12 @@ export default function RoleGuard({
   const [loading, setLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
   const [isMakingAdmin, setIsMakingAdmin] = useState(false);
+  
+  // Invitation code states
+  const [invitationCode, setInvitationCode] = useState('');
+  const [isUsingCode, setIsUsingCode] = useState(false);
+  const [codeError, setCodeError] = useState('');
+  const [blockedUntil, setBlockedUntil] = useState<Date | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -124,6 +132,54 @@ export default function RoleGuard({
     }
   };
 
+  const handleUseInvitationCode = async () => {
+    if (!invitationCode.trim()) {
+      setCodeError('Lütfen bir kod girin');
+      return;
+    }
+
+    // Check if currently blocked
+    if (blockedUntil && blockedUntil > new Date()) {
+      const remainingTime = Math.ceil((blockedUntil.getTime() - Date.now()) / (1000 * 60));
+      setCodeError(`Çok fazla hatalı deneme. ${remainingTime} dakika sonra tekrar deneyin.`);
+      return;
+    }
+
+    setIsUsingCode(true);
+    setCodeError('');
+
+    try {
+      const response = await fetch('/api/invitation-codes/use', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code: invitationCode.trim()
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Success - redirect to dashboard
+        router.push('/dashboard');
+      } else {
+        setCodeError(result.error || 'Kod kullanılırken hata oluştu');
+        
+        // Handle rate limiting
+        if (result.blocked_until) {
+          setBlockedUntil(new Date(result.blocked_until));
+        }
+      }
+    } catch (error) {
+      console.error('Error using invitation code:', error);
+      setCodeError('Kod kullanılırken hata oluştu');
+    } finally {
+      setIsUsingCode(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -154,6 +210,72 @@ export default function RoleGuard({
                     <p className="text-sm text-yellow-800">
                       <strong>Mevcut Rolünüz:</strong> Beklemede
                     </p>
+                  </div>
+                </div>
+
+                {/* Invitation Code Section */}
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                  <div className="text-center">
+                    <Ticket className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                    <h3 className="text-lg font-semibold text-green-900 mb-2">Davet Kodunuz Var mı?</h3>
+                    <p className="text-sm text-green-700 mb-4">
+                      Yöneticiden aldığınız davet kodunu girerek hemen onaylanabilirsiniz.
+                    </p>
+                    
+                    <div className="space-y-3">
+                      <div className="text-left">
+                        <Label htmlFor="invitation-code" className="text-sm font-medium text-green-800">
+                          Davet Kodu
+                        </Label>
+                        <Input
+                          id="invitation-code"
+                          type="text"
+                          placeholder="ABCD1234"
+                          value={invitationCode}
+                          onChange={(e) => {
+                            setInvitationCode(e.target.value.toUpperCase());
+                            setCodeError('');
+                          }}
+                          disabled={isUsingCode}
+                          className="mt-1 uppercase text-center font-mono tracking-wider"
+                          maxLength={12}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              handleUseInvitationCode();
+                            }
+                          }}
+                        />
+                      </div>
+                      
+                      {codeError && (
+                        <div className="text-left">
+                          <div className="bg-red-50 border border-red-200 rounded-md p-2">
+                            <div className="flex items-center">
+                              <AlertCircle className="w-4 h-4 text-red-500 mr-2" />
+                              <p className="text-sm text-red-700">{codeError}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <Button
+                        onClick={handleUseInvitationCode}
+                        disabled={isUsingCode || !invitationCode.trim()}
+                        className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        {isUsingCode ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Kod Kullanılıyor...
+                          </>
+                        ) : (
+                          <>
+                            <Key className="w-4 h-4 mr-2" />
+                            Kodu Kullan
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 
