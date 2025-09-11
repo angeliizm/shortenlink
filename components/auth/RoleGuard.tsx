@@ -121,8 +121,8 @@ export default function RoleGuard({
       const result = await response.json();
 
       if (response.ok && result.success) {
-        // Success - redirect to dashboard
-        router.push('/dashboard');
+        // Success - refresh the page to update user role and show dashboard
+        window.location.href = '/dashboard';
       } else {
         setCodeError(result.error || 'Kod kullanılırken hata oluştu');
         

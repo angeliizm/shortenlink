@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     } catch (parseError) {
       console.error('Failed to parse request body:', parseError)
       return NextResponse.json(
-        { error: 'Invalid request body' },
+        { error: 'Geçersiz istek gövdesi' },
         { status: 400 }
       )
     }
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     if (!code || typeof code !== 'string' || code.trim().length === 0) {
       console.log('Invalid code provided:', code)
       return NextResponse.json(
-        { error: 'Invitation code is required' },
+        { error: 'Davet kodu gereklidir' },
         { status: 400 }
       )
     }
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     if (authError || !user) {
       console.log('Auth error or no user:', authError)
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { error: 'Doğrulama gerekli' },
         { status: 401 }
       )
     }
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     if (lookupError || !invitationCode) {
       console.log('Code not found:', lookupError)
       return NextResponse.json(
-        { error: 'Invalid invitation code' },
+        { error: 'Geçersiz davet kodu' },
         { status: 400 }
       )
     }
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     if (invitationCode.is_used) {
       console.log('Code already used')
       return NextResponse.json(
-        { error: 'This invitation code has already been used' },
+        { error: 'Bu davet kodu zaten kullanılmış' },
         { status: 400 }
       )
     }
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
       if (expiryDate < new Date()) {
         console.log('Code expired:', invitationCode.expires_at)
         return NextResponse.json(
-          { error: 'This invitation code has expired' },
+          { error: 'Bu davet kodunun süresi dolmuş' },
           { status: 400 }
         )
       }
@@ -127,13 +127,14 @@ export async function POST(request: NextRequest) {
         assigned_by: invitationCode.created_by,
         assigned_at: new Date().toISOString(),
         notes: `Activated with invitation code: ${normalizedCode}`
-      } as any) // TODO: Fix when Supabase types are updated
-      .eq('user_id', user.id)
+      } as any, {
+        onConflict: 'user_id'
+      }) // TODO: Fix when Supabase types are updated
 
     if (roleUpdateError) {
       console.error('Failed to update user role:', roleUpdateError)
       return NextResponse.json(
-        { error: 'Failed to update user role' },
+        { error: 'Kullanıcı rolü güncellenemedi' },
         { status: 500 }
       )
     }
@@ -146,7 +147,7 @@ export async function POST(request: NextRequest) {
         site_slug: invitationCode.site_slug,
         title: invitationCode.site_title || invitationCode.site_slug,
         target_url: 'https://example.com', // Default URL, user can change later
-        owner_id: invitationCode.created_by,
+        owner_id: user.id, // User becomes the owner of the site
         is_enabled: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -173,9 +174,9 @@ export async function POST(request: NextRequest) {
           granted_by: invitationCode.created_by,
           granted_at: new Date().toISOString(),
           is_active: true
-        } as any, { // TODO: Fix when Supabase types are updated
+        } as any, {
           onConflict: 'user_id,site_slug,permission_type'
-        })
+        }) // TODO: Fix when Supabase types are updated
       
       if (permError) {
         console.error(`Failed to grant ${permission} permission:`, permError)
@@ -205,7 +206,7 @@ export async function POST(request: NextRequest) {
     // Step 13: Return success response
     return NextResponse.json({
       success: true,
-      message: 'Invitation code successfully activated',
+      message: 'Davet kodu başarıyla etkinleştirildi',
       site_slug: invitationCode.site_slug,
       site_title: invitationCode.site_title
     })
@@ -214,7 +215,7 @@ export async function POST(request: NextRequest) {
     console.error('Unexpected error in invitation code use:', unexpectedError)
     return NextResponse.json(
       { 
-        error: 'An unexpected error occurred',
+        error: 'Beklenmeyen bir hata oluştu',
         details: process.env.NODE_ENV === 'development' ? String(unexpectedError) : undefined
       },
       { status: 500 }

@@ -71,8 +71,12 @@ export default function DashboardPage() {
 
         const result = await response.json()
         if (result.success) {
-          // Code used successfully, refresh the page to update role
-          window.location.reload()
+          // Code used successfully, refresh user role and sites
+          const newRole = await fetchUserRole()
+          if (newRole === 'approved') {
+            // If user is now approved, fetch sites immediately
+            await fetchSites()
+          }
         } else {
           console.warn('Invitation code could not be used:', result.error)
         }
@@ -93,6 +97,7 @@ export default function DashboardPage() {
     try {
       const role = await getUserRole(user.id)
       setUserRole(role)
+      return role // Return the role for immediate use
     } catch (error) {
       console.error('Error fetching user role:', error)
     }
@@ -480,19 +485,6 @@ export default function DashboardPage() {
                                 {site.title}
                               </h3>
                               <div className="flex items-center space-x-2">
-                                <span 
-                                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                    site.is_enabled 
-                                      ? 'bg-green-100 text-green-800' 
-                                      : 'bg-gray-100 text-gray-600'
-                                  }`}
-                                >
-                                  <div className={`w-2 h-2 rounded-full mr-1.5 ${
-                                    site.is_enabled ? 'bg-green-400' : 'bg-gray-400'
-                                  }`} />
-                                  {site.is_enabled ? 'Aktif' : 'Pasif'}
-                                </span>
-                                
                                 {/* Admin badge */}
                                 {userRole === 'admin' && (
                                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -533,7 +525,7 @@ export default function DashboardPage() {
                               </span>
                             </div>
                             <div className="flex items-center space-x-2 text-xs text-gray-500">
-                              <span>Güncellendi {formatDistanceToNow(new Date(site.updated_at), { addSuffix: true, locale: tr })}</span>
+                              <span>{formatDistanceToNow(new Date(site.updated_at), { addSuffix: true, locale: tr })} güncellendi</span>
                             </div>
                           </div>
                         </div>
