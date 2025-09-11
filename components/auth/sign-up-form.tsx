@@ -20,6 +20,7 @@ export default function SignUpForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [invitationCode, setInvitationCode] = useState('')
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -83,6 +84,30 @@ export default function SignUpForm() {
         setErrors({ form: error.message })
         setIsLoading(false)
       } else if (data.user) {
+        // If invitation code is provided, use it
+        if (invitationCode.trim()) {
+          try {
+            const response = await fetch('/api/invitation-codes/use', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                code: invitationCode.trim()
+              })
+            })
+
+            const result = await response.json()
+            if (!result.success) {
+              console.warn('Invitation code could not be used:', result.error)
+              // Continue with normal signup even if code fails
+            }
+          } catch (codeError) {
+            console.warn('Error using invitation code:', codeError)
+            // Continue with normal signup even if code fails
+          }
+        }
+
         setIsSuccess(true)
         // User might need to confirm email depending on Supabase settings
         if (data.session) {
@@ -273,6 +298,30 @@ export default function SignUpForm() {
                 {errors.confirmPassword}
               </p>
             )}
+          </div>
+
+          {/* Invitation Code Field */}
+          <div className="space-y-2">
+            <label 
+              htmlFor="invitation-code" 
+              className="block text-sm font-medium text-gray-700"
+            >
+              Davet Kodu <span className="text-gray-400 text-xs">(Opsiyonel)</span>
+            </label>
+            <input
+              id="invitation-code"
+              type="text"
+              value={invitationCode}
+              onChange={(e) => {
+                setInvitationCode(e.target.value.toUpperCase())
+              }}
+              placeholder="ABC12345"
+              disabled={isLoading}
+              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 transition-all duration-200 hover:border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50"
+            />
+            <p className="text-xs text-gray-500">
+              Eğer bir davet kodunuz varsa girin. Kod yoksa boş bırakabilirsiniz.
+            </p>
           </div>
 
           {/* Terms and Conditions */}
