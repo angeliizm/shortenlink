@@ -73,6 +73,7 @@ export default function EditSitePage({ params }: PageProps) {
   // Title font preset state
   const [titleStylePresetId, setTitleStylePresetId] = useState<string>(defaultTitleFontPresetId)
   const [titleColor, setTitleColor] = useState<string>('#111827')
+  const [titleFontSize, setTitleFontSize] = useState<number>(32)
   
   // Profile preset state
   const [profilePresetId, setProfilePresetId] = useState<string>(defaultProfilePresetId)
@@ -183,6 +184,17 @@ export default function EditSitePage({ params }: PageProps) {
         }
       }
 
+      // Load title font size from database first, then localStorage
+      if (page.title_font_size) {
+        setTitleFontSize(page.title_font_size)
+        localStorage.setItem(`title-font-size-${siteId}`, page.title_font_size.toString())
+      } else {
+        const savedTitleFontSize = localStorage.getItem(`title-font-size-${siteId}`)
+        if (savedTitleFontSize) {
+          setTitleFontSize(parseInt(savedTitleFontSize) || 32)
+        }
+      }
+
 
       // Load avatar URL from database first, then localStorage as fallback
       if (page.avatar_url) {
@@ -256,6 +268,7 @@ export default function EditSitePage({ params }: PageProps) {
           profile_preset_id: profilePresetId,
           title_font_preset_id: titleStylePresetId,
           title_color: titleColor,
+          title_font_size: titleFontSize,
           updated_at: new Date().toISOString()
         })
         .eq('id', siteId)
@@ -782,41 +795,89 @@ export default function EditSitePage({ params }: PageProps) {
                   </div>
                 </div>
 
-                {/* Color Section */}
-                <div>
-                  <Label className="text-sm font-medium mb-3 block">Metin Rengi</Label>
-                  <div className="flex items-center gap-4">
-                    <div 
-                      className="w-12 h-12 rounded-lg border-2 border-gray-200 flex items-center justify-center"
-                      style={{ backgroundColor: titleColor }}
-                    >
-                      <span 
-                        className="font-bold"
-                        style={{ 
-                          color: titleColor,
-                          fontFamily: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontFamily || 'Helvetica',
-                          fontWeight: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontWeight || '600'
-                        }}
+                {/* Color and Font Size Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Color Section */}
+                  <div>
+                    <Label className="text-sm font-medium mb-3 block">Metin Rengi</Label>
+                    <div className="flex items-center gap-4">
+                      <div 
+                        className="w-12 h-12 rounded-lg border-2 border-gray-200 flex items-center justify-center"
+                        style={{ backgroundColor: titleColor }}
                       >
-                        Aa
-                      </span>
+                        <span 
+                          className="font-bold"
+                          style={{ 
+                            color: titleColor,
+                            fontFamily: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontFamily || 'Helvetica',
+                            fontWeight: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontWeight || '600'
+                          }}
+                        >
+                          Aa
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <Input
+                          id="titleColor"
+                          type="color"
+                          value={titleColor}
+                          onChange={(e) => {
+                            setTitleColor(e.target.value)
+                            if (siteId) {
+                              localStorage.setItem(`title-color-${siteId}`, e.target.value)
+                            }
+                          }}
+                          className="w-20 h-8 p-1 border rounded cursor-pointer"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          {titleColor}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <Input
-                        id="titleColor"
-                        type="color"
-                        value={titleColor}
-                        onChange={(e) => {
-                          setTitleColor(e.target.value)
-                          if (siteId) {
-                            localStorage.setItem(`title-color-${siteId}`, e.target.value)
-                          }
-                        }}
-                        className="w-20 h-8 p-1 border rounded cursor-pointer"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">
-                        {titleColor}
-                      </p>
+                  </div>
+
+                  {/* Font Size Section */}
+                  <div>
+                    <Label className="text-sm font-medium mb-3 block">Font Boyutu</Label>
+                    <div className="flex items-center gap-4">
+                      <div 
+                        className="w-12 h-12 rounded-lg border-2 border-gray-200 flex items-center justify-center bg-gray-50"
+                      >
+                        <span 
+                          className="font-bold"
+                          style={{ 
+                            color: titleColor,
+                            fontFamily: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontFamily || 'Helvetica',
+                            fontWeight: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontWeight || '600',
+                            fontSize: `${Math.min(Math.max(titleFontSize, 12), 72)}px`
+                          }}
+                        >
+                          Aa
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="titleFontSize"
+                            type="number"
+                            min="12"
+                            max="72"
+                            value={titleFontSize}
+                            onChange={(e) => {
+                              const newSize = parseInt(e.target.value) || 32
+                              setTitleFontSize(Math.min(Math.max(newSize, 12), 72))
+                              if (siteId) {
+                                localStorage.setItem(`title-font-size-${siteId}`, newSize.toString())
+                              }
+                            }}
+                            className="w-20 h-8 text-center"
+                          />
+                          <span className="text-sm text-gray-500">px</span>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {titleFontSize}px
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
