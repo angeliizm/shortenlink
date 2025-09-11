@@ -75,9 +75,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Lookup result:', { 
       found: !!invitationCode, 
-      error: lookupError?.message,
-      code: invitationCode?.code,
-      is_used: invitationCode?.is_used
+      error: lookupError?.message
     })
 
     // Step 6: Validate code exists
