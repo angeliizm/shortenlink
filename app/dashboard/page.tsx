@@ -4,9 +4,10 @@ import { useAuth } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shield, Sparkles, BarChart, Palette, Settings, Users, Key } from 'lucide-react'
+import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shield, Sparkles, BarChart, Palette, Settings, Users, Key, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import CreateSiteDialog from '@/components/dashboard/CreateSiteDialog'
 import DeleteSiteDialog from '@/components/dashboard/DeleteSiteDialog'
 import RoleGuard from '@/components/auth/RoleGuard'
@@ -25,6 +26,9 @@ interface Site {
   updated_at: string
   owner_id?: string
   permission_type?: string
+  meta?: {
+    description?: string
+  }
 }
 
 
@@ -44,6 +48,10 @@ export default function DashboardPage() {
   const [invitationCode, setInvitationCode] = useState('')
   const [isUsingCode, setIsUsingCode] = useState(false)
   const [codeError, setCodeError] = useState('')
+  
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filteredSites, setFilteredSites] = useState<Site[]>([])
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -220,6 +228,7 @@ export default function DashboardPage() {
       allSites.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
 
       setSites(allSites)
+      setFilteredSites(allSites) // Initialize filtered sites
       
       const totalSites = allSites.length
       const activeSites = allSites.filter((site: any) => site.is_enabled).length
@@ -230,6 +239,33 @@ export default function DashboardPage() {
     } finally {
       setIsLoadingSites(false)
     }
+  }
+
+  // Filter sites based on search term
+  const filterSites = (searchTerm: string) => {
+    if (!searchTerm.trim()) {
+      setFilteredSites(sites)
+      return
+    }
+
+    const filtered = sites.filter(site => {
+      const searchLower = searchTerm.toLowerCase()
+      return (
+        site.title.toLowerCase().includes(searchLower) ||
+        site.site_slug.toLowerCase().includes(searchLower) ||
+        site.target_url.toLowerCase().includes(searchLower) ||
+        (site.meta?.description && site.meta.description.toLowerCase().includes(searchLower))
+      )
+    })
+    
+    setFilteredSites(filtered)
+  }
+
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchTerm(value)
+    filterSites(value)
   }
 
   const handleDeleteSite = async (siteId: string) => {
@@ -420,6 +456,25 @@ export default function DashboardPage() {
             <CardDescription className="text-gray-600">
               Erişime sahip olduğun tüm siteler burada listelenir
             </CardDescription>
+            
+            {/* Search Filter */}
+            <div className="mt-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Site adı, slug, URL veya açıklama ara..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  className="pl-10 h-11 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                />
+              </div>
+              {searchTerm && (
+                <p className="text-sm text-gray-500 mt-2">
+                  {filteredSites.length} site bulundu
+                </p>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {isLoadingSites ? (
@@ -432,8 +487,28 @@ export default function DashboardPage() {
                   <p className="mt-4 text-gray-600 font-medium">Siteler yükleniyor...</p>
                 </div>
               </div>
-            ) : sites.length === 0 ? (
-              userRole === 'approved' ? (
+            ) : filteredSites.length === 0 ? (
+              searchTerm ? (
+                <div className="text-center py-16">
+                  <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-10 h-10 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Arama Sonucu Bulunamadı</h3>
+                  <p className="text-gray-500 mb-4">
+                    "{searchTerm}" için hiçbir site bulunamadı.
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchTerm('')
+                      setFilteredSites(sites)
+                    }}
+                    className="border-gray-300 hover:bg-gray-50"
+                  >
+                    Aramayı Temizle
+                  </Button>
+                </div>
+              ) : userRole === 'approved' ? (
                 <div className="text-center py-16">
                   <div className="relative inline-block mb-6">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
@@ -554,7 +629,7 @@ export default function DashboardPage() {
               )
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {sites.map((site) => (
+                {filteredSites.map((site) => (
                   <Card 
                     key={site.id} 
                     className="group backdrop-blur-sm bg-white/90 border-white/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
