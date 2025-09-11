@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import PageHeader from '@/components/ui/PageHeader'
+import LoadingScreen from '@/components/ui/LoadingScreen'
 import CreateSiteDialog from '@/components/dashboard/CreateSiteDialog'
 import DeleteSiteDialog from '@/components/dashboard/DeleteSiteDialog'
 import RoleGuard from '@/components/auth/RoleGuard'
@@ -292,17 +293,7 @@ export default function DashboardPage() {
 
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-        <div className="text-center">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-blue-200 rounded-full animate-spin border-t-blue-600"></div>
-            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent rounded-full animate-ping border-t-blue-400"></div>
-          </div>
-          <p className="mt-4 text-gray-600 font-medium">Dashboard yükleniyor...</p>
-        </div>
-      </div>
-    )
+    return <LoadingScreen message="Dashboard yükleniyor..." />
   }
 
   if (!isAuthenticated) {
