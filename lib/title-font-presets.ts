@@ -90,6 +90,77 @@ export const titleFontPresets: TitleFontPreset[] = [
     fontFamily: 'Poppins, sans-serif',
     fontWeight: '800',
     letterSpacing: '-0.03em'
+  },
+  // Retro Font Presets
+  {
+    id: 'retro-neon',
+    name: 'Retro Neon',
+    fontFamily: 'Orbitron, monospace',
+    fontWeight: '900',
+    letterSpacing: '0.1em'
+  },
+  {
+    id: 'vintage-poster',
+    name: 'Vintage Poster',
+    fontFamily: 'Bebas Neue, sans-serif',
+    fontWeight: '400',
+    letterSpacing: '0.05em'
+  },
+  {
+    id: 'retro-gaming',
+    name: 'Retro Gaming',
+    fontFamily: 'Press Start 2P, monospace',
+    fontWeight: '400',
+    letterSpacing: '0.02em'
+  },
+  {
+    id: 'disco-era',
+    name: 'Disco Era',
+    fontFamily: 'Fredoka One, cursive',
+    fontWeight: '400',
+    letterSpacing: '0.03em'
+  },
+  {
+    id: 'cyberpunk',
+    name: 'Cyberpunk',
+    fontFamily: 'Rajdhani, sans-serif',
+    fontWeight: '700',
+    letterSpacing: '0.08em'
+  },
+  {
+    id: 'retro-wave',
+    name: 'Retro Wave',
+    fontFamily: 'Righteous, cursive',
+    fontWeight: '400',
+    letterSpacing: '0.04em'
+  },
+  {
+    id: 'vintage-sign',
+    name: 'Vintage Sign',
+    fontFamily: 'Creepster, cursive',
+    fontWeight: '400',
+    letterSpacing: '0.06em'
+  },
+  {
+    id: 'synthwave',
+    name: 'Synthwave',
+    fontFamily: 'Orbitron, monospace',
+    fontWeight: '700',
+    letterSpacing: '0.12em'
+  },
+  {
+    id: 'retro-comic',
+    name: 'Retro Comic',
+    fontFamily: 'Bangers, cursive',
+    fontWeight: '400',
+    letterSpacing: '0.02em'
+  },
+  {
+    id: 'neon-glow',
+    name: 'Neon Glow',
+    fontFamily: 'Orbitron, monospace',
+    fontWeight: '600',
+    letterSpacing: '0.15em'
   }
 ]
 

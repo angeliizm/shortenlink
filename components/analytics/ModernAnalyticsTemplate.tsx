@@ -380,10 +380,6 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
                 <div className="text-3xl font-bold text-gray-900">
                   {metrics.clicks.total.toLocaleString()}
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">CTR</span>
-                  <span className="text-gray-900 font-medium">{metrics.conversionRate.toFixed(1)}%</span>
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -408,10 +404,6 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
                 <div className="text-3xl font-bold text-gray-900">
                   {metrics.conversions.total.toLocaleString()}
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">CR</span>
-                  <span className="text-gray-900 font-medium">{metrics.conversionRate.toFixed(1)}%</span>
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -425,7 +417,7 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
                      <Users className="w-6 h-6 text-white" />
                    </div>
                    <div>
-                     <p className="text-sm font-medium text-gray-600">Üye Olma</p>
+                     <p className="text-sm font-medium text-gray-600">Buton Tıklaması</p>
                      <p className="text-xs text-green-600 font-medium flex items-center">
                        {metrics.signups.change}% <ArrowUpRight className="w-3 h-3 ml-1" />
                      </p>
@@ -435,12 +427,6 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
                <div className="space-y-1">
                  <div className="text-3xl font-bold text-gray-900">
                    {metrics.signups.total.toLocaleString()}
-                 </div>
-                 <div className="flex items-center justify-between text-sm">
-                   <span className="text-gray-500">Oran</span>
-                   <span className="text-gray-900 font-medium">
-                     {metrics.clicks.total > 0 ? ((metrics.signups.total / metrics.clicks.total) * 100).toFixed(1) : '0.0'}%
-                   </span>
                  </div>
                </div>
              </CardContent>

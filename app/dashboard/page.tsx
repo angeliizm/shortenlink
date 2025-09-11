@@ -792,7 +792,7 @@ export default function DashboardPage() {
       
       {/* Invitation Code Dialog */}
       <Dialog open={isInvitationCodeOpen} onOpenChange={setIsInvitationCodeOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-white border border-gray-200 shadow-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Key className="w-5 h-5 text-blue-600" />

@@ -121,7 +121,7 @@ export default function CreateSiteDialog({ open, onOpenChange, onSuccess }: Crea
       if (!open) resetForm()
       onOpenChange(open)
     }}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg bg-white border border-gray-200 shadow-2xl">
         <form onSubmit={handleSubmit}>
           <DialogHeader className="text-center pb-6">
             <div className="mx-auto w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center mb-4">
