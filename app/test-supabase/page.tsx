@@ -99,13 +99,13 @@ export default function TestSupabase() {
             <li>
               <span className="font-medium">URL:</span>{' '}
               <span className="text-gray-600">
-                {'https://coufslfrsxvlzbwitzct.supabase.co'.replace('https://', '').substring(0, 20)}...
+                {process.env.NEXT_PUBLIC_SUPABASE_URL?.replace('https://', '').substring(0, 20) || 'Not configured'}...
               </span>
             </li>
             <li>
               <span className="font-medium">Anon Key:</span>{' '}
               <span className="text-gray-600">
-                {'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvdWZzbGZyc3h2bHpid2l0emN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxOTI5NTcsImV4cCI6MjA3Mjc2ODk1N30.EUvRiVahwgdHIckEkUvhWBwBxvoQhHL0Qh1OLbjF-3A'.substring(0, 20)}...
+                {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 20) || 'Not configured'}...
               </span>
             </li>
           </ul>

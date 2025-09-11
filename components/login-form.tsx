@@ -17,15 +17,15 @@ export default function LoginForm() {
     const newErrors: { email?: string; password?: string } = {}
     
     if (!email) {
-      newErrors.email = 'Email is required'
+      newErrors.email = 'E-posta adresi gerekli'
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Please enter a valid email'
+      newErrors.email = 'Lütfen geçerli bir e-posta adresi girin'
     }
     
     if (!password) {
-      newErrors.password = 'Password is required'
+      newErrors.password = 'Şifre gerekli'
     } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters'
+      newErrors.password = 'Şifre en az 6 karakter olmalı'
     }
     
     setErrors(newErrors)
@@ -45,7 +45,7 @@ export default function LoginForm() {
       // Navigation is handled by the auth store
       // Keep loading state true as we're redirecting
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.'
+      const errorMessage = error instanceof Error ? error.message : 'Giriş başarısız. Lütfen tekrar deneyin.'
       
       // Check if it's an email confirmation error
       if (errorMessage.toLowerCase().includes('email not confirmed') || 
@@ -92,7 +92,7 @@ export default function LoginForm() {
               htmlFor="email" 
               className="block text-sm font-medium text-gray-700"
             >
-              Email
+              E-posta
             </label>
             <input
               id="email"
@@ -114,7 +114,7 @@ export default function LoginForm() {
                 focus:outline-none focus:ring-4
                 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50
               `}
-              placeholder="name@example.com"
+              placeholder="ornek@email.com"
               aria-invalid={!!errors.email}
               aria-describedby={errors.email ? 'email-error' : undefined}
               disabled={isLoading}
@@ -133,7 +133,7 @@ export default function LoginForm() {
               htmlFor="password" 
               className="block text-sm font-medium text-gray-700"
             >
-              Password
+              Şifre
             </label>
             <input
               id="password"
@@ -155,7 +155,7 @@ export default function LoginForm() {
                 focus:outline-none focus:ring-4
                 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50
               `}
-              placeholder="Enter your password"
+              placeholder="Şifrenizi girin"
               aria-invalid={!!errors.password}
               aria-describedby={errors.password ? 'password-error' : undefined}
               disabled={isLoading}
@@ -188,7 +188,7 @@ export default function LoginForm() {
               htmlFor="remember" 
               className="ml-2 text-sm text-gray-600 select-none cursor-pointer hover:text-gray-800 transition-colors duration-200"
             >
-              Remember me
+              Beni hatırla
             </label>
           </div>
 
@@ -243,23 +243,23 @@ export default function LoginForm() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Signing in...
+                Giriş yapılıyor...
               </span>
             ) : (
-              'Sign in'
+              'Giriş Yap'
             )}
           </button>
 
           {/* Sign Up Link */}
           <div className="text-center pt-4 border-t border-gray-100">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Hesabınız yok mu?{' '}
               <a 
                 href="/register" 
                 className="font-medium text-blue-600 hover:text-blue-700 transition-colors duration-200"
                 tabIndex={isLoading ? -1 : 0}
               >
-                Sign Up
+                Kayıt Ol
               </a>
             </p>
           </div>

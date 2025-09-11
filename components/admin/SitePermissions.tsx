@@ -44,6 +44,7 @@ export default function SitePermissions() {
   const [users, setUsers] = useState<{id: string, email: string}[]>([]);
   const [userSearchTerm, setUserSearchTerm] = useState<string>('');
   const [siteSearchTerm, setSiteSearchTerm] = useState<string>('');
+  const [expandedSites, setExpandedSites] = useState<Set<string>>(new Set());
 
   const supabase = createClient();
 
@@ -75,6 +76,19 @@ export default function SitePermissions() {
     permission.user_email.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
     permission.site_slug.toLowerCase().includes(siteSearchTerm.toLowerCase())
   );
+
+  // Accordion toggle fonksiyonu
+  const toggleSiteExpansion = (siteSlug: string) => {
+    setExpandedSites(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(siteSlug)) {
+        newSet.delete(siteSlug);
+      } else {
+        newSet.add(siteSlug);
+      }
+      return newSet;
+    });
+  };
 
   const fetchData = async () => {
     try {
@@ -506,10 +520,15 @@ export default function SitePermissions() {
                 const site = sites.find(s => s.site_slug === siteSlug);
                 if (!site) return null;
 
+                const isExpanded = expandedSites.has(siteSlug);
+
                 return (
-                  <div key={siteSlug} className="backdrop-blur-sm bg-white/60 border border-white/30 rounded-2xl p-6">
-                    {/* Site Header */}
-                    <div className="flex items-center gap-4 mb-4 pb-4 border-b border-gray-200">
+                  <div key={siteSlug} className="backdrop-blur-sm bg-white/60 border border-white/30 rounded-2xl overflow-hidden">
+                    {/* Site Header - Clickable */}
+                    <div 
+                      className="flex items-center gap-4 p-6 cursor-pointer hover:bg-white/70 transition-all duration-200"
+                      onClick={() => toggleSiteExpansion(siteSlug)}
+                    >
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
                         <Globe className="w-6 h-6 text-blue-600" />
                       </div>
@@ -517,67 +536,83 @@ export default function SitePermissions() {
                         <h3 className="font-semibold text-gray-900 text-lg">{site.title}</h3>
                         <p className="text-sm text-gray-600">/{site.site_slug} • Sahip: {site.owner_email}</p>
                       </div>
-                      <div className="text-right">
+                      <div className="flex items-center gap-3">
                         <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
                           {sitePermissions.length} İzin
                         </span>
+                        <div className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
+                          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Site Permissions */}
-                    <div className="space-y-3">
-                      {sitePermissions.map((permission) => (
-                        <div key={permission.id} className="group relative backdrop-blur-sm bg-white/80 border border-white/40 rounded-xl p-4 hover:bg-white/90 hover:shadow-lg transition-all duration-200">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
-                                  <Users className="w-4 h-4 text-gray-600" />
-                                </div>
-                                <div>
-                                  <h4 className="font-medium text-gray-900">{permission.user_email}</h4>
-                                  <p className="text-xs text-gray-500">
-                                    Verilme: {formatDistanceToNow(new Date(permission.granted_at), { addSuffix: true })}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-4 text-sm text-gray-600">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                  <span>İzin: {getPermissionTypeLabel(permission.permission_type)}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                                  <span>
-                                    {permission.expires_at 
-                                      ? `Bitiş: ${formatDistanceToNow(new Date(permission.expires_at), { addSuffix: true })}`
-                                      : 'Süresiz'
-                                    }
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="mt-2">
-                                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors ${getPermissionTypeColor(permission.permission_type)}`}>
-                                  {getPermissionTypeLabel(permission.permission_type)}
-                                </span>
-                              </div>
-                            </div>
+                    {/* Site Permissions - Collapsible */}
+                    {isExpanded && (
+                      <div className="px-6 pb-6 border-t border-gray-200 bg-white/40">
+                        <div className="pt-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-sm font-medium text-gray-700">İzin Detayları</h4>
+                            <span className="text-xs text-gray-500">{sitePermissions.length} kullanıcı</span>
+                          </div>
                           
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleRevokePermission(permission.id)}
-                                className="bg-red-50 backdrop-blur-sm border-red-200 hover:bg-red-100 hover:border-red-300 text-red-600 transition-all duration-200"
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                İptal Et
-                              </Button>
-                            </div>
+                          <div className="space-y-3">
+                            {sitePermissions.map((permission) => (
+                              <div key={permission.id} className="group relative backdrop-blur-sm bg-white/80 border border-white/40 rounded-xl p-4 hover:bg-white/90 hover:shadow-lg transition-all duration-200">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2">
+                                      <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
+                                        <Users className="w-4 h-4 text-gray-600" />
+                                      </div>
+                                      <div>
+                                        <h5 className="font-medium text-gray-900">{permission.user_email}</h5>
+                                        <p className="text-xs text-gray-500">
+                                          Verilme: {formatDistanceToNow(new Date(permission.granted_at), { addSuffix: true })}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                        <span>İzin: {getPermissionTypeLabel(permission.permission_type)}</span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                                        <span>
+                                          {permission.expires_at 
+                                            ? `Bitiş: ${formatDistanceToNow(new Date(permission.expires_at), { addSuffix: true })}`
+                                            : 'Süresiz'
+                                          }
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="mt-2">
+                                      <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors ${getPermissionTypeColor(permission.permission_type)}`}>
+                                        {getPermissionTypeLabel(permission.permission_type)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleRevokePermission(permission.id)}
+                                      className="bg-red-50 backdrop-blur-sm border-red-200 hover:bg-red-100 hover:border-red-300 text-red-600 transition-all duration-200"
+                                    >
+                                      <Trash2 className="w-4 h-4 mr-2" />
+                                      İptal Et
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
