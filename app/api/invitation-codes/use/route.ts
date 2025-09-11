@@ -2,128 +2,201 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
+  console.log('=== INVITATION CODE USE API CALLED ===')
+  
   try {
-    const supabase = createClient()
-    
-    // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    // Step 1: Parse request body
+    let body
+    try {
+      body = await request.json()
+      console.log('Request body:', body)
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError)
       return NextResponse.json(
-        { error: 'Kimlik doğrulama gerekli' },
+        { error: 'Invalid request body' },
+        { status: 400 }
+      )
+    }
+
+    const { code } = body
+    
+    // Step 2: Validate code input
+    if (!code || typeof code !== 'string' || code.trim().length === 0) {
+      console.log('Invalid code provided:', code)
+      return NextResponse.json(
+        { error: 'Invitation code is required' },
+        { status: 400 }
+      )
+    }
+
+    const normalizedCode = code.trim().toUpperCase()
+    console.log('Normalized code:', normalizedCode)
+
+    // Step 3: Get current user using regular client (for auth)
+    const authClient = createClient()
+    console.log('Getting current user...')
+    
+    const { data: { user }, error: authError } = await authClient.auth.getUser()
+    
+    if (authError || !user) {
+      console.log('Auth error or no user:', authError)
+      return NextResponse.json(
+        { error: 'Authentication required' },
         { status: 401 }
       )
     }
-
-    // Get request body
-    const body = await request.json()
-    const { code } = body
-
-    // Validate input
-    if (!code) {
-      return NextResponse.json(
-        { error: 'Kod gerekli' },
-        { status: 400 }
-      )
-    }
-
-    // Get client IP address
-    const forwarded = request.headers.get('x-forwarded-for')
-    const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || '127.0.0.1'
-
-    // Use service role client for invitation codes table access
-    const serviceSupabase = createServiceRoleClient()
     
-    // Use the invitation code manually (without RPC)
-    console.log('Looking for code:', code.toUpperCase())
-    
-    const { data: invitationCode, error: codeError } = await serviceSupabase
+    console.log('User authenticated:', user.id)
+
+    // Step 4: Use service role client for database operations
+    const supabase = createServiceRoleClient()
+
+    // Step 5: Look up the invitation code
+    console.log('Looking up invitation code in database...')
+    const { data: invitationCode, error: lookupError } = await supabase
       .from('invitation_codes')
       .select('*')
-      .eq('code', code.toUpperCase())
-      .eq('is_used', false)
+      .eq('code', normalizedCode)
       .single()
 
-    console.log('Code query result:', { invitationCode, codeError })
+    console.log('Lookup result:', { 
+      found: !!invitationCode, 
+      error: lookupError?.message,
+      code: invitationCode?.code,
+      is_used: invitationCode?.is_used
+    })
 
-    if (codeError || !invitationCode) {
-      console.log('Code not found or error:', codeError)
+    // Step 6: Validate code exists
+    if (lookupError || !invitationCode) {
+      console.log('Code not found:', lookupError)
       return NextResponse.json(
-        { error: 'Geçersiz veya süresi dolmuş kod', debug: { code: code.toUpperCase(), error: codeError?.message } },
+        { error: 'Invalid invitation code' },
         { status: 400 }
       )
     }
 
-    // Check if code is expired
-    if ((invitationCode as any).expires_at && new Date((invitationCode as any).expires_at) < new Date()) {
+    // Step 7: Check if code is already used
+    if (invitationCode.is_used) {
+      console.log('Code already used')
       return NextResponse.json(
-        { error: 'Kod süresi dolmuş' },
+        { error: 'This invitation code has already been used' },
         { status: 400 }
       )
     }
 
-    // Update user role to approved
-    const { error: roleError } = await supabase
+    // Step 8: Check if code is expired
+    if (invitationCode.expires_at) {
+      const expiryDate = new Date(invitationCode.expires_at)
+      if (expiryDate < new Date()) {
+        console.log('Code expired:', invitationCode.expires_at)
+        return NextResponse.json(
+          { error: 'This invitation code has expired' },
+          { status: 400 }
+        )
+      }
+    }
+
+    console.log('Code is valid, proceeding with activation...')
+
+    // Step 9: Update user role to approved
+    console.log('Updating user role...')
+    const { error: roleUpdateError } = await supabase
       .from('user_roles')
       .upsert({
         user_id: user.id,
         role: 'approved',
-        assigned_by: (invitationCode as any).created_by,
-        notes: 'Invitation code ile onaylandı'
-      } as any)
+        assigned_by: invitationCode.created_by,
+        assigned_at: new Date().toISOString(),
+        notes: `Activated with invitation code: ${normalizedCode}`
+      })
+      .eq('user_id', user.id)
 
-    if (roleError) {
-      throw roleError
+    if (roleUpdateError) {
+      console.error('Failed to update user role:', roleUpdateError)
+      return NextResponse.json(
+        { error: 'Failed to update user role' },
+        { status: 500 }
+      )
     }
 
-    // Create site if it doesn't exist
-    const { error: siteError } = await supabase
+    // Step 10: Create or update site page
+    console.log('Creating/updating site page...')
+    const { error: pageError } = await supabase
       .from('pages')
       .upsert({
-        site_slug: (invitationCode as any).site_slug,
-        title: (invitationCode as any).site_title,
-        owner_id: (invitationCode as any).created_by,
-        is_enabled: true
-      } as any, { onConflict: 'site_slug' })
+        site_slug: invitationCode.site_slug,
+        title: invitationCode.site_title || invitationCode.site_slug,
+        owner_id: invitationCode.created_by,
+        is_enabled: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'site_slug'
+      })
 
-    if (siteError) {
-      throw siteError
+    if (pageError) {
+      console.error('Failed to create/update page:', pageError)
+      // Don't fail the whole operation if page creation fails
     }
 
-    // Grant permissions
+    // Step 11: Grant site permissions
+    console.log('Granting site permissions...')
     const permissions = ['view', 'edit', 'analytics']
+    
     for (const permission of permissions) {
-      await supabase
+      const { error: permError } = await supabase
         .from('site_permissions')
         .upsert({
           user_id: user.id,
-          site_slug: (invitationCode as any).site_slug,
+          site_slug: invitationCode.site_slug,
           permission_type: permission,
-          granted_by: (invitationCode as any).created_by,
+          granted_by: invitationCode.created_by,
+          granted_at: new Date().toISOString(),
           is_active: true
-        } as any, { onConflict: 'user_id,site_slug,permission_type' })
+        }, {
+          onConflict: 'user_id,site_slug,permission_type'
+        })
+      
+      if (permError) {
+        console.error(`Failed to grant ${permission} permission:`, permError)
+        // Continue with other permissions even if one fails
+      }
     }
 
-    // Mark code as used
-    await serviceSupabase
+    // Step 12: Mark invitation code as used
+    console.log('Marking code as used...')
+    const { error: updateError } = await supabase
       .from('invitation_codes')
       .update({
         is_used: true,
         used_by: user.id,
         used_at: new Date().toISOString()
       })
-      .eq('id', (invitationCode as any).id)
+      .eq('id', invitationCode.id)
 
+    if (updateError) {
+      console.error('Failed to mark code as used:', updateError)
+      // Don't fail the operation if we can't mark it as used
+      // The user is already approved at this point
+    }
+
+    console.log('=== INVITATION CODE SUCCESSFULLY USED ===')
+    
+    // Step 13: Return success response
     return NextResponse.json({
       success: true,
-      message: 'Kod başarıyla kullanıldı. Site erişiminiz aktif edildi.',
-      site_slug: (invitationCode as any).site_slug,
-      site_title: (invitationCode as any).site_title
+      message: 'Invitation code successfully activated',
+      site_slug: invitationCode.site_slug,
+      site_title: invitationCode.site_title
     })
 
-  } catch (error) {
-    console.error('Error using invitation code:', error)
+  } catch (unexpectedError) {
+    console.error('Unexpected error in invitation code use:', unexpectedError)
     return NextResponse.json(
-      { error: 'Kod kullanılırken hata oluştu' },
+      { 
+        error: 'An unexpected error occurred',
+        details: process.env.NODE_ENV === 'development' ? String(unexpectedError) : undefined
+      },
       { status: 500 }
     )
   }
