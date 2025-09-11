@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getUserRole } from '@/lib/auth/roles'
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
@@ -33,24 +34,33 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Site ID is required' }, { status: 400 })
   }
 
-  // Check if user owns the site
+  // Check if user is authenticated
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { data: site } = await supabase
-    .from('pages')
-    .select('owner_id')
-    .eq('id', siteId)
-    .single() as { data: { owner_id: string } | null; error: any }
+  // Check if user has permission to edit this site
+  const userRole = await getUserRole(user.id)
+  
+  // Admin and moderator can edit any site
+  if (userRole === 'admin' || userRole === 'moderator') {
+    // Allow admin/moderator to proceed
+  } else {
+    // For regular users, check if they own the site
+    const { data: site } = await supabase
+      .from('pages')
+      .select('owner_id')
+      .eq('id', siteId)
+      .single() as { data: { owner_id: string } | null; error: any }
 
-  if (!site) {
-    return NextResponse.json({ error: 'Site not found' }, { status: 404 })
-  }
+    if (!site) {
+      return NextResponse.json({ error: 'Site not found' }, { status: 404 })
+    }
 
-  if (site.owner_id !== user.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    if (site.owner_id !== user.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
   }
 
   // If presetId is empty, delete the preference

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/stores/auth-store'
+import { getUserRole } from '@/lib/auth/roles'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -418,8 +419,12 @@ export default function EditSitePage({ params }: PageProps) {
         formattedTargetUrl = formData.target_url
       }
 
+      // Check if user has permission to edit this site
+      const userRole = await getUserRole(user.id)
+      const isAdminOrModerator = userRole === 'admin' || userRole === 'moderator'
+      
       // Update page
-      const { error: pageError } = await (supabase as any)
+      let updateQuery = (supabase as any)
         .from('pages')
         .update({
           title: formData.title,
@@ -435,7 +440,13 @@ export default function EditSitePage({ params }: PageProps) {
           updated_at: new Date().toISOString()
         })
         .eq('id', siteId)
-        .eq('owner_id', user.id)
+      
+      // Only add owner_id check for non-admin/moderator users
+      if (!isAdminOrModerator) {
+        updateQuery = updateQuery.eq('owner_id', user.id)
+      }
+      
+      const { error: pageError } = await updateQuery
       
       if (pageError) throw pageError
       
