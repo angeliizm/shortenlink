@@ -305,7 +305,7 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
         {/* Modern Header */}
         <PageHeader
-          title="linkfy."
+          title="Linkfy."
           subtitle="Dashboard"
           icon={<Globe className="w-6 h-6 text-white" />}
           showBackButton={false}

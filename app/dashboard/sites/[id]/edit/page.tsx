@@ -625,7 +625,7 @@ export default function EditSitePage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100">
       <PageHeader
-        title="linkfy."
+        title="Linkfy."
         subtitle="Site Düzenle"
         icon={<Edit className="w-6 h-6 text-white" />}
         showBackButton={true}

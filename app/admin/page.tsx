@@ -19,7 +19,7 @@ export default function AdminPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
         {/* Modern Header */}
         <PageHeader
-          title="linkfy."
+          title="Linkfy."
           subtitle="Admin Panel"
           icon={<Shield className="w-6 h-6 text-white" />}
           showBackButton={true}

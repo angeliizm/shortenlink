@@ -12,6 +12,7 @@ import {
   Calendar, Users, Eye, MousePointer, DollarSign, Target, 
   ArrowUpRight, ArrowDownRight, BarChart3
 } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 
 interface ModernAnalyticsDashboardProps {
@@ -138,12 +139,7 @@ export default function ModernAnalyticsDashboard({ siteSlug }: ModernAnalyticsDa
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-white" />
-                </div>
-                <h1 className="text-2xl font-bold text-gray-900">linkfy.</h1>
-              </div>
+              <Logo size="md" showText={true} avatarUrl={siteInfo?.avatarUrl} />
               <div className="hidden md:block">
                 <nav className="flex space-x-8">
                   <a href="#" className="text-blue-600 border-b-2 border-blue-600 py-2 text-sm font-medium">Overview</a>

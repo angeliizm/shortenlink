@@ -350,7 +350,7 @@ export default function ModeratorPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Modern Header */}
       <PageHeader
-        title="linkfy."
+        title="Linkfy."
         subtitle="Moderatör Panel"
         icon={<Shield className="w-6 h-6 text-white" />}
         showBackButton={true}
