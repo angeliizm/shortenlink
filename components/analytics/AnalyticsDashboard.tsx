@@ -294,10 +294,13 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
 
   if (loading && !refreshing) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-sm text-gray-500">Loading analytics data...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center text-center">
+          <div className="relative mb-4">
+            <div className="w-16 h-16 border-4 border-blue-200 rounded-full animate-spin border-t-blue-600"></div>
+            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent rounded-full animate-ping border-t-blue-400"></div>
+          </div>
+          <p className="text-gray-600 font-medium text-center">Analitik verileri yükleniyor...</p>
         </div>
       </div>
     );
@@ -305,10 +308,10 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <p className="text-red-500 mb-4">{error}</p>
-          <Button onClick={() => fetchAnalytics()}>Retry</Button>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center text-center">
+          <p className="text-red-500 mb-4 text-center">{error}</p>
+          <Button onClick={() => fetchAnalytics()}>Tekrar Dene</Button>
         </div>
       </div>
     );
@@ -324,10 +327,10 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
               <Logo size="md" showText={true} />
               <div className="hidden md:block">
                 <nav className="flex space-x-8">
-                  <a href="#" className="text-blue-600 border-b-2 border-blue-600 py-2 text-sm font-medium">Overview</a>
-                  <a href="#" className="text-gray-500 hover:text-gray-700 py-2 text-sm font-medium">Reports</a>
-                  <a href="#" className="text-gray-500 hover:text-gray-700 py-2 text-sm font-medium">Clicks</a>
-                  <a href="#" className="text-gray-500 hover:text-gray-700 py-2 text-sm font-medium">Conversions</a>
+                  <a href="#" className="text-blue-600 border-b-2 border-blue-600 py-2 text-sm font-medium">Genel Bakış</a>
+                  <a href="#" className="text-gray-500 hover:text-gray-700 py-2 text-sm font-medium">Raporlar</a>
+                  <a href="#" className="text-gray-500 hover:text-gray-700 py-2 text-sm font-medium">Tıklamalar</a>
+                  <a href="#" className="text-gray-500 hover:text-gray-700 py-2 text-sm font-medium">Dönüşümler</a>
                 </nav>
               </div>
             </div>
@@ -338,10 +341,10 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1d">Last 24h</SelectItem>
-                  <SelectItem value="7d">Last 7 days</SelectItem>
-                  <SelectItem value="30d">This month</SelectItem>
-                  <SelectItem value="90d">Last 90 days</SelectItem>
+                  <SelectItem value="1d">Son 24 saat</SelectItem>
+                  <SelectItem value="7d">Son 7 gün</SelectItem>
+                  <SelectItem value="30d">Bu ay</SelectItem>
+                  <SelectItem value="90d">Son 90 gün</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -352,8 +355,8 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome John</h2>
-          <p className="text-gray-600">Here's what's happening with your link today.</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Hoş Geldiniz</h2>
+          <p className="text-gray-600">Bugün linkinizde neler oluyor.</p>
         </div>
 
       {/* Realtime indicator */}
@@ -363,12 +366,12 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
             <CardTitle className="text-sm font-medium">
               <span className="flex items-center gap-2">
                 <span className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
-                Live - Active Now
+                Canlı - Şu Anda Aktif
               </span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{realtime.activeVisitors} visitor{realtime.activeVisitors !== 1 ? 's' : ''}</div>
+            <div className="text-2xl font-bold">{realtime.activeVisitors} ziyaretçi</div>
           </CardContent>
         </Card>
       )}
@@ -384,7 +387,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                     <Eye className="w-5 h-5 text-orange-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Pageviews</p>
+                    <p className="text-sm font-medium text-gray-600">Sayfa Görüntüleme</p>
                     <p className="text-xs text-green-600 font-medium flex items-center">
                       0.2% <ArrowUpRight className="w-3 h-3 ml-1" />
                     </p>
@@ -412,7 +415,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                     <MousePointer className="w-5 h-5 text-yellow-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Clicks</p>
+                    <p className="text-sm font-medium text-gray-600">Tıklamalar</p>
                     <p className="text-xs text-green-600 font-medium flex items-center">
                       1.1% <ArrowUpRight className="w-3 h-3 ml-1" />
                     </p>
@@ -440,7 +443,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                     <Target className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Conversions</p>
+                    <p className="text-sm font-medium text-gray-600">Dönüşümler</p>
                     <p className="text-xs text-green-600 font-medium flex items-center">
                       0.9% <ArrowUpRight className="w-3 h-3 ml-1" />
                     </p>
@@ -466,7 +469,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                     <DollarSign className="w-5 h-5 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Revenue USD</p>
+                    <p className="text-sm font-medium text-gray-600">Gelir USD</p>
                     <p className="text-xs text-red-600 font-medium flex items-center">
                       1.5% <ArrowDownRight className="w-3 h-3 ml-1" />
                     </p>
@@ -488,9 +491,9 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
         <Card>
           <CardContent className="py-10">
             <div className="text-center">
-              <p className="text-gray-500 mb-2">No analytics data available for this period</p>
+              <p className="text-gray-500 mb-2">Bu dönem için analitik veri bulunmuyor</p>
               <p className="text-sm text-gray-400">
-                Visit your site at <code className="bg-gray-100 px-2 py-1 rounded">/{siteSlug}</code> to start tracking
+                Takibi başlatmak için sitenizi <code className="bg-gray-100 px-2 py-1 rounded">/{siteSlug}</code> adresinde ziyaret edin
               </p>
             </div>
           </CardContent>
@@ -499,11 +502,11 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
         /* Charts */
         <Tabs defaultValue="traffic" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="traffic">Traffic</TabsTrigger>
-            <TabsTrigger value="actions">Actions</TabsTrigger>
-            <TabsTrigger value="sources">Sources</TabsTrigger>
-            <TabsTrigger value="devices">Devices</TabsTrigger>
-            <TabsTrigger value="geography">Geography</TabsTrigger>
+            <TabsTrigger value="traffic">Trafik</TabsTrigger>
+            <TabsTrigger value="actions">Eylemler</TabsTrigger>
+            <TabsTrigger value="sources">Kaynaklar</TabsTrigger>
+            <TabsTrigger value="devices">Cihazlar</TabsTrigger>
+            <TabsTrigger value="geography">Coğrafya</TabsTrigger>
           </TabsList>
 
           <TabsContent value="traffic" className="space-y-4">
@@ -511,8 +514,8 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
               <CardHeader>
                 <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                   <div>
-                    <CardTitle>Traffic Overview</CardTitle>
-                    <CardDescription>Page views, visitors, and sessions over time</CardDescription>
+                    <CardTitle>Trafik Genel Bakış</CardTitle>
+                    <CardDescription>Zaman içinde sayfa görüntülemeleri, ziyaretçiler ve oturumlar</CardDescription>
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -521,7 +524,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                       variant={selectedMetric === 'clicks' ? 'default' : 'outline'}
                       onClick={() => setSelectedMetric('clicks')}
                     >
-                      Clicks
+                      Tıklamalar
                     </Button>
                     <Button
                       type="button"
@@ -529,7 +532,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                       variant={selectedMetric === 'uniqueVisitors' ? 'default' : 'outline'}
                       onClick={() => setSelectedMetric('uniqueVisitors')}
                     >
-                      Visitors
+                      Ziyaretçiler
                     </Button>
                     <Button
                       type="button"
@@ -537,7 +540,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                       variant={selectedMetric === 'sessions' ? 'default' : 'outline'}
                       onClick={() => setSelectedMetric('sessions')}
                     >
-                      Sessions
+                      Oturumlar
                     </Button>
                     <Button
                       type="button"
@@ -545,7 +548,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                       variant={selectedMetric === 'pageViews' ? 'default' : 'outline'}
                       onClick={() => setSelectedMetric('pageViews')}
                     >
-                      Page Views
+                      Sayfa Görüntüleme
                     </Button>
                   </div>
                 </div>
@@ -561,10 +564,10 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                       <div className="text-sm">
                         {trend.pct !== null ? (
                           <span className={trend.pct >= 0 ? 'text-green-600' : 'text-red-600'}>
-                            {trend.pct >= 0 ? '+' : ''}{trend.pct.toFixed(1)}% vs previous period
+                            {trend.pct >= 0 ? '+' : ''}{trend.pct.toFixed(1)}% önceki döneme göre
                           </span>
                         ) : (
-                          <span className="text-gray-500">Insufficient data for trend</span>
+                          <span className="text-gray-500">Trend için yetersiz veri</span>
                         )}
                       </div>
                     </div>
@@ -585,7 +588,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                   </div>
                 ) : (
                   <div className="h-[300px] flex items-center justify-center text-gray-500">
-                    No time series data available
+                    Zaman serisi verisi bulunmuyor
                   </div>
                 )}
               </CardContent>
@@ -595,8 +598,8 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
           <TabsContent value="actions" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Action Clicks</CardTitle>
-                <CardDescription>Button clicks by action index</CardDescription>
+                <CardTitle>Eylem Tıklamaları</CardTitle>
+                <CardDescription>Eylem indeksine göre buton tıklamaları</CardDescription>
               </CardHeader>
               <CardContent>
                 {actionData.length > 0 ? (
@@ -611,7 +614,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                   </ResponsiveContainer>
                 ) : (
                   <div className="h-[300px] flex items-center justify-center text-gray-500">
-                    No action click data available
+                    Eylem tıklama verisi bulunmuyor
                   </div>
                 )}
               </CardContent>
@@ -621,22 +624,22 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
           <TabsContent value="sources" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Top Referrers</CardTitle>
-                <CardDescription>Where your traffic comes from</CardDescription>
+                <CardTitle>En İyi Referanslar</CardTitle>
+                <CardDescription>Trafiğinizin nereden geldiği</CardDescription>
               </CardHeader>
               <CardContent>
                 {analytics?.referrers?.referrers?.length > 0 ? (
                   <div className="space-y-2">
                     {analytics.referrers.referrers.map((ref: any, i: number) => (
                       <div key={i} className="flex items-center justify-between">
-                        <span className="text-sm truncate max-w-xs">{ref.referrer || 'Direct'}</span>
+                        <span className="text-sm truncate max-w-xs">{ref.referrer || 'Doğrudan'}</span>
                         <span className="text-sm font-medium">{ref.count.toLocaleString()}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="text-gray-500 text-center py-4">
-                    No referrer data available
+                    Referans verisi bulunmuyor
                   </div>
                 )}
               </CardContent>
@@ -647,7 +650,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Device Types</CardTitle>
+                  <CardTitle>Cihaz Türleri</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {deviceData.length > 0 ? (
@@ -672,7 +675,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                     </ResponsiveContainer>
                   ) : (
                     <div className="h-[250px] flex items-center justify-center text-gray-500">
-                      No device data available
+                      Cihaz verisi bulunmuyor
                     </div>
                   )}
                 </CardContent>
@@ -680,7 +683,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Browsers</CardTitle>
+                  <CardTitle>Tarayıcılar</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {browserData.length > 0 ? (
@@ -705,7 +708,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                     </ResponsiveContainer>
                   ) : (
                     <div className="h-[250px] flex items-center justify-center text-gray-500">
-                      No browser data available
+                      Tarayıcı verisi bulunmuyor
                     </div>
                   )}
                 </CardContent>
@@ -716,8 +719,8 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
           <TabsContent value="geography" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Top Countries</CardTitle>
-                <CardDescription>Geographic distribution of visitors</CardDescription>
+                <CardTitle>En İyi Ülkeler</CardTitle>
+                <CardDescription>Ziyaretçilerin coğrafi dağılımı</CardDescription>
               </CardHeader>
               <CardContent>
                 {countryData.length > 0 ? (
@@ -732,7 +735,7 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
                   </ResponsiveContainer>
                 ) : (
                   <div className="h-[300px] flex items-center justify-center text-gray-500">
-                    No geographic data available
+                    Coğrafi veri bulunmuyor
                   </div>
                 )}
               </CardContent>

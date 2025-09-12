@@ -559,9 +559,12 @@ export default function ModeratorPage() {
 
                 {/* Permissions List */}
                 {isLoadingPermissions ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">İzinler yükleniyor...</p>
+                  <div className="flex flex-col items-center justify-center text-center py-8">
+                    <div className="relative mb-4">
+                      <div className="w-8 h-8 border-4 border-blue-200 rounded-full animate-spin border-t-blue-600"></div>
+                      <div className="absolute inset-0 w-8 h-8 border-4 border-transparent rounded-full animate-ping border-t-blue-400"></div>
+                    </div>
+                    <p className="text-gray-600 text-center">İzinler yükleniyor...</p>
                   </div>
                 ) : filteredGroupedPermissions.length === 0 ? (
                   <div className="text-center py-8">
