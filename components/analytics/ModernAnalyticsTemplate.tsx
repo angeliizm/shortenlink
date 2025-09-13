@@ -321,9 +321,9 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
          </div>
 
         {/* Modern Metrics Cards with Glassmorphism */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 items-stretch">
           {/* Pageviews Card */}
-          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
@@ -342,16 +342,12 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
                 <div className="text-3xl font-bold text-gray-900">
                   {metrics.pageviews.total.toLocaleString()}
                 </div>
-                 <div className="flex items-center justify-between text-sm">
-                   <span className="text-gray-500">EPM</span>
-                   <span className="text-gray-900 font-medium">TL 113.66</span>
-                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Clicks Card */}
-          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
@@ -375,7 +371,7 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
           </Card>
 
           {/* Conversions Card */}
-          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
@@ -399,7 +395,7 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
           </Card>
 
            {/* Signups Card */}
-           <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+           <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
              <CardContent className="p-6">
                <div className="flex items-center justify-between mb-4">
                  <div className="flex items-center space-x-3">
@@ -427,7 +423,7 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Pageviews and Clicks Chart */}
           <div className="lg:col-span-2">
-            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl">
+            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl h-full">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                    <div>
@@ -569,9 +565,9 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
         {/* Bottom Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Real-time Stats */}
-          <div className="space-y-4">
+          <div className="space-y-4 flex flex-col">
             {/* Active Visitors */}
-            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl">
+            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl flex-1">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                    <div>
@@ -613,7 +609,7 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
             </Card>
 
             {/* Top Referrers */}
-            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl">
+            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl flex-1">
                <CardHeader className="pb-4">
                  <CardTitle className="text-lg font-semibold text-gray-900">En İyi Referanslar</CardTitle>
                </CardHeader>

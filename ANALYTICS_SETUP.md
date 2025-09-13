@@ -132,7 +132,7 @@ This is expected if you're not authenticated. The test page still tracks events 
    - `analytics_metrics_hourly` - Aggregated metrics
    - `analytics_realtime` - Live visitor tracking
 
-4. **Dashboard** (`components/analytics/AnalyticsDashboard.tsx`):
+4. **Dashboard** (`components/analytics/ModernAnalyticsTemplate.tsx`):
    - Fetches and displays metrics
    - Real-time updates every 10 seconds
    - Multiple chart types and filters
