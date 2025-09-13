@@ -467,7 +467,9 @@ export default function ModernAnalyticsDashboard({ siteSlug }: ModernAnalyticsDa
                           <p className="text-lg font-bold text-gray-900">
                             {count as number}
                           </p>
-                          <p className="text-xs text-gray-500">tıklama</p>
+                          <p className="text-xs text-gray-500">
+                            {metrics.clicks.total > 0 ? (((count as number) / metrics.clicks.total) * 100).toFixed(1) : 0}%
+                          </p>
                         </div>
                       </div>
                     ))
