@@ -431,7 +431,7 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                    <div>
-                     <CardTitle className="text-lg font-semibold text-gray-900">Sayfa Görüntüleme, Tıklamalar ve Üye Olma</CardTitle>
+                     <CardTitle className="text-lg font-semibold text-gray-900">Sayfa Görüntüleme ve Tıklamalar</CardTitle>
                      <div className="flex items-center space-x-6 mt-2">
                        <div className="flex items-center space-x-2">
                          <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
@@ -440,10 +440,6 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
                        <div className="flex items-center space-x-2">
                          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                          <span className="text-sm text-gray-600">Tıklamalar</span>
-                       </div>
-                       <div className="flex items-center space-x-2">
-                         <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                         <span className="text-sm text-gray-600">Üye Olma</span>
                        </div>
                      </div>
                    </div>
@@ -706,7 +702,7 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
                            {activity.referrer || 'Doğrudan'}
                          </span>
                          <span className="text-gray-600">
-                           {isClick ? 'Üye Olma' : 'Sayfa Görüntüleme'}
+                           {isClick ? 'Buton Tıklama' : 'Sayfa Görüntüleme'}
                          </span>
                       </div>
                       <div className="flex items-center space-x-2">
