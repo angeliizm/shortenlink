@@ -622,28 +622,76 @@ export default function AnalyticsDashboard({ siteSlug }: AnalyticsDashboardProps
           </TabsContent>
 
           <TabsContent value="sources" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>En İyi Referanslar</CardTitle>
-                <CardDescription>Trafiğinizin nereden geldiği</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {analytics?.referrers?.referrers?.length > 0 ? (
-                  <div className="space-y-2">
-                    {analytics.referrers.referrers.map((ref: any, i: number) => (
-                      <div key={i} className="flex items-center justify-between">
-                        <span className="text-sm truncate max-w-xs">{ref.referrer || 'Doğrudan'}</span>
-                        <span className="text-sm font-medium">{ref.count.toLocaleString()}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-gray-500 text-center py-4">
-                    Referans verisi bulunmuyor
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>En İyi Referanslar</CardTitle>
+                  <CardDescription>Trafiğinizin nereden geldiği</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {analytics?.referrers?.referrers?.length > 0 ? (
+                    <div className="space-y-2">
+                      {analytics.referrers.referrers.map((ref: any, i: number) => (
+                        <div key={i} className="flex items-center justify-between">
+                          <span className="text-sm truncate max-w-xs">{ref.referrer || 'Doğrudan'}</span>
+                          <span className="text-sm font-medium">{ref.count.toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-gray-500 text-center py-4">
+                      Referans verisi bulunmuyor
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Buton Tıklama Analizi</CardTitle>
+                  <CardDescription>Hangi butona kaç kişi tıklamış</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {actionData.length > 0 ? (
+                    <div className="space-y-3">
+                      {actionData
+                        .sort((a, b) => b.clicks - a.clicks)
+                        .map((action, i) => (
+                          <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <span className="text-sm font-medium text-blue-600">
+                                  {parseInt(action.action.replace('Button ', ''))}
+                                </span>
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">
+                                  {action.action}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {action.clicks} tıklama
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-lg font-bold text-gray-900">
+                                {action.clicks.toLocaleString()}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {totals.clicks > 0 ? ((action.clicks / totals.clicks) * 100).toFixed(1) : 0}%
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <div className="text-gray-500 text-center py-4">
+                      Henüz buton tıklaması yok
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="devices" className="space-y-4">
