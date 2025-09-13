@@ -608,6 +608,96 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
               </CardContent>
             </Card>
 
+            {/* Button Click Analytics */}
+            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl flex-1">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold text-gray-900">En Çok Tıklanan Butonlar</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-3">
+                  {(() => {
+                    // Use real SQL data from actions API
+                    if (analytics?.actions?.actions && analytics?.actions?.actionLabels) {
+                      const buttonData = Object.entries(analytics.actions.actions)
+                        .map(([index, count]) => ({
+                          button: analytics.actions.actionLabels[index] || `Buton ${index}`,
+                          count: Number(count) || 0
+                        }))
+                        .filter(item => item.count > 0) // Only show buttons with clicks
+                        .sort((a, b) => b.count - a.count)
+                        .slice(0, 5);
+                      
+                      // If no buttons have clicks, show all buttons with 0 clicks
+                      if (buttonData.length === 0 && analytics.actions.actionLabels) {
+                        return Object.entries(analytics.actions.actionLabels)
+                          .map(([index, label]) => ({
+                            button: label,
+                            count: 0
+                          }))
+                          .slice(0, 5);
+                      }
+                      
+                      return buttonData;
+                    }
+                    
+                    // Fallback to events data if actions API not available
+                    if (analytics?.events?.events && analytics.events.events.length > 0) {
+                      const buttonClickCounts = new Map();
+                      
+                      analytics.events.events.forEach((event: any) => {
+                        if (event.event_type === 'action_click' || event.eventType === 'action_click') {
+                          const buttonName = event.action_name || event.button_name || `Buton ${event.action_index || 'Bilinmeyen'}`;
+                          buttonClickCounts.set(buttonName, (buttonClickCounts.get(buttonName) || 0) + 1);
+                        }
+                      });
+                      
+                      const topButtons = Array.from(buttonClickCounts.entries())
+                        .sort(([, a], [, b]) => (b as number) - (a as number))
+                        .slice(0, 5)
+                        .map(([button, count]) => ({ button, count }));
+                      
+                      return topButtons;
+                    }
+                    
+                    // Default fallback - no data available
+                    return [
+                      { button: 'Veri yok', count: 0 }
+                    ];
+                  })().map((button: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <span className="text-sm font-medium text-blue-600">
+                            {i + 1}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {button.button}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {button.count} tıklama
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-gray-900">
+                          {button.count.toLocaleString()}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {(() => {
+                            const totalClicks = analytics?.actions?.actions ? 
+                              Object.values(analytics.actions.actions).reduce((sum: number, count: any) => sum + (Number(count) || 0), 0) : 0;
+                            return totalClicks > 0 ? ((button.count / totalClicks) * 100).toFixed(1) : 0;
+                          })()}%
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Top Referrers */}
             <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl flex-1">
                <CardHeader className="pb-4">

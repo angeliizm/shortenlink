@@ -233,6 +233,22 @@ export async function GET(
     }
 
     if (metric === 'actions') {
+      // Get page actions (buttons) first
+      const { data: pageData, error: pageError } = await supabase
+        .from('pages')
+        .select(`
+          id,
+          page_actions!inner(
+            id,
+            label,
+            sort_order
+          )
+        `)
+        .eq('site_slug', slug)
+        .eq('is_enabled', true)
+        .eq('page_actions.is_enabled', true)
+        .order('sort_order', { referencedTable: 'page_actions' });
+
       // Get action clicks from events
       const { data: events, error } = await supabase
         .from('analytics_events')
@@ -243,6 +259,18 @@ export async function GET(
         .lte('timestamp', defaultEndDate) as { data: any[] | null; error: any };
 
       const actionTotals: Record<string, number> = {};
+      const actionLabels: Record<string, string> = {};
+      
+      // Map action indices to labels
+      if (pageData && pageData.length > 0 && pageData[0]) {
+        const page = pageData[0] as any;
+        if (page.page_actions) {
+          page.page_actions.forEach((action: any, index: number) => {
+            actionLabels[index.toString()] = action.label;
+            actionTotals[index.toString()] = 0; // Initialize with 0
+          });
+        }
+      }
       
       if (events) {
         console.log(`[Analytics API] Found ${events.length} action click events`);
@@ -253,7 +281,8 @@ export async function GET(
       }
 
       return NextResponse.json({ 
-        actions: actionTotals 
+        actions: actionTotals,
+        actionLabels: actionLabels
       }, {
         headers: {
           'Cache-Control': 'no-store, max-age=0',
