@@ -4,7 +4,7 @@ import { useAuth } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { ArrowLeft, Shield, Users, CheckCircle, XCircle, AlertCircle, Ticket } from 'lucide-react'
+import { ArrowLeft, Shield, Users, CheckCircle, XCircle, AlertCircle, Ticket, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -364,6 +364,16 @@ export default function ModeratorPage() {
                 {user?.email}
               </span>
             </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/reports')}
+              className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70 hover:border-gray-300 transition-all duration-200"
+            >
+              <FileText className="h-4 w-4" />
+              Genel Raporlar
+            </Button>
             
             <Button
               variant="outline"

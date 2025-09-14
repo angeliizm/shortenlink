@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PageHeader from '@/components/ui/PageHeader';
-import { Shield, Users, Settings, BarChart3, ArrowLeft, Activity, Database, Globe, Ticket } from 'lucide-react';
+import { Shield, Users, Settings, BarChart3, ArrowLeft, Activity, Database, Globe, Ticket, FileText } from 'lucide-react';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -25,6 +25,17 @@ export default function AdminPage() {
           showBackButton={true}
           backUrl="/dashboard"
           backLabel="Dashboard"
+          rightContent={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/reports')}
+              className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70 hover:border-gray-300 transition-all duration-200"
+            >
+              <FileText className="h-4 w-4" />
+              Genel Raporlar
+            </Button>
+          }
         />
 
 
