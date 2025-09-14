@@ -81,20 +81,30 @@ export default function ReportsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   const fetchReportsData = async () => {
     try {
       setRefreshing(true);
+      
+      // First, check user role for debugging
+      const debugResponse = await fetch('/api/debug/user-role');
+      const debugData = await debugResponse.json();
+      console.log('Debug user role data:', debugData);
+      setDebugInfo(debugData);
+      
       const response = await fetch('/api/reports/global');
       if (!response.ok) {
-        throw new Error('Failed to fetch reports data');
+        const errorData = await response.json();
+        console.error('Reports API error:', errorData);
+        throw new Error(`Failed to fetch reports data: ${response.status} - ${JSON.stringify(errorData)}`);
       }
       const reportsData = await response.json();
       setData(reportsData);
       setError(null);
     } catch (err) {
       console.error('Error fetching reports:', err);
-      setError('Rapor verileri yüklenirken hata oluştu');
+      setError(`Rapor verileri yüklenirken hata oluştu: ${err instanceof Error ? err.message : 'Bilinmeyen hata'}`);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -128,18 +138,59 @@ export default function ReportsPage() {
     return <LoadingScreen message="Genel raporlar yükleniyor..." />;
   }
 
+  const handleSetAdmin = async () => {
+    try {
+      const response = await fetch('/api/debug/set-admin', { method: 'POST' });
+      const result = await response.json();
+      console.log('Set admin result:', result);
+      if (response.ok) {
+        alert('Admin rolü atandı! Sayfayı yenileyin.');
+        fetchReportsData();
+      } else {
+        alert('Admin rolü atanamadı: ' + JSON.stringify(result));
+      }
+    } catch (err) {
+      console.error('Error setting admin:', err);
+      alert('Admin rolü atanamadı: ' + err);
+    }
+  };
+
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle className="text-red-600">Hata</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={fetchReportsData} className="w-full">
-              Tekrar Dene
-            </Button>
+            
+            {debugInfo && (
+              <div className="mb-4 p-4 bg-gray-100 rounded-lg">
+                <h3 className="font-semibold mb-2">Debug Bilgileri:</h3>
+                <pre className="text-xs overflow-auto">
+                  {JSON.stringify(debugInfo, null, 2)}
+                </pre>
+                {debugInfo.userRole !== 'admin' && debugInfo.userRole !== 'moderator' && (
+                  <Button 
+                    onClick={handleSetAdmin} 
+                    className="mt-2 bg-orange-600 hover:bg-orange-700"
+                    size="sm"
+                  >
+                    Admin Rolü Ata (Debug)
+                  </Button>
+                )}
+              </div>
+            )}
+            
+            <div className="flex gap-2">
+              <Button onClick={fetchReportsData} className="flex-1">
+                Tekrar Dene
+              </Button>
+              <Button onClick={() => router.push('/admin')} variant="outline">
+                Admin Panel'e Dön
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
