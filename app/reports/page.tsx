@@ -25,11 +25,19 @@ import {
   Activity,
   Smartphone,
   Monitor,
-  Tablet
+  Tablet,
+  Clock
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Area, AreaChart } from 'recharts';
 import { formatDistanceToNow } from 'date-fns';
 import { tr } from 'date-fns/locale';
+import { 
+  HourlyOverviewChart, 
+  HourlyPageViewsChart, 
+  HourlyClicksChart, 
+  HourlySessionsChart, 
+  HourlyPeakHours 
+} from '@/components/reports/HourlyCharts';
 
 interface GlobalReportsData {
   overview: {
@@ -61,18 +69,43 @@ interface GlobalReportsData {
   }>;
   analytics: {
     topSites: Array<{ slug: string; views: number }>;
-    countries: Array<{ country: string; count: number }>;
     devices: Array<{ device: string; count: number }>;
     browsers: Array<{ browser: string; count: number }>;
     referrers: Array<{ referrer: string; count: number }>;
   };
+  hourly: Array<{
+    hour: number;
+    hourLabel: string;
+    pageViews: number;
+    clicks: number;
+    sessions: number;
+    total: number;
+  }>;
   dateRange: {
     startDate: string;
     endDate: string;
+    timeRange: string;
   };
 }
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#84CC16', '#F97316'];
+
+const getTimeRangeLabel = (timeRange: string) => {
+  switch (timeRange) {
+    case '24h':
+      return 'Son 24 Saat';
+    case '7d':
+      return 'Son 7 Gün';
+    case '30d':
+      return 'Son 1 Ay';
+    case '1y':
+      return 'Son 1 Yıl';
+    case 'all':
+      return 'Tüm Zamanlar';
+    default:
+      return 'Son 24 Saat';
+  }
+};
 
 export default function ReportsPage() {
   const router = useRouter();
@@ -82,6 +115,7 @@ export default function ReportsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [timeRange, setTimeRange] = useState('24h');
 
   const fetchReportsData = async () => {
     try {
@@ -93,7 +127,7 @@ export default function ReportsPage() {
       console.log('Debug user role data:', debugData);
       setDebugInfo(debugData);
       
-      const response = await fetch('/api/reports/global');
+      const response = await fetch(`/api/reports/global?time_range=${timeRange}`);
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Reports API error:', errorData);
@@ -113,7 +147,7 @@ export default function ReportsPage() {
 
   useEffect(() => {
     fetchReportsData();
-  }, []);
+  }, [timeRange]);
 
   const filteredSites = data?.sites.filter(site => 
     site.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -203,7 +237,7 @@ export default function ReportsPage() {
         {/* Header */}
         <PageHeader
           title="Linkfy."
-          subtitle="Genel Raporlar"
+          subtitle={`Genel Raporlar - ${getTimeRangeLabel(timeRange)}`}
           icon={<BarChart3 className="w-6 h-6 text-white" />}
           showBackButton={true}
           backUrl="/admin"
@@ -224,6 +258,23 @@ export default function ReportsPage() {
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+          {/* Time Range Info */}
+          {data?.dateRange && (
+            <div className="mb-6 p-4 bg-white/50 backdrop-blur-sm border border-white/20 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-700">
+                    {getTimeRangeLabel(data.dateRange.timeRange)}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-500">
+                  {new Date(data.dateRange.startDate).toLocaleDateString('tr-TR')} - {new Date(data.dateRange.endDate).toLocaleDateString('tr-TR')}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Overview Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
             <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl">
@@ -310,15 +361,79 @@ export default function ReportsPage() {
                 <BarChart3 className="w-4 h-4 mr-2" />
                 Analitikler
               </TabsTrigger>
-              <TabsTrigger value="geography" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                <Globe className="w-4 h-4 mr-2" />
-                Coğrafya
+              <TabsTrigger value="hourly" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                <Clock className="w-4 h-4 mr-2" />
+                Saatlik Analiz
               </TabsTrigger>
               <TabsTrigger value="technology" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
                 <Monitor className="w-4 h-4 mr-2" />
-                Teknoloji
+                Cihaz
               </TabsTrigger>
             </TabsList>
+
+            {/* Time Range Filter Buttons */}
+            <div className="flex flex-wrap gap-2 justify-center mb-6">
+              <Button
+                variant={timeRange === '24h' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('24h')}
+                className={`transition-all duration-200 ${
+                  timeRange === '24h' 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : 'bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70'
+                }`}
+              >
+                Son 24 Saat
+              </Button>
+              <Button
+                variant={timeRange === '7d' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('7d')}
+                className={`transition-all duration-200 ${
+                  timeRange === '7d' 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : 'bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70'
+                }`}
+              >
+                Son 7 Gün
+              </Button>
+              <Button
+                variant={timeRange === '30d' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('30d')}
+                className={`transition-all duration-200 ${
+                  timeRange === '30d' 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : 'bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70'
+                }`}
+              >
+                Son 1 Ay
+              </Button>
+              <Button
+                variant={timeRange === '1y' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('1y')}
+                className={`transition-all duration-200 ${
+                  timeRange === '1y' 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : 'bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70'
+                }`}
+              >
+                Son 1 Yıl
+              </Button>
+              <Button
+                variant={timeRange === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('all')}
+                className={`transition-all duration-200 ${
+                  timeRange === 'all' 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : 'bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70'
+                }`}
+              >
+                Tüm Zamanlar
+              </Button>
+            </div>
 
             {/* Sites Tab */}
             <TabsContent value="sites" className="space-y-6">
@@ -428,50 +543,22 @@ export default function ReportsPage() {
               </div>
             </TabsContent>
 
-            {/* Geography Tab */}
-            <TabsContent value="geography" className="space-y-6">
-              <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl">
-                <CardHeader>
-                  <CardTitle>Ülke Dağılımı</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={data?.analytics.countries.slice(0, 8)}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ country, percent }) => `${country} ${(percent * 100).toFixed(0)}%`}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="count"
-                        >
-                          {data?.analytics.countries.slice(0, 8).map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="space-y-3">
-                      {data?.analytics.countries.slice(0, 10).map((country, index) => (
-                        <div key={country.country} className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <div 
-                              className="w-3 h-3 rounded-full" 
-                              style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                            />
-                            <span className="text-sm font-medium">{country.country}</span>
-                          </div>
-                          <span className="text-sm text-gray-600">{country.count}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Hourly Analysis Tab */}
+            <TabsContent value="hourly" className="space-y-6">
+              {/* Overview Chart */}
+              <HourlyOverviewChart data={data?.hourly || []} />
+              
+              {/* Peak Hours */}
+              <HourlyPeakHours data={data?.hourly || []} />
+              
+              {/* Detailed Charts */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <HourlyPageViewsChart data={data?.hourly || []} />
+                <HourlyClicksChart data={data?.hourly || []} />
+              </div>
+              
+              {/* Sessions Chart */}
+              <HourlySessionsChart data={data?.hourly || []} />
             </TabsContent>
 
             {/* Technology Tab */}

@@ -34,8 +34,31 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const startDate = searchParams.get('start_date') || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    const endDate = searchParams.get('end_date') || new Date().toISOString();
+    const timeRange = searchParams.get('time_range') || '24h';
+    
+    // Calculate date range based on time_range parameter
+    let startDate: string;
+    const endDate = new Date().toISOString();
+    
+    switch (timeRange) {
+      case '24h':
+        startDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        break;
+      case '7d':
+        startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        break;
+      case '30d':
+        startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        break;
+      case '1y':
+        startDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString();
+        break;
+      case 'all':
+        startDate = new Date('2020-01-01').toISOString(); // Far back date
+        break;
+      default:
+        startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    }
 
     // Get all sites overview
     const { data: sitesData, error: sitesError } = await supabase
@@ -46,8 +69,7 @@ export async function GET(request: NextRequest) {
         title,
         owner_id,
         created_at,
-        is_enabled,
-        profiles!pages_owner_id_fkey(email, full_name)
+        is_enabled
       `)
       .eq('is_enabled', true)
       .order('created_at', { ascending: false });
@@ -63,6 +85,14 @@ export async function GET(request: NextRequest) {
       .select('site_slug, event_type, timestamp, country, device_type, browser, referrer, action_index')
       .gte('timestamp', startDate)
       .lte('timestamp', endDate);
+
+    // Get hourly analytics data
+    const { data: hourlyData, error: hourlyError } = await supabase
+      .from('analytics_events')
+      .select('timestamp, event_type')
+      .gte('timestamp', startDate)
+      .lte('timestamp', endDate)
+      .order('timestamp', { ascending: true });
 
     if (analyticsError) {
       console.error('Error fetching analytics:', analyticsError);
@@ -82,6 +112,17 @@ export async function GET(request: NextRequest) {
       referrers: new Map(),
       topSites: new Map()
     };
+
+    // Process hourly data
+    const hourlyMetrics = new Map();
+    for (let hour = 0; hour < 24; hour++) {
+      hourlyMetrics.set(hour, {
+        pageViews: 0,
+        clicks: 0,
+        sessions: 0,
+        total: 0
+      });
+    }
 
     analyticsData?.forEach((event: any) => {
       const siteSlug = event.site_slug;
@@ -136,6 +177,29 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    // Process hourly data
+    hourlyData?.forEach((event: any) => {
+      const eventDate = new Date(event.timestamp);
+      const hour = eventDate.getHours();
+      const hourlyMetric = hourlyMetrics.get(hour);
+      
+      if (hourlyMetric) {
+        hourlyMetric.total++;
+        
+        switch (event.event_type) {
+          case 'page_view':
+            hourlyMetric.pageViews++;
+            break;
+          case 'action_click':
+            hourlyMetric.clicks++;
+            break;
+          case 'session_start':
+            hourlyMetric.sessions++;
+            break;
+        }
+      }
+    });
+
     // Convert site metrics to array with site info
     const sitesWithMetrics = sitesData?.map((site: any) => {
       const metrics = siteMetrics.get(site.site_slug) || {
@@ -148,6 +212,10 @@ export async function GET(request: NextRequest) {
 
       return {
         ...site,
+        profiles: {
+          email: 'N/A', // Will be populated separately if needed
+          full_name: null
+        },
         metrics: {
           pageViews: metrics.pageViews,
           clicks: metrics.clicks,
@@ -190,9 +258,26 @@ export async function GET(request: NextRequest) {
           .slice(0, 10)
           .map(([referrer, count]) => ({ referrer, count }))
       },
+      hourly: Array.from({ length: 24 }, (_, hour) => {
+        const metrics = hourlyMetrics.get(hour) || {
+          pageViews: 0,
+          clicks: 0,
+          sessions: 0,
+          total: 0
+        };
+        return {
+          hour: hour,
+          hourLabel: `${hour.toString().padStart(2, '0')}:00`,
+          pageViews: metrics.pageViews,
+          clicks: metrics.clicks,
+          sessions: metrics.sessions,
+          total: metrics.total
+        };
+      }),
       dateRange: {
         startDate,
-        endDate
+        endDate,
+        timeRange
       }
     };
 

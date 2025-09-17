@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { UserRole, roleDescriptions, roleColors } from '@/lib/auth/roles';
-import { Users, Shield, Edit, Search, Trash2 } from 'lucide-react';
+import { Users, Shield, Edit, Search, Trash2, Key } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface User {
@@ -36,6 +36,10 @@ export default function UserManagement() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [resettingPassword, setResettingPassword] = useState<User | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
 
   const supabase = createClient();
 
@@ -131,6 +135,50 @@ export default function UserManagement() {
       alert('Kullanıcı silinirken hata oluştu: ' + (error as any).message);
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!resettingPassword) return;
+
+    if (newPassword !== confirmPassword) {
+      alert('Şifreler eşleşmiyor!');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      alert('Şifre en az 6 karakter olmalıdır!');
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      const response = await fetch('/api/admin/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: resettingPassword.id,
+          newPassword: newPassword
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Şifre sıfırlanırken hata oluştu');
+      }
+
+      setResettingPassword(null);
+      setNewPassword('');
+      setConfirmPassword('');
+      alert('Şifre başarıyla sıfırlandı!');
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      alert('Şifre sıfırlanırken hata oluştu: ' + (error as any).message);
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -378,6 +426,99 @@ export default function UserManagement() {
                               </>
                             ) : (
                               'Güncelle'
+                            )}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+
+                    {/* Şifre Sıfırlama Butonu */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setResettingPassword(user);
+                            setNewPassword('');
+                            setConfirmPassword('');
+                          }}
+                          className="bg-white/50 backdrop-blur-sm border-orange-200 hover:bg-orange-50 hover:border-orange-300 text-orange-600 hover:text-orange-700 transition-all duration-200"
+                        >
+                          <Key className="w-4 h-4 mr-2" />
+                          Şifre
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-white/95 backdrop-blur-md border-white/30 shadow-2xl">
+                        <DialogHeader>
+                          <DialogTitle className="text-xl font-semibold text-orange-600">Şifre Sıfırla</DialogTitle>
+                          <DialogDescription className="text-gray-600">
+                            <strong>{user.email}</strong> kullanıcısının şifresini sıfırlayın
+                          </DialogDescription>
+                        </DialogHeader>
+                      
+                        <div className="space-y-6">
+                          <div>
+                            <Label htmlFor="new-password" className="text-sm font-medium text-gray-700 mb-2 block">Yeni Şifre</Label>
+                            <Input
+                              id="new-password"
+                              type="password"
+                              placeholder="En az 6 karakter"
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              className="h-11 bg-white/50 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="confirm-password" className="text-sm font-medium text-gray-700 mb-2 block">Şifre Tekrar</Label>
+                            <Input
+                              id="confirm-password"
+                              type="password"
+                              placeholder="Şifreyi tekrar girin"
+                              value={confirmPassword}
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                              className="h-11 bg-white/50 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
+                            />
+                          </div>
+
+                          <div className="bg-orange-50/50 border border-orange-200/50 rounded-lg p-4">
+                            <h4 className="font-semibold text-orange-800 mb-2">Güvenlik Uyarısı:</h4>
+                            <ul className="text-sm text-orange-700 space-y-1">
+                              <li>• Kullanıcı mevcut oturumundan çıkış yapacak</li>
+                              <li>• Yeni şifre ile tekrar giriş yapması gerekecek</li>
+                              <li>• Bu işlem geri alınamaz</li>
+                            </ul>
+                          </div>
+                        </div>
+                        
+                        <DialogFooter className="pt-4">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setResettingPassword(null);
+                              setNewPassword('');
+                              setConfirmPassword('');
+                            }}
+                            className="border-gray-300 hover:bg-gray-50"
+                          >
+                            İptal
+                          </Button>
+                          <Button
+                            onClick={handleResetPassword}
+                            disabled={isResetting || !newPassword || !confirmPassword}
+                            className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
+                          >
+                            {isResetting ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                Sıfırlanıyor...
+                              </>
+                            ) : (
+                              <>
+                                <Key className="w-4 h-4 mr-2" />
+                                Şifreyi Sıfırla
+                              </>
                             )}
                           </Button>
                         </DialogFooter>

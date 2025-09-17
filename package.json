@@ -4,10 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:full": "concurrently --kill-others-on-fail --prefix-colors \"blue,green,yellow\" --names \"Next.js,TypeScript,ESLint\" \"npm run dev\" \"npm run type-check:watch\" \"npm run lint:watch\"",
+    "dev:minimal": "concurrently --kill-others-on-fail --prefix-colors \"blue,green\" --names \"Next.js,TypeScript\" \"npm run dev\" \"npm run type-check:watch\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "lint:watch": "next lint --watch",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch",
+    "clean": "rm -rf .next && rm -rf node_modules/.cache",
+    "dev:clean": "npm run clean && npm run dev:full"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -59,6 +66,7 @@
     "@types/react": "^18.2.46",
     "@types/react-dom": "^18.2.18",
     "autoprefixer": "^10.4.16",
+    "concurrently": "^8.2.2",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.0.4",
     "postcss": "^8.4.33",
