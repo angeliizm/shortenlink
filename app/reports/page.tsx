@@ -114,18 +114,11 @@ export default function ReportsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
   const [timeRange, setTimeRange] = useState('24h');
 
   const fetchReportsData = async () => {
     try {
       setRefreshing(true);
-      
-      // First, check user role for debugging
-      const debugResponse = await fetch('/api/debug/user-role');
-      const debugData = await debugResponse.json();
-      console.log('Debug user role data:', debugData);
-      setDebugInfo(debugData);
       
       const response = await fetch(`/api/reports/global?time_range=${timeRange}`);
       if (!response.ok) {
@@ -172,22 +165,6 @@ export default function ReportsPage() {
     return <LoadingScreen message="Genel raporlar yükleniyor..." />;
   }
 
-  const handleSetAdmin = async () => {
-    try {
-      const response = await fetch('/api/debug/set-admin', { method: 'POST' });
-      const result = await response.json();
-      console.log('Set admin result:', result);
-      if (response.ok) {
-        alert('Admin rolü atandı! Sayfayı yenileyin.');
-        fetchReportsData();
-      } else {
-        alert('Admin rolü atanamadı: ' + JSON.stringify(result));
-      }
-    } catch (err) {
-      console.error('Error setting admin:', err);
-      alert('Admin rolü atanamadı: ' + err);
-    }
-  };
 
   if (error) {
     return (
@@ -199,23 +176,6 @@ export default function ReportsPage() {
           <CardContent>
             <p className="text-gray-600 mb-4">{error}</p>
             
-            {debugInfo && (
-              <div className="mb-4 p-4 bg-gray-100 rounded-lg">
-                <h3 className="font-semibold mb-2">Debug Bilgileri:</h3>
-                <pre className="text-xs overflow-auto">
-                  {JSON.stringify(debugInfo, null, 2)}
-                </pre>
-                {debugInfo.userRole !== 'admin' && debugInfo.userRole !== 'moderator' && (
-                  <Button 
-                    onClick={handleSetAdmin} 
-                    className="mt-2 bg-orange-600 hover:bg-orange-700"
-                    size="sm"
-                  >
-                    Admin Rolü Ata (Debug)
-                  </Button>
-                )}
-              </div>
-            )}
             
             <div className="flex gap-2">
               <Button onClick={fetchReportsData} className="flex-1">
