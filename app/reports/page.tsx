@@ -53,6 +53,7 @@ interface GlobalReportsData {
     site_slug: string;
     title: string;
     owner_id: string;
+    owner_name: string;
     created_at: string;
     is_enabled: boolean;
     profiles: {
@@ -145,7 +146,8 @@ export default function ReportsPage() {
   const filteredSites = data?.sites.filter(site => 
     site.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     site.site_slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    site.profiles.email.toLowerCase().includes(searchTerm.toLowerCase())
+    site.profiles.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (site.profiles.full_name && site.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase()))
   ) || [];
 
   const getDeviceIcon = (device: string) => {
@@ -425,7 +427,7 @@ export default function ReportsPage() {
                           <div>
                             <h3 className="font-medium text-gray-900">{site.title}</h3>
                             <p className="text-sm text-gray-500">
-                              {site.site_slug} • {site.profiles.email}
+                              {site.site_slug} • {site.profiles.full_name || site.profiles.email}
                             </p>
                             {site.metrics.lastActivity && (
                               <p className="text-xs text-gray-400">

@@ -68,6 +68,7 @@ export async function GET(request: NextRequest) {
         site_slug,
         title,
         owner_id,
+        owner_name,
         created_at,
         is_enabled
       `)
@@ -214,7 +215,7 @@ export async function GET(request: NextRequest) {
         ...site,
         profiles: {
           email: 'N/A', // Will be populated separately if needed
-          full_name: null
+          full_name: site.owner_name || null
         },
         metrics: {
           pageViews: metrics.pageViews,

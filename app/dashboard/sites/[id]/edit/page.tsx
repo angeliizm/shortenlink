@@ -58,7 +58,8 @@ export default function EditSitePage({ params }: PageProps) {
     site_slug: '',
     target_url: '',
     is_enabled: true,
-    description: ''
+    description: '',
+    owner_name: ''
   })
   
   const [actions, setActions] = useState<Action[]>([])
@@ -230,7 +231,8 @@ export default function EditSitePage({ params }: PageProps) {
         site_slug: page.site_slug,
         target_url: decodedTargetUrl,
         is_enabled: page.is_enabled,
-        description: page.meta?.description || ''
+        description: page.meta?.description || '',
+        owner_name: page.owner_name || ''
       })
       
       // Fetch actions
@@ -386,6 +388,7 @@ export default function EditSitePage({ params }: PageProps) {
           target_url: formattedTargetUrl,
           is_enabled: formData.is_enabled,
           meta: { description: formData.description },
+          owner_name: formData.owner_name,
           avatar_url: avatarUrl,
           profile_preset_id: profilePresetId,
           title_font_preset_id: titleStylePresetId,
@@ -707,7 +710,16 @@ export default function EditSitePage({ params }: PageProps) {
                 </div>
               </div>
               
-              
+              <div className="space-y-2">
+                <Label htmlFor="owner_name">Sahip Adı</Label>
+                <Input
+                  id="owner_name"
+                  value={formData.owner_name}
+                  onChange={(e) => setFormData({ ...formData, owner_name: e.target.value })}
+                  placeholder="Site sahibinin adı (raporlarda görünecek)"
+                />
+                <p className="text-xs text-gray-500">Bu isim raporlarda ve admin panelinde görünecektir</p>
+              </div>
               
               <div className="flex items-center justify-between">
                 <Label htmlFor="enabled" className="flex items-center cursor-pointer">

@@ -32,7 +32,8 @@ export default function CreateSiteDialog({ open, onOpenChange, onSuccess }: Crea
   
   const [formData, setFormData] = useState({
     title: '',
-    site_slug: ''
+    site_slug: '',
+    owner_name: ''
   })
 
   useEffect(() => {
@@ -82,6 +83,7 @@ export default function CreateSiteDialog({ open, onOpenChange, onSuccess }: Crea
           accent_color: '#EFF6FF',
           is_enabled: true,
           owner_id: user.id,
+          owner_name: formData.owner_name,
           meta: {}
         } as any)
         .select()
@@ -104,7 +106,8 @@ export default function CreateSiteDialog({ open, onOpenChange, onSuccess }: Crea
   const resetForm = () => {
     setFormData({
       title: '',
-      site_slug: ''
+      site_slug: '',
+      owner_name: ''
     })
     setError('')
   }
@@ -182,6 +185,22 @@ export default function CreateSiteDialog({ open, onOpenChange, onSuccess }: Crea
               </div>
               <p className="text-xs text-gray-500">
                 Sadece küçük harfler, rakamlar ve tire kullanabilirsiniz
+              </p>
+            </div>
+            
+            <div className="space-y-3">
+              <Label htmlFor="owner_name" className="text-sm font-medium text-gray-700">
+                Sahip Adı (İsteğe Bağlı)
+              </Label>
+              <Input
+                id="owner_name"
+                value={formData.owner_name}
+                onChange={(e) => setFormData({ ...formData, owner_name: e.target.value })}
+                placeholder="Site sahibinin adı"
+                className="h-12 text-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+              />
+              <p className="text-xs text-gray-500">
+                Bu isim raporlarda ve admin panelinde görünecektir
               </p>
             </div>
             
