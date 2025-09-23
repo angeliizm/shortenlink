@@ -28,6 +28,7 @@ interface Site {
   created_at: string
   updated_at: string
   owner_id?: string
+  owner_name?: string
   permission_type?: string
   meta?: {
     description?: string
@@ -261,7 +262,8 @@ export default function DashboardPage() {
         site.title.toLowerCase().includes(searchLower) ||
         site.site_slug.toLowerCase().includes(searchLower) ||
         site.target_url.toLowerCase().includes(searchLower) ||
-        (site.meta?.description && site.meta.description.toLowerCase().includes(searchLower))
+        (site.meta?.description && site.meta.description.toLowerCase().includes(searchLower)) ||
+        (site.owner_name && site.owner_name.toLowerCase().includes(searchLower))
       )
     })
     
@@ -651,6 +653,11 @@ export default function DashboardPage() {
                               <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                                 {site.title}
                               </h3>
+                              {site.owner_name && (
+                                <p className="text-sm text-gray-600 font-medium">
+                                  Sahip: {site.owner_name}
+                                </p>
+                              )}
                               <div className="flex items-center space-x-2">
                                 {/* Permission type badge */}
                                 {site.permission_type && userRole !== 'admin' && (
