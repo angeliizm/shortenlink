@@ -93,10 +93,12 @@ const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'
 
 const getTimeRangeLabel = (timeRange: string) => {
   switch (timeRange) {
-    case '24h':
-      return 'Son 24 Saat';
+    case 'today':
+      return 'Bugün';
+    case 'yesterday':
+      return 'Dün';
     case '7d':
-      return 'Son 7 Gün';
+      return 'Son 1 Hafta';
     case '30d':
       return 'Son 1 Ay';
     case '1y':
@@ -104,7 +106,7 @@ const getTimeRangeLabel = (timeRange: string) => {
     case 'all':
       return 'Tüm Zamanlar';
     default:
-      return 'Son 24 Saat';
+      return 'Son 1 Ay';
   }
 };
 
@@ -115,7 +117,7 @@ export default function ReportsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [timeRange, setTimeRange] = useState('24h');
+  const [timeRange, setTimeRange] = useState('30d');
 
   const fetchReportsData = async () => {
     try {
@@ -336,16 +338,28 @@ export default function ReportsPage() {
             {/* Time Range Filter Buttons */}
             <div className="flex flex-wrap gap-2 justify-center mb-6">
               <Button
-                variant={timeRange === '24h' ? 'default' : 'outline'}
+                variant={timeRange === 'today' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setTimeRange('24h')}
+                onClick={() => setTimeRange('today')}
                 className={`transition-all duration-200 ${
-                  timeRange === '24h' 
+                  timeRange === 'today' 
                     ? 'bg-blue-600 hover:bg-blue-700 text-white' 
                     : 'bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70'
                 }`}
               >
-                Son 24 Saat
+                Bugün
+              </Button>
+              <Button
+                variant={timeRange === 'yesterday' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('yesterday')}
+                className={`transition-all duration-200 ${
+                  timeRange === 'yesterday' 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : 'bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70'
+                }`}
+              >
+                Dün
               </Button>
               <Button
                 variant={timeRange === '7d' ? 'default' : 'outline'}
@@ -357,7 +371,7 @@ export default function ReportsPage() {
                     : 'bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70'
                 }`}
               >
-                Son 7 Gün
+                Son 1 Hafta
               </Button>
               <Button
                 variant={timeRange === '30d' ? 'default' : 'outline'}
