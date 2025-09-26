@@ -34,31 +34,71 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const timeRange = searchParams.get('time_range') || '24h';
+    const timeRange = searchParams.get('time_range') || '30d';
     
     // Calculate date range based on time_range parameter
     let startDate: string;
-    const endDate = new Date().toISOString();
+    let endDate: string;
+    
+    // Use UTC dates to avoid timezone issues
+    const now = new Date();
     
     switch (timeRange) {
-      case '24h':
-        startDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      case 'today':
+        // Bugün: 00:00'dan 23:59'a kadar
+        const todayStart = new Date(now);
+        todayStart.setUTCHours(0, 0, 0, 0);
+        startDate = todayStart.toISOString();
+        
+        const todayEnd = new Date(now);
+        todayEnd.setUTCHours(23, 59, 59, 999);
+        endDate = todayEnd.toISOString();
         break;
+        
+      case 'yesterday':
+        // Dün: Bir önceki günün 00:00'dan 23:59'a kadar
+        const yesterdayStart = new Date(now);
+        yesterdayStart.setUTCDate(yesterdayStart.getUTCDate() - 1);
+        yesterdayStart.setUTCHours(0, 0, 0, 0);
+        startDate = yesterdayStart.toISOString();
+        
+        const yesterdayEnd = new Date(now);
+        yesterdayEnd.setUTCDate(yesterdayEnd.getUTCDate() - 1);
+        yesterdayEnd.setUTCHours(23, 59, 59, 999);
+        endDate = yesterdayEnd.toISOString();
+        break;
+        
       case '7d':
-        startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        // Son 1 hafta
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        endDate = new Date().toISOString();
         break;
+        
       case '30d':
-        startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        // Son bir ay
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        endDate = new Date().toISOString();
         break;
+        
       case '1y':
-        startDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString();
+        // Son bir yıl
+        startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString();
+        endDate = new Date().toISOString();
         break;
+        
       case 'all':
+        // Tüm zamanlar
         startDate = new Date('2020-01-01').toISOString(); // Far back date
+        endDate = new Date().toISOString();
         break;
+        
       default:
-        startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        // Default to last 30 days
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        endDate = new Date().toISOString();
     }
+    
+    console.log(`[Reports API] Date range for ${timeRange}: ${startDate} to ${endDate}`);
 
     // Get all sites overview
     const { data: sitesData, error: sitesError } = await supabase
@@ -95,6 +135,9 @@ export async function GET(request: NextRequest) {
       .lte('timestamp', endDate)
       .order('timestamp', { ascending: true });
 
+    console.log(`[Reports API] Found ${analyticsData?.length || 0} analytics events in range`);
+    console.log(`[Reports API] Found ${hourlyData?.length || 0} hourly events in range`);
+
     if (analyticsError) {
       console.error('Error fetching analytics:', analyticsError);
       return NextResponse.json({ error: 'Failed to fetch analytics data' }, { status: 500 });
@@ -113,6 +156,8 @@ export async function GET(request: NextRequest) {
       referrers: new Map(),
       topSites: new Map()
     };
+
+    console.log(`[Reports API] Processing ${analyticsData?.length || 0} analytics events...`);
 
     // Process hourly data
     const hourlyMetrics = new Map();
@@ -200,6 +245,8 @@ export async function GET(request: NextRequest) {
         }
       }
     });
+
+    console.log(`[Reports API] Final metrics - PageViews: ${globalMetrics.totalPageViews}, Clicks: ${globalMetrics.totalClicks}, Sessions: ${globalMetrics.totalSessions}`);
 
     // Convert site metrics to array with site info
     const sitesWithMetrics = sitesData?.map((site: any) => {
