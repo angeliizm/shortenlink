@@ -94,13 +94,13 @@ export async function GET(request: NextRequest) {
         
       default:
         // Default to today
-        const todayStart = new Date(now);
-        todayStart.setUTCHours(0, 0, 0, 0);
-        startDate = todayStart.toISOString();
+        const defaultTodayStart = new Date(now);
+        defaultTodayStart.setUTCHours(0, 0, 0, 0);
+        startDate = defaultTodayStart.toISOString();
         
-        const todayEnd = new Date(now);
-        todayEnd.setUTCHours(23, 59, 59, 999);
-        endDate = todayEnd.toISOString();
+        const defaultTodayEnd = new Date(now);
+        defaultTodayEnd.setUTCHours(23, 59, 59, 999);
+        endDate = defaultTodayEnd.toISOString();
     }
     
     console.log(`[Reports API] Date range for ${timeRange}: ${startDate} to ${endDate}`);
