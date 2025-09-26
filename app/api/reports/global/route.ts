@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const timeRange = searchParams.get('time_range') || '30d';
+    const timeRange = searchParams.get('time_range') || 'today';
     
     // Calculate date range based on time_range parameter
     let startDate: string;
@@ -93,9 +93,14 @@ export async function GET(request: NextRequest) {
         break;
         
       default:
-        // Default to last 30 days
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-        endDate = new Date().toISOString();
+        // Default to today
+        const todayStart = new Date(now);
+        todayStart.setUTCHours(0, 0, 0, 0);
+        startDate = todayStart.toISOString();
+        
+        const todayEnd = new Date(now);
+        todayEnd.setUTCHours(23, 59, 59, 999);
+        endDate = todayEnd.toISOString();
     }
     
     console.log(`[Reports API] Date range for ${timeRange}: ${startDate} to ${endDate}`);

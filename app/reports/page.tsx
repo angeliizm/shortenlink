@@ -106,7 +106,7 @@ const getTimeRangeLabel = (timeRange: string) => {
     case 'all':
       return 'Tüm Zamanlar';
     default:
-      return 'Son 1 Ay';
+      return 'Bugün';
   }
 };
 
@@ -117,7 +117,7 @@ export default function ReportsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [timeRange, setTimeRange] = useState('30d');
+  const [timeRange, setTimeRange] = useState('today');
 
   const fetchReportsData = async () => {
     try {
