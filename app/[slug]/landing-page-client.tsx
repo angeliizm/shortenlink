@@ -833,15 +833,23 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     )}
                     
                     <div className="flex items-center justify-center gap-3">
-                      {/* Trophy/Icon placeholder */}
+                      {/* Buton fotoğrafı veya Trophy/Icon placeholder */}
                       <div className="w-5 h-5 flex items-center justify-center">
-                        <svg 
-                          className="w-4 h-4" 
-                          fill="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
+                        {action.image_url ? (
+                          <img
+                            src={action.image_url}
+                            alt={action.label}
+                            className="w-5 h-5 object-cover rounded"
+                          />
+                        ) : (
+                          <svg 
+                            className="w-4 h-4" 
+                            fill="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          </svg>
+                        )}
                       </div>
                       <span className="font-medium">{action.label}</span>
                       <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />

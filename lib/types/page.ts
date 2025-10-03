@@ -5,6 +5,7 @@ export interface PageAction {
   variant: 'primary' | 'outline' | 'ghost'
   preset?: string
   description?: string
+  image_url?: string
   sortOrder: number
   isEnabled: boolean
 }

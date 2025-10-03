@@ -13,6 +13,8 @@ interface LogoSelectorProps {
   currentLogo?: string
   onSave: (logoPath: string | null) => void
   onClose: () => void
+  title?: string
+  description?: string
 }
 
 interface LogoFile {
@@ -26,7 +28,9 @@ export default function LogoSelector({
   siteId, 
   currentLogo, 
   onSave, 
-  onClose 
+  onClose,
+  title = "Logo Seçimi",
+  description = "Buton kutucuklarınız için logo seçin"
 }: LogoSelectorProps) {
   const [availableLogos, setAvailableLogos] = useState<LogoFile[]>([])
   const [selectedLogo, setSelectedLogo] = useState<string | null>(currentLogo || null)
@@ -89,10 +93,10 @@ export default function LogoSelector({
             <div>
               <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                 <ImageIcon className="w-5 h-5 text-blue-600" />
-                Logo Seçimi
+                {title}
               </CardTitle>
               <CardDescription className="mt-1">
-                Buton kutucuklarınız için logo seçin veya mevcut logoyu kaldırın
+                {description}
               </CardDescription>
             </div>
           </div>

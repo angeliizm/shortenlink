@@ -17,7 +17,7 @@ import { profilePresets, defaultProfilePresetId } from '@/lib/profile-presets'
 import { titleFontPresets, defaultTitleFontPresetId } from '@/lib/title-font-presets'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import PageHeader from '@/components/ui/PageHeader'
-import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type, User, Edit, Eye, Image as ImageIcon } from 'lucide-react'
+import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type, User, Edit, Eye, Image as ImageIcon, X } from 'lucide-react'
 import { BackgroundPreviewChip } from '@/components/dashboard/BackgroundPreviewChip'
 import { BackgroundSelector } from '@/components/dashboard/BackgroundSelector'
 import { TitleFontSelector } from '@/components/dashboard/TitleFontSelector'
@@ -38,6 +38,7 @@ interface Action {
   variant: 'primary' | 'outline' | 'ghost'
   preset: string
   description?: string
+  image_url?: string
   sort_order: number
   is_enabled: boolean
 }
@@ -895,6 +896,53 @@ export default function EditSitePage({ params }: PageProps) {
                           />
                         </div>
                       </div>
+                      
+                      {/* Fotoğraf seçim alanı */}
+                      <div className="mt-3">
+                        <Label className="text-sm font-medium">
+                          Buton Fotoğrafı (isteğe bağlı)
+                        </Label>
+                        <div className="flex items-center gap-3 mt-2">
+                          <div className="w-16 h-16 rounded-lg border border-gray-200 flex items-center justify-center bg-gray-50">
+                            {action.image_url ? (
+                              <img
+                                src={action.image_url}
+                                alt="Buton fotoğrafı"
+                                className="w-12 h-12 object-cover rounded"
+                              />
+                            ) : (
+                              <ImageIcon className="w-6 h-6 text-gray-400" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setCurrentActionIndex(index)
+                                setLogoSelectorOpen(true)
+                              }}
+                              className="w-full justify-start"
+                            >
+                              <ImageIcon className="h-4 w-4 mr-2" />
+                              {action.image_url ? 'Fotoğrafı Değiştir' : 'Fotoğraf Seç'}
+                            </Button>
+                            {action.image_url && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => updateAction(index, 'image_url', '')}
+                                className="mt-1 text-red-600 hover:text-red-700"
+                              >
+                                <X className="h-4 w-4 mr-1" />
+                                Fotoğrafı Kaldır
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1288,6 +1336,23 @@ export default function EditSitePage({ params }: PageProps) {
             currentLogo={selectedLogo || undefined}
             onSave={handleLogoSave}
             onClose={() => setLogoSelectorOpen(false)}
+          />
+        )}
+
+        {/* Button Image Selector Dialog */}
+        {logoSelectorOpen && currentActionIndex !== null && (
+          <LogoSelector
+            siteId={siteId}
+            currentLogo={actions[currentActionIndex]?.image_url || undefined}
+            onSave={(imagePath) => {
+              if (currentActionIndex !== null) {
+                updateAction(currentActionIndex, 'image_url', imagePath || '')
+                setLogoSelectorOpen(false)
+              }
+            }}
+            onClose={() => setLogoSelectorOpen(false)}
+            title="Buton Fotoğrafı Seçimi"
+            description="Bu buton için fotoğraf seçin"
           />
         )}
       </main>

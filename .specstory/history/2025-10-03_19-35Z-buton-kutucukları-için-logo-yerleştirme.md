@@ -1082,6 +1082,554 @@ GitHub'a push yapacağım. Önce değişiklikleri kontrol edip commit edeceğim:
 
 Tool use: **run_terminal_cmd**
 
+```bash
+git status
+```
+
+```
+PS C:\Users\baran\OneDrive\Belgeler\GitHub\shortenlink> git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   app/[slug]/landing-page-client.tsx
+        modified:   app/dashboard/sites/[id]/edit/page.tsx
+        modified:   lib/supabase/pages.ts
+        modified:   lib/types/page.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .cursorindexingignore
+        .specstory/
+        add_logo_column.sql
+        app/api/logos/
+        components/dashboard/LogoSelector.tsx
+        public/images/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+---
+
+Tool use: **run_terminal_cmd**
+
+```bash
+git add .
+```
+
+```
+warning: in the working copy of 'app/dashboard/sites/[id]/edit/page.tsx', LF will be replaced by CRLF the next time Git touches it                              
+warning: in the working copy of 'lib/supabase/pages.ts', LF will be replaced by CRLF the next time Git touches it                                               
+warning: in the working copy of 'lib/types/page.ts', LF will be replaced by CRLF the next time Git touches it                                                   
+warning: in the working copy of '.cursorindexingignore', LF will be replaced by CRLF the next time Git touches it                                               
+warning: in the working copy of '.specstory/.gitignore', LF will be replaced by CRLF the next time Git touches it                                               
+warning: in the working copy of '.specstory/history/2025-09-26_20-50Z-ayl─▒k-ve-y─▒ll─▒k-rapor-ayarlar─▒.md', LF will be replaced by CRLF the next time Git touches it                                                                          
+warning: in the working copy of '.specstory/history/2025-09-27_10-38Z-sql-ekleme-i├ğin-butonlar.md', LF will be replaced by CRLF the next time Git touches it   
+```
+
+---
+
+Tool use: **run_terminal_cmd**
+
+```bash
+git commit -m "feat: Add logo selection system for button boxes
+
+- Add LogoSelector component with modern UI
+- Create API endpoint for listing logos from public/images
+- Integrate logo selection in edit page
+- Add logo display to button boxes in landing page
+- Update PageConfig type with logoUrl field
+- Add database migration script for logo_url column
+- Maintain backward compatibility - buttons show old design when no logo selected"
+```
+
+```
+cted"                                                                           
+[main 34b6f81] feat: Add logo selection system for button boxes
+ 17 files changed, 2665 insertions(+), 3 deletions(-)
+ create mode 100644 .cursorindexingignore
+ create mode 100644 .specstory/.gitignore
+ create mode 100644 ".specstory/history/2025-09-26_20-50Z-ayl\304\261k-ve-y\304\261ll\304\261k-rapor-ayarlar\304\261.md"                                        
+ create mode 100644 ".specstory/history/2025-09-27_10-38Z-sql-ekleme-i\303\247in-butonlar.md"                                                                   
+ create mode 100644 ".specstory/history/2025-10-03_19-35Z-buton-kutucuklar\304\261-i\303\247in-logo-yerle\305\237tirme.md"                                      
+ create mode 100644 add_logo_column.sql
+ create mode 100644 app/api/logos/list/route.ts
+ create mode 100644 components/dashboard/LogoSelector.tsx
+ create mode 100644 public/images/README.txt
+ create mode 100644 public/images/amg.png
+ create mode 100644 public/images/merso.png
+ create mode 100644 public/images/sheraton.png
+ create mode 100644 public/images/vaycasino.png
+```
+
+---
+
+Tool use: **run_terminal_cmd**
+
+```bash
+git push origin main
+```
+
+```
+PS C:\Users\baran\OneDrive\Belgeler\GitHub\shortenlink> git push origin main
+Enumerating objects: 55, done.
+Counting objects: 100% (55/55), done.
+Delta compression using up to 16 threads
+Compressing objects: 100% (30/30), done.
+Writing objects: 100% (37/37), 283.72 KiB | 8.87 MiB/s, done.
+Total 37 (delta 12), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (12/12), completed with 12 local objects.        
+To https://github.com/angeliizm/shortenlink.git
+   b777dd5..34b6f81  main -> main
+```
+
+---
+
+✅ **Başarıyla GitHub'a push edildi!**
+
+## 📦 Push Edilen Özellikler:
+
+### 🆕 Yeni Dosyalar:
+- `components/dashboard/LogoSelector.tsx` - Logo seçim komponenti
+- `app/api/logos/list/route.ts` - Logo listesi API endpoint'i
+- `add_logo_column.sql` - Veritabanı migration script'i
+- `public/images/` klasörü ve örnek logolar
+
+### 🔄 Güncellenen Dosyalar:
+- `app/[slug]/landing-page-client.tsx` - Buton kutucuklarına logo eklendi
+- `app/dashboard/sites/[id]/edit/page.tsx` - Logo seçim özelliği eklendi
+- `lib/supabase/pages.ts` - Logo URL desteği eklendi
+- `lib/types/page.ts` - PageConfig tipine logoUrl eklendi
+
+## 🚀 Commit Mesajı:
+```
+feat: Add logo selection system for button boxes
+
+- Add LogoSelector component with modern UI
+- Create API endpoint for listing logos from public/images
+- Integrate logo selection in edit page
+- Add logo display to button boxes in landing page
+- Update PageConfig type with logoUrl field
+- Add database migration script for logo_url column
+- Maintain backward compatibility - buttons show old design when no logo selected
+```
+
+Artık logo seçim sistemi tamamen hazır ve GitHub'da mevcut! 🎉
+
+---
+
+
+
+---
+
+_**User (2025-10-03 19:35Z)**_
+
+/i@https://www.linkfy.vip/dashboard/sites/cd1e5c5a-cfe0-4c57-aa71-c6e350c36127/edit kısmında Eylem Butonlarına her bir eylem butonu için fotoğraf seçme alanı eklememişsin.
+
+---
+
+_**Assistant (default)**_
+
+Haklısınız! Her bir eylem butonu için ayrı ayrı fotoğraf seçme özelliği eklememişim. Şu anda sadece genel logo seçimi var, ama her buton için özel fotoğraf seçme özelliği yok. Bu özelliği ekleyeceğim.
+
+
+---
+
+Tool use: **todo_write**
+
+## Todo List
+
+- [-] Her eylem butonu için ayrı fotoğraf seçme özelliği ekle
+- [ ] Action interface'ine image_url alanı ekle
+- [ ] Edit sayfasında her buton için fotoğraf seçim alanı ekle
+- [ ] Landing page'de buton fotoğraflarını göster
+
+---
+
+Önce Action interface'ine image_url alanını ekleyeceğim:
+
+
+---
+
+Tool use: **read_file**
+
+Read file: app/dashboard/sites/[id]/edit/page.tsx
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: app/dashboard/sites/[id]/edit/page.tsx</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -39,4 +39,5 @@
+    preset: string
+    description?: string
++   image_url?: string
+    sort_order: number
+    is_enabled: boolean
+```
+
+</details>
+
+---
+
+Şimdi edit sayfasında her buton için fotoğraf seçim alanı ekleyeceğim. Önce butonların nasıl render edildiğini bulacağım:
+
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "Eylem Butonları" in "app/dashboard/sites/[id]/edit/page.tsx" • 1 match</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `<CardTitle>Eylem Butonları</CardTitle>` | L787 |
+
+
+</details>
+
+---
+
+Tool use: **read_file**
+
+Read file: app/dashboard/sites/[id]/edit/page.tsx
+
+---
+
+Şimdi fotoğraf seçim alanını ekleyeceğim. Buton alanlarının devamını okuyacağım:
+
+
+---
+
+Tool use: **read_file**
+
+Read file: app/dashboard/sites/[id]/edit/page.tsx
+
+---
+
+Fotoğraf seçim alanını ekleyeceğim. Açıklama alanından sonra ekleyeceğim:
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: app/dashboard/sites/[id]/edit/page.tsx</summary>
+
+**Chunk 1**
+Lines added: 47, lines removed: undefined
+
+```diff
+@@ -897,4 +897,51 @@
+                          </div>
+                        </div>
++                       
++                       {/* Fotoğraf seçim alanı */}
++                       <div className="mt-3">
++                         <Label className="text-sm font-medium">
++                           Buton Fotoğrafı (isteğe bağlı)
++                         </Label>
++                         <div className="flex items-center gap-3 mt-2">
++                           <div className="w-16 h-16 rounded-lg border border-gray-200 flex items-center justify-center bg-gray-50">
++                             {action.image_url ? (
++                               <img
++                                 src={action.image_url}
++                                 alt="Buton fotoğrafı"
++                                 className="w-12 h-12 object-cover rounded"
++                               />
++                             ) : (
++                               <ImageIcon className="w-6 h-6 text-gray-400" />
++                             )}
++                           </div>
++                           <div className="flex-1">
++                             <Button
++                               type="button"
++                               variant="outline"
++                               size="sm"
++                               onClick={() => {
++                                 setCurrentActionIndex(index)
++                                 setLogoSelectorOpen(true)
++                               }}
++                               className="w-full justify-start"
++                             >
++                               <ImageIcon className="h-4 w-4 mr-2" />
++                               {action.image_url ? 'Fotoğrafı Değiştir' : 'Fotoğraf Seç'}
++                             </Button>
++                             {action.image_url && (
++                               <Button
++                                 type="button"
++                                 variant="ghost"
++                                 size="sm"
++                                 onClick={() => updateAction(index, 'image_url', '')}
++                                 className="mt-1 text-red-600 hover:text-red-700"
++                               >
++                                 <X className="h-4 w-4 mr-1" />
++                                 Fotoğrafı Kaldır
++                               </Button>
++                             )}
++                           </div>
++                         </div>
++                       </div>
+                      </div>
+                    ))}
+```
+
+</details>
+
+---
+
+Şimdi X import'unu eklemem gerekiyor:
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: app/dashboard/sites/[id]/edit/page.tsx</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -18,5 +18,5 @@
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+  import PageHeader from '@/components/ui/PageHeader'
+- import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type, User, Edit, Eye, Image as ImageIcon } from 'lucide-react'
++ import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type, User, Edit, Eye, Image as ImageIcon, X } from 'lucide-react'
+  import { BackgroundPreviewChip } from '@/components/dashboard/BackgroundPreviewChip'
+  import { BackgroundSelector } from '@/components/dashboard/BackgroundSelector'
+```
+
+</details>
+
+---
+
+Şimdi LogoSelector'ı buton fotoğrafları için de kullanabilmek için güncelleyeceğim. LogoSelector'ın hem genel logo hem de buton fotoğrafları için kullanılabilmesi için bir prop ekleyeceğim:
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: components/dashboard/LogoSelector.tsx</summary>
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -14,4 +14,6 @@
+    onSave: (logoPath: string | null) => void
+    onClose: () => void
++   title?: string
++   description?: string
+  }
+  
+```
+
+</details>
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: components/dashboard/LogoSelector.tsx</summary>
+
+**Chunk 1**
+Lines added: 3, lines removed: 1
+
+```diff
+@@ -29,5 +29,7 @@
+    currentLogo, 
+    onSave, 
+-   onClose 
++   onClose,
++   title = "Logo Seçimi",
++   description = "Buton kutucuklarınız için logo seçin"
+  }: LogoSelectorProps) {
+    const [availableLogos, setAvailableLogos] = useState<LogoFile[]>([])
+```
+
+</details>
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: components/dashboard/LogoSelector.tsx</summary>
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -94,8 +94,8 @@
+                <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-blue-600" />
+-                 Logo Seçimi
++                 {title}
+                </CardTitle>
+                <CardDescription className="mt-1">
+-                 Buton kutucuklarınız için logo seçin veya mevcut logoyu kaldırın
++                 {description}
+                </CardDescription>
+              </div>
+```
+
+</details>
+
+---
+
+Şimdi edit sayfasında buton fotoğrafı seçimi için LogoSelector'ı güncelleyeceğim:
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: app/dashboard/sites/[id]/edit/page.tsx</summary>
+
+**Chunk 1**
+Lines added: 17, lines removed: undefined
+
+```diff
+@@ -1339,4 +1339,21 @@
+            />
+          )}
++ 
++         {/* Button Image Selector Dialog */}
++         {logoSelectorOpen && currentActionIndex !== null && (
++           <LogoSelector
++             siteId={siteId}
++             currentLogo={actions[currentActionIndex]?.image_url || undefined}
++             onSave={(imagePath) => {
++               if (currentActionIndex !== null) {
++                 updateAction(currentActionIndex, 'image_url', imagePath || '')
++                 setLogoSelectorOpen(false)
++               }
++             }}
++             onClose={() => setLogoSelectorOpen(false)}
++             title="Buton Fotoğrafı Seçimi"
++             description="Bu buton için fotoğraf seçin"
++           />
++         )}
+        </main>
+      </div>
+```
+
+</details>
+
+---
+
+Şimdi landing page'de buton fotoğraflarını göstereceğim. Önce PageAction tipini güncelleyeceğim:
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: lib/types/page.ts</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -6,4 +6,5 @@
+    preset?: string
+    description?: string
++   image_url?: string
+    sortOrder: number
+    isEnabled: boolean
+```
+
+</details>
+
+---
+
+Şimdi landing page'de buton fotoğraflarını göstereceğim:
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: app/[slug]/landing-page-client.tsx</summary>
+
+**Chunk 1**
+Lines added: 16, lines removed: 8
+
+```diff
+@@ -834,13 +834,21 @@
+                      
+                      <div className="flex items-center justify-center gap-3">
+-                       {/* Trophy/Icon placeholder */}
++                       {/* Buton fotoğrafı veya Trophy/Icon placeholder */}
+                        <div className="w-5 h-5 flex items-center justify-center">
+-                         <svg 
+-                           className="w-4 h-4" 
+-                           fill="currentColor" 
+-                           viewBox="0 0 24 24"
+-                         >
+-                           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+-                         </svg>
++                         {action.image_url ? (
++                           <img
++                             src={action.image_url}
++                             alt={action.label}
++                             className="w-5 h-5 object-cover rounded"
++                           />
++                         ) : (
++                           <svg 
++                             className="w-4 h-4" 
++                             fill="currentColor" 
++                             viewBox="0 0 24 24"
++                           >
++                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
++                           </svg>
++                         )}
+                        </div>
+                        <span className="font-medium">{action.label}</span>
+```
+
+</details>
+
+---
+
+Tool use: **todo_write**
+
+## Todo List
+
+- [x] Her eylem butonu için ayrı fotoğraf seçme özelliği ekle
+- [x] Action interface'ine image_url alanı ekle
+- [x] Edit sayfasında her buton için fotoğraf seçim alanı ekle
+- [x] Landing page'de buton fotoğraflarını göster
+
+---
+
+
+
+---
+
+Tool use: **read_lints**
+
 ---
 
 
