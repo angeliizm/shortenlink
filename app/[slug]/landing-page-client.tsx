@@ -819,8 +819,19 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     }}
                   />
                   
-                  {/* Button content with icon */}
-                  <div className="relative z-10 flex flex-col items-center justify-center gap-1">
+                  {/* Button content with logo and icon */}
+                  <div className="relative z-10 flex flex-col items-center justify-center gap-2">
+                    {/* Logo at the top */}
+                    {config.logoUrl && (
+                      <div className="w-8 h-8 flex items-center justify-center mb-1">
+                        <img
+                          src={config.logoUrl}
+                          alt="Logo"
+                          className="w-6 h-6 object-contain"
+                        />
+                      </div>
+                    )}
+                    
                     <div className="flex items-center justify-center gap-3">
                       {/* Trophy/Icon placeholder */}
                       <div className="w-5 h-5 flex items-center justify-center">

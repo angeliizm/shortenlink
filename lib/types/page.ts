@@ -27,6 +27,7 @@ export interface PageConfig {
   customDomain?: string
   userId?: string
   avatarUrl?: string
+  logoUrl?: string
   profilePresetId?: string
   titleFontPresetId?: string
   titleColor?: string
