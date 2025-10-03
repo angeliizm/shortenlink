@@ -447,6 +447,7 @@ export default function EditSitePage({ params }: PageProps) {
               variant: action.variant,
               preset: action.preset,
               description: action.description,
+              image_url: action.image_url,
               sort_order: index,
               is_enabled: action.is_enabled,
               updated_at: new Date().toISOString()
@@ -465,6 +466,7 @@ export default function EditSitePage({ params }: PageProps) {
               variant: action.variant,
               preset: action.preset,
               description: action.description,
+              image_url: action.image_url,
               sort_order: index,
               is_enabled: action.is_enabled
             })
