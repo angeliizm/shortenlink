@@ -824,21 +824,30 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   <div className="relative z-10 flex flex-col items-center justify-center w-full gap-2">
                     {/* Logo at the top - centered */}
                     {config.logoUrl && (
-                      <div className="min-w-[80px] min-h-[80px] max-w-[120px] max-h-[120px] flex items-center justify-center bg-black backdrop-blur-md rounded-2xl border border-gray-900 shadow-2xl group-hover:bg-black group-hover:scale-110 transition-all duration-500 relative overflow-hidden p-3">
-                        {/* Animated background pattern */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.3),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        
+                      <div className="min-w-[90px] min-h-[90px] max-w-[130px] max-h-[130px] flex items-center justify-center bg-gradient-to-br from-white via-gray-50 to-gray-100 backdrop-blur-xl rounded-3xl border-2 border-white/50 shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500 relative overflow-hidden p-4">
+                        {/* Glass effect overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-white/30 opacity-50"></div>
+
+                        {/* Animated gradient glow */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-xl"></div>
+
+                        {/* Shine effect */}
+                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
+
+                        {/* Inner glow */}
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.8),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
                         <img
                           src={config.logoUrl}
                           alt="Logo"
-                          className="max-w-full max-h-full w-auto h-auto object-contain relative z-10 group-hover:scale-110 transition-transform duration-500"
+                          className="max-w-full max-h-full w-auto h-auto object-contain relative z-10 filter drop-shadow-lg group-hover:drop-shadow-2xl group-hover:scale-110 transition-all duration-500"
                           style={{
                             width: 'auto',
                             height: 'auto',
                             maxWidth: '100%',
                             maxHeight: '100%',
-                            objectFit: 'contain'
+                            objectFit: 'contain',
+                            filter: 'contrast(1.1) brightness(1.05)'
                           }}
                         />
                       </div>
