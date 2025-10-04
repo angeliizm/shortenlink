@@ -819,67 +819,70 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     }}
                   />
                   
-                  {/* Button content with logo and icon */}
-                  <div className="relative z-10 flex flex-col items-center justify-center gap-3">
-                     {/* Logo at the top with premium design */}
-                     {config.logoUrl && (
-                       <div className="relative group mb-4">
-                         <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
-                         <div className="relative flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-800 backdrop-blur-sm rounded-xl border border-gray-700/50 shadow-2xl px-6 py-3">
-                           <img
-                             src={config.logoUrl}
-                             alt="Logo"
-                             className="max-h-10 max-w-40 object-contain filter brightness-110"
-                           />
+                   {/* Button content with side-by-side layout */}
+                   <div className="relative z-10 flex items-center gap-4 w-full">
+                     {/* Left side - Logos and icons */}
+                     <div className="flex flex-col items-center gap-2 min-w-[80px]">
+                       {/* General logo */}
+                       {config.logoUrl && (
+                         <div className="relative group">
+                           <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
+                           <div className="relative bg-gradient-to-br from-gray-900 via-black to-gray-800 backdrop-blur-sm rounded-lg border border-gray-700/50 shadow-xl px-3 py-2">
+                             <img
+                               src={config.logoUrl}
+                               alt="Logo"
+                               className="max-h-6 max-w-20 object-contain filter brightness-110"
+                             />
+                           </div>
                          </div>
-                       </div>
-                     )}
-                     
-                     {/* Buton fotoğrafı veya Trophy/Icon placeholder with premium design */}
-                     <div className="relative group mb-3">
-                       <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                       <div className="relative flex items-center justify-center bg-gradient-to-br from-gray-800 via-black to-gray-900 backdrop-blur-sm rounded-lg border border-gray-600/50 shadow-xl px-4 py-2">
-                         {action.image_url ? (
-                           <img
-                             src={action.image_url}
-                             alt={action.label}
-                             className="max-h-7 max-w-28 object-contain filter brightness-110"
-                           />
-                         ) : (
-                           <div className="flex items-center justify-center w-7 h-7">
+                       )}
+                       
+                       {/* Button image or icon */}
+                       <div className="relative group">
+                         <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+                         <div className="relative bg-gradient-to-br from-gray-800 via-black to-gray-900 backdrop-blur-sm rounded-lg border border-gray-600/50 shadow-lg px-2 py-1.5">
+                           {action.image_url ? (
+                             <img
+                               src={action.image_url}
+                               alt={action.label}
+                               className="max-h-5 max-w-16 object-contain filter brightness-110"
+                             />
+                           ) : (
                              <svg 
-                               className="w-5 h-5 text-white drop-shadow-lg" 
+                               className="w-4 h-4 text-white drop-shadow-lg" 
                                fill="currentColor" 
                                viewBox="0 0 24 24"
                              >
                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                              </svg>
-                           </div>
-                         )}
-                       </div>
-                     </div>
-                    
-                     {/* Button text and arrow with premium design */}
-                     <div className="flex items-center justify-center gap-3 relative">
-                       <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 via-pink-500 to-red-500 rounded-lg blur opacity-0 group-hover:opacity-20 transition duration-500"></div>
-                       <span className="relative font-bold text-xl text-white drop-shadow-lg group-hover:text-yellow-200 transition-colors duration-300">
-                         {action.label}
-                       </span>
-                       <ArrowRight className="w-6 h-6 opacity-0 -translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 text-yellow-300 drop-shadow-lg" />
-                     </div>
-                    
-                     {/* Description with premium design */}
-                     {action.description && (
-                       <div className="relative group max-w-[320px]">
-                         <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 rounded-lg blur opacity-10 group-hover:opacity-20 transition duration-500"></div>
-                         <div className="relative bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-md rounded-lg border border-white/20 shadow-lg px-4 py-3">
-                           <span className="text-sm font-medium text-white/95 text-center leading-relaxed block">
-                             {action.description}
-                           </span>
+                           )}
                          </div>
                        </div>
-                     )}
-                  </div>
+                     </div>
+                     
+                     {/* Right side - Text content */}
+                     <div className="flex-1 flex flex-col items-start gap-2">
+                       {/* Button text and arrow */}
+                       <div className="flex items-center gap-3">
+                         <span className="font-bold text-lg text-white drop-shadow-lg group-hover:text-yellow-200 transition-colors duration-300">
+                           {action.label}
+                         </span>
+                         <ArrowRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-yellow-300 drop-shadow-lg" />
+                       </div>
+                       
+                       {/* Description */}
+                       {action.description && (
+                         <div className="relative group max-w-[280px]">
+                           <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 rounded-lg blur opacity-10 group-hover:opacity-20 transition duration-300"></div>
+                           <div className="relative bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-md rounded-lg border border-white/20 shadow-lg px-3 py-2">
+                             <span className="text-sm font-medium text-white/95 leading-relaxed block">
+                               {action.description}
+                             </span>
+                           </div>
+                         </div>
+                       )}
+                     </div>
+                   </div>
                 </motion.a>
               )
             })}
