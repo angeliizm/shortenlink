@@ -13,6 +13,63 @@ import { titleStylePresets, getTitleStyles, getDescriptionStyles, getAccentEleme
 import { Palette, Sparkles, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
+// Derive a high-contrast backdrop for logos based on the button preset styles
+function getLogoBackdropStyle(styles: any): React.CSSProperties {
+  const defaultOverlay = 'rgba(0,0,0,0.35)'
+  const lightOverlay = 'rgba(255,255,255,0.22)'
+  const borderLight = 'rgba(255,255,255,0.28)'
+  const borderDark = 'rgba(0,0,0,0.28)'
+
+  const bg = (styles?.backgroundColor || '').toString().trim().toLowerCase()
+
+  // If gradient, prefer a dark translucent backdrop for better legibility
+  if (bg.includes('gradient')) {
+    return {
+      backgroundColor: defaultOverlay,
+      backdropFilter: 'blur(6px)',
+      WebkitBackdropFilter: 'blur(6px)',
+      border: `1px solid ${borderLight}`,
+      boxShadow: '0 6px 18px rgba(0,0,0,0.18)'
+    }
+  }
+
+  // Try to parse hex and decide overlay by luminance
+  const hexMatch = bg.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i)
+  if (hexMatch) {
+    const hex = hexMatch[0].replace('#', '')
+    const to255 = (v: string) => parseInt(v, 16)
+    let r: number, g: number, b: number
+    if (hex.length === 3) {
+      r = to255(hex[0] + hex[0])
+      g = to255(hex[1] + hex[1])
+      b = to255(hex[2] + hex[2])
+    } else {
+      r = to255(hex.slice(0, 2))
+      g = to255(hex.slice(2, 4))
+      b = to255(hex.slice(4, 6))
+    }
+    // Perceived luminance
+    const luma = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+    const useLight = luma < 0.45 // dark background → use light overlay
+    return {
+      backgroundColor: useLight ? lightOverlay : defaultOverlay,
+      backdropFilter: 'blur(6px)',
+      WebkitBackdropFilter: 'blur(6px)',
+      border: `1px solid ${useLight ? borderLight : borderDark}`,
+      boxShadow: useLight ? '0 6px 18px rgba(0,0,0,0.18)' : '0 6px 18px rgba(0,0,0,0.22)'
+    }
+  }
+
+  // Fallback
+  return {
+    backgroundColor: defaultOverlay,
+    backdropFilter: 'blur(6px)',
+    WebkitBackdropFilter: 'blur(6px)',
+    border: `1px solid ${borderLight}`,
+    boxShadow: '0 6px 18px rgba(0,0,0,0.18)'
+  }
+}
+
 interface LandingPageClientProps {
   config: PageConfig
   isOwner?: boolean
@@ -821,45 +878,83 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   
                   {/* Button content with logo and icon */}
                   <div className="relative z-10 flex flex-col items-center justify-center gap-3">
-                    {/* Logo at the top with beautiful background */}
+                    {/* Logo on top: rectangular container so wide logos are fully visible */}
                     {config.logoUrl && (
-                      <div className="w-12 h-12 flex items-center justify-center mb-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 shadow-lg">
+                      <div
+                        className="mb-2 rounded-md"
+                        style={{
+                          width: 'auto',
+                          maxWidth: 220,
+                          height: 36,
+                          padding: '6px 10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          ...getLogoBackdropStyle(styles)
+                        }}
+                      >
                         <img
                           src={config.logoUrl}
                           alt="Logo"
-                          className="w-8 h-8 object-contain"
+                          style={{
+                            maxHeight: 24,
+                            maxWidth: '100%',
+                            objectFit: 'contain'
+                          }}
                         />
                       </div>
                     )}
-                    
-                    {/* Buton fotoğrafı veya Trophy/Icon placeholder with background */}
-                    <div className="w-8 h-8 flex items-center justify-center bg-white/20 backdrop-blur-sm rounded-full border border-white/30 shadow-lg">
+
+                    {/* Button image (per-action). Keep rectangular container and contain the image */}
+                    <div
+                      className="rounded-md"
+                      style={{
+                        width: 'auto',
+                        maxWidth: 160,
+                        height: 28,
+                        padding: '4px 8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        ...getLogoBackdropStyle(styles)
+                      }}
+                    >
                       {action.image_url ? (
                         <img
                           src={action.image_url}
                           alt={action.label}
-                          className="w-6 h-6 object-cover rounded-full"
+                          style={{
+                            maxHeight: 18,
+                            maxWidth: '100%',
+                            objectFit: 'contain'
+                          }}
                         />
                       ) : (
-                        <svg 
-                          className="w-5 h-5" 
-                          fill="currentColor" 
+                        <svg
+                          className="w-4 h-4"
+                          fill="currentColor"
                           viewBox="0 0 24 24"
                         >
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                         </svg>
                       )}
                     </div>
-                    
+
                     {/* Button text and arrow */}
                     <div className="flex items-center justify-center gap-3">
                       <span className="font-medium text-lg">{action.label}</span>
                       <ArrowRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                     </div>
-                    
+
                     {/* Description */}
                     {action.description && (
-                      <span className="text-sm opacity-90 font-normal max-w-[280px] text-center leading-tight bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
+                      <span
+                        className="text-sm opacity-90 font-normal max-w-[280px] text-center leading-tight rounded-md"
+                        style={{
+                          padding: '8px 12px',
+                          ...getLogoBackdropStyle(styles)
+                        }}
+                      >
                         {action.description}
                       </span>
                     )}
