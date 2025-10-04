@@ -34,18 +34,19 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
     setLoading(true);
     try {
       const days = parseInt(dateRange.replace('d', ''));
-      const startDate = startOfDay(subDays(new Date(), days)).toISOString();
-      const endDate = endOfDay(new Date()).toISOString();
+      const endDate = endOfDay(new Date());
+      const startDate = startOfDay(subDays(endDate, days - 1)).toISOString();
+      const endDateStr = endDate.toISOString();
 
       // Fetch all analytics data in parallel
       const [overview, actions, realtime, referrers, devices, geography, events] = await Promise.all([
-        fetch(`/api/analytics/${siteSlug}?metric=overview&startDate=${startDate}&endDate=${endDate}`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=actions&startDate=${startDate}&endDate=${endDate}`).then(r => r.json()),
+        fetch(`/api/analytics/${siteSlug}?metric=overview&startDate=${startDate}&endDate=${endDateStr}`).then(r => r.json()),
+        fetch(`/api/analytics/${siteSlug}?metric=actions&startDate=${startDate}&endDate=${endDateStr}`).then(r => r.json()),
         fetch(`/api/analytics/${siteSlug}?metric=realtime`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=referrers&startDate=${startDate}&endDate=${endDate}`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=devices&startDate=${startDate}&endDate=${endDate}`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=geography&startDate=${startDate}&endDate=${endDate}`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=events&startDate=${startDate}&endDate=${endDate}`).then(r => r.json())
+        fetch(`/api/analytics/${siteSlug}?metric=referrers&startDate=${startDate}&endDate=${endDateStr}`).then(r => r.json()),
+        fetch(`/api/analytics/${siteSlug}?metric=devices&startDate=${startDate}&endDate=${endDateStr}`).then(r => r.json()),
+        fetch(`/api/analytics/${siteSlug}?metric=geography&startDate=${startDate}&endDate=${endDateStr}`).then(r => r.json()),
+        fetch(`/api/analytics/${siteSlug}?metric=events&startDate=${startDate}&endDate=${endDateStr}`).then(r => r.json())
       ]);
 
       setAnalytics({ overview, actions, realtime, referrers, devices, geography, events });
@@ -139,14 +140,15 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
     // Use real analytics data from events if available
     if (analytics?.events?.events && analytics.events.events.length > 0) {
       const days = parseInt(dateRange.replace('d', ''));
-      const startDate = subDays(new Date(), days);
+      const endDate = endOfDay(new Date());
+      const startDate = startOfDay(subDays(endDate, days - 1));
       
       // Group events by day
       const dailyData = new Map();
       
       // Initialize all days with zero values
       for (let i = 0; i < days; i++) {
-        const date = subDays(new Date(), i);
+        const date = subDays(endDate, i);
         const dateKey = format(date, 'yyyy-MM-dd');
          dailyData.set(dateKey, {
            date: format(date, 'MMM dd'),
@@ -157,27 +159,31 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
          });
       }
       
-      // Process real events
+      // Process real events - filter by date range
       analytics.events.events.forEach((event: any) => {
         const eventDate = new Date(event.timestamp);
-        const dateKey = format(eventDate, 'yyyy-MM-dd');
         
-        if (dailyData.has(dateKey)) {
-          const dayData = dailyData.get(dateKey);
+        // Only process events within the date range
+        if (eventDate >= startDate && eventDate <= endDate) {
+          const dateKey = format(eventDate, 'yyyy-MM-dd');
           
-          if (event.event_type === 'page_view') {
-            dayData.pageviews += 1;
-           } else if (event.event_type === 'action_click') {
-             dayData.clicks += 1;
-             // Assume 10% of clicks are conversions
-             if (Math.random() < 0.1) {
-               dayData.conversions += 1;
+          if (dailyData.has(dateKey)) {
+            const dayData = dailyData.get(dateKey);
+            
+            if (event.event_type === 'page_view') {
+              dayData.pageviews += 1;
+             } else if (event.event_type === 'action_click') {
+               dayData.clicks += 1;
+               // Assume 10% of clicks are conversions
+               if (Math.random() < 0.1) {
+                 dayData.conversions += 1;
+               }
+               // Assume 15% of clicks become signups
+               if (Math.random() < 0.15) {
+                 dayData.signups = (dayData.signups || 0) + 1;
+               }
              }
-             // Assume 15% of clicks become signups
-             if (Math.random() < 0.15) {
-               dayData.signups = (dayData.signups || 0) + 1;
-             }
-           }
+          }
         }
       });
       
