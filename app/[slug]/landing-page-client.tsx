@@ -824,7 +824,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   <div className="relative z-10 flex flex-col items-center justify-center w-full gap-2">
                     {/* Logo at the top - centered */}
                     {config.logoUrl && (
-                      <div className="min-w-[90px] min-h-[90px] max-w-[130px] max-h-[130px] flex items-center justify-center bg-gradient-to-br from-white via-gray-50 to-gray-100 backdrop-blur-xl rounded-3xl border-2 border-white/50 shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500 relative overflow-hidden p-4">
+                      <div className="min-w-[120px] min-h-[70px] max-w-[180px] max-h-[90px] flex items-center justify-center bg-gradient-to-br from-white via-gray-50 to-gray-100 backdrop-blur-xl rounded-3xl border-2 border-white/50 shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500 relative overflow-hidden p-4">
                         {/* Glass effect overlay */}
                         <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-white/30 opacity-50"></div>
 
