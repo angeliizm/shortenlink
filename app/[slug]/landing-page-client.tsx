@@ -871,18 +871,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                       </div>
                     )}
                     
-                    {/* Varsayılan ikon (fotoğraf yoksa) */}
-                    {!action.image_url && (
-                      <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-white/25 to-white/15 backdrop-blur-sm rounded-xl border border-white/35 shadow-lg group-hover:from-white/35 group-hover:to-white/25 group-hover:scale-105 transition-all duration-300">
-                        <svg 
-                          className="w-6 h-6 group-hover:scale-105 transition-transform duration-300" 
-                          fill="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                      </div>
-                    )}
                     
                     {/* Text content - centered */}
                     <div className="flex flex-col items-center justify-center text-center">
