@@ -820,43 +820,46 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   />
                   
                   {/* Button content with logo and icon */}
-                  <div className="relative z-10 flex flex-col items-center justify-center gap-2">
-                    {/* Logo at the top */}
+                  <div className="relative z-10 flex flex-col items-center justify-center gap-3">
+                    {/* Logo at the top with beautiful background */}
                     {config.logoUrl && (
-                      <div className="w-8 h-8 flex items-center justify-center mb-1">
+                      <div className="w-12 h-12 flex items-center justify-center mb-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 shadow-lg">
                         <img
                           src={config.logoUrl}
                           alt="Logo"
-                          className="w-6 h-6 object-contain"
+                          className="w-8 h-8 object-contain"
                         />
                       </div>
                     )}
                     
-                    <div className="flex items-center justify-center gap-3">
-                      {/* Buton fotoğrafı veya Trophy/Icon placeholder */}
-                      <div className="w-5 h-5 flex items-center justify-center">
-                        {action.image_url ? (
-                          <img
-                            src={action.image_url}
-                            alt={action.label}
-                            className="w-5 h-5 object-cover rounded"
-                          />
-                        ) : (
-                          <svg 
-                            className="w-4 h-4" 
-                            fill="currentColor" 
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                          </svg>
-                        )}
-                      </div>
-                      <span className="font-medium">{action.label}</span>
-                      <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                    {/* Buton fotoğrafı veya Trophy/Icon placeholder with background */}
+                    <div className="w-8 h-8 flex items-center justify-center bg-white/20 backdrop-blur-sm rounded-full border border-white/30 shadow-lg">
+                      {action.image_url ? (
+                        <img
+                          src={action.image_url}
+                          alt={action.label}
+                          className="w-6 h-6 object-cover rounded-full"
+                        />
+                      ) : (
+                        <svg 
+                          className="w-5 h-5" 
+                          fill="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                      )}
                     </div>
+                    
+                    {/* Button text and arrow */}
+                    <div className="flex items-center justify-center gap-3">
+                      <span className="font-medium text-lg">{action.label}</span>
+                      <ArrowRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                    </div>
+                    
                     {/* Description */}
                     {action.description && (
-                      <span className="text-xs opacity-80 font-normal max-w-[280px] text-center leading-tight">
+                      <span className="text-sm opacity-90 font-normal max-w-[280px] text-center leading-tight bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
                         {action.description}
                       </span>
                     )}
