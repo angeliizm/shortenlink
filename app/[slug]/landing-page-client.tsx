@@ -824,7 +824,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   <div className="relative z-10 flex flex-col items-center justify-center w-full gap-2">
                     {/* Logo at the top - centered */}
                     {config.logoUrl && (
-                      <div className="min-w-[80px] min-h-[80px] max-w-[120px] max-h-[120px] flex items-center justify-center bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-md rounded-2xl border border-gray-700/50 shadow-2xl group-hover:from-gray-700/90 group-hover:to-gray-800/90 group-hover:scale-110 transition-all duration-500 relative overflow-hidden p-3">
+                      <div className="min-w-[80px] min-h-[80px] max-w-[120px] max-h-[120px] flex items-center justify-center bg-gradient-to-br from-gray-900/95 to-black/95 backdrop-blur-md rounded-2xl border border-gray-800/60 shadow-2xl group-hover:from-gray-800/95 group-hover:to-gray-900/95 group-hover:scale-110 transition-all duration-500 relative overflow-hidden p-3">
                         {/* Animated background pattern */}
                         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.3),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
