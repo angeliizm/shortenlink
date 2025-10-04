@@ -715,10 +715,11 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                    className={`
                      relative block w-full text-center font-semibold
                      transition-all duration-300 ease-out overflow-visible
-                     ${action.description ? 'py-6 px-8' : 'py-5 px-8'} rounded-xl
+                     ${action.description ? 'py-8 px-6' : 'py-6 px-6'} rounded-xl
                      hover:shadow-xl hover:shadow-purple-200/30
                      transform-gpu
                      group
+                     min-h-[80px]
                    `}
                    style={{
                      backgroundColor: styles.gradient ? 'transparent' : styles.backgroundColor,
@@ -819,70 +820,61 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     }}
                   />
                   
-                   {/* Button content with side-by-side layout */}
-                   <div className="relative z-10 flex items-center gap-4 w-full">
-                     {/* Left side - Logos and icons */}
-                     <div className="flex flex-col items-center gap-2 min-w-[80px]">
-                       {/* General logo */}
-                       {config.logoUrl && (
-                         <div className="relative group">
-                           <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
-                           <div className="relative bg-gradient-to-br from-gray-900 via-black to-gray-800 backdrop-blur-sm rounded-lg border border-gray-700/50 shadow-xl px-3 py-2">
-                             <img
-                               src={config.logoUrl}
-                               alt="Logo"
-                               className="max-h-6 max-w-20 object-contain filter brightness-110"
-                             />
-                           </div>
-                         </div>
-                       )}
-                       
-                       {/* Button image or icon */}
-                       <div className="relative group">
-                         <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
-                         <div className="relative bg-gradient-to-br from-gray-800 via-black to-gray-900 backdrop-blur-sm rounded-lg border border-gray-600/50 shadow-lg px-2 py-1.5">
-                           {action.image_url ? (
-                             <img
-                               src={action.image_url}
-                               alt={action.label}
-                               className="max-h-5 max-w-16 object-contain filter brightness-110"
-                             />
-                           ) : (
-                             <svg 
-                               className="w-4 h-4 text-white drop-shadow-lg" 
-                               fill="currentColor" 
-                               viewBox="0 0 24 24"
-                             >
-                               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                             </svg>
-                           )}
-                         </div>
-                       </div>
-                     </div>
-                     
-                     {/* Right side - Text content */}
-                     <div className="flex-1 flex flex-col items-start gap-2">
-                       {/* Button text and arrow */}
-                       <div className="flex items-center gap-3">
-                         <span className="font-bold text-lg text-white drop-shadow-lg group-hover:text-yellow-200 transition-colors duration-300">
-                           {action.label}
-                         </span>
-                         <ArrowRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-yellow-300 drop-shadow-lg" />
-                       </div>
-                       
-                       {/* Description */}
-                       {action.description && (
-                         <div className="relative group max-w-[280px]">
-                           <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 rounded-lg blur opacity-10 group-hover:opacity-20 transition duration-300"></div>
-                           <div className="relative bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-md rounded-lg border border-white/20 shadow-lg px-3 py-2">
-                             <span className="text-sm font-medium text-white/95 leading-relaxed block">
-                               {action.description}
-                             </span>
-                           </div>
-                         </div>
-                       )}
-                     </div>
-                   </div>
+                  {/* Button content with enhanced design */}
+                  <div className="relative z-10 flex items-center justify-between w-full">
+                    {/* Left side - Logo and action image */}
+                    <div className="flex items-center gap-3">
+                      {/* Genel logo */}
+                      {config.logoUrl && (
+                        <div className="w-10 h-10 flex items-center justify-center bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 shadow-lg group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300">
+                          <img
+                            src={config.logoUrl}
+                            alt="Logo"
+                            className="w-7 h-7 object-contain group-hover:scale-110 transition-transform duration-300"
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Buton fotoğrafı */}
+                      {action.image_url && (
+                        <div className="w-10 h-10 flex items-center justify-center bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 shadow-lg group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300">
+                          <img
+                            src={action.image_url}
+                            alt={action.label}
+                            className="w-7 h-7 object-cover rounded-md group-hover:scale-110 transition-transform duration-300"
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Varsayılan ikon (fotoğraf yoksa) */}
+                      {!action.image_url && (
+                        <div className="w-10 h-10 flex items-center justify-center bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 shadow-lg group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300">
+                          <svg 
+                            className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" 
+                            fill="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Center - Text content */}
+                    <div className="flex-1 flex flex-col items-center justify-center px-4">
+                      <span className="font-semibold text-lg group-hover:scale-105 transition-transform duration-300">{action.label}</span>
+                      {action.description && (
+                        <span className="text-sm opacity-90 font-normal max-w-[200px] text-center leading-tight mt-1 group-hover:opacity-100 transition-opacity duration-300">
+                          {action.description}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Right side - Arrow */}
+                    <div className="w-10 h-10 flex items-center justify-center">
+                      <ArrowRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                    </div>
+                  </div>
                 </motion.a>
               )
             })}
