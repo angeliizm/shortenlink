@@ -824,7 +824,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   <div className="relative z-10 flex flex-col items-center justify-center w-full gap-3">
                     {/* Logo at the top - centered */}
                     {config.logoUrl && (
-                      <div className="w-16 h-16 flex items-center justify-center bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-md rounded-2xl border border-white/40 shadow-2xl group-hover:from-white/40 group-hover:to-white/20 group-hover:scale-110 transition-all duration-500 relative overflow-hidden">
+                      <div className="min-w-[80px] min-h-[80px] max-w-[120px] max-h-[120px] flex items-center justify-center bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-md rounded-2xl border border-white/40 shadow-2xl group-hover:from-white/40 group-hover:to-white/20 group-hover:scale-110 transition-all duration-500 relative overflow-hidden p-3">
                         {/* Animated background pattern */}
                         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.3),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -832,18 +832,32 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                         <img
                           src={config.logoUrl}
                           alt="Logo"
-                          className="w-12 h-12 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500"
+                          className="max-w-full max-h-full w-auto h-auto object-contain relative z-10 group-hover:scale-110 transition-transform duration-500"
+                          style={{
+                            width: 'auto',
+                            height: 'auto',
+                            maxWidth: '100%',
+                            maxHeight: '100%',
+                            objectFit: 'contain'
+                          }}
                         />
                       </div>
                     )}
                     
                     {/* Buton fotoğrafı - centered below logo */}
                     {action.image_url && (
-                      <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-white/25 to-white/15 backdrop-blur-sm rounded-xl border border-white/35 shadow-lg group-hover:from-white/35 group-hover:to-white/25 group-hover:scale-105 transition-all duration-300">
+                      <div className="min-w-[48px] min-h-[48px] max-w-[60px] max-h-[60px] flex items-center justify-center bg-gradient-to-br from-white/25 to-white/15 backdrop-blur-sm rounded-xl border border-white/35 shadow-lg group-hover:from-white/35 group-hover:to-white/25 group-hover:scale-105 transition-all duration-300 p-2">
                         <img
                           src={action.image_url}
                           alt={action.label}
-                          className="w-8 h-8 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+                          className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg group-hover:scale-105 transition-transform duration-300"
+                          style={{
+                            width: 'auto',
+                            height: 'auto',
+                            maxWidth: '100%',
+                            maxHeight: '100%',
+                            objectFit: 'contain'
+                          }}
                         />
                       </div>
                     )}
