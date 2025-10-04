@@ -686,7 +686,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: 'clamp(12px, 1.5rem, 24px)'
+              gap: 'clamp(8px, 1rem, 16px)'
             }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -715,11 +715,11 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                    className={`
                      relative block w-full text-center font-semibold
                      transition-all duration-300 ease-out overflow-visible
-                     ${action.description ? 'py-10 px-6' : 'py-8 px-6'} rounded-xl
+                     ${action.description ? 'py-6 px-6' : 'py-5 px-6'} rounded-xl
                      hover:shadow-xl hover:shadow-purple-200/30
                      transform-gpu
                      group
-                     min-h-[120px]
+                     min-h-[90px]
                    `}
                    style={{
                      backgroundColor: styles.gradient ? 'transparent' : styles.backgroundColor,
@@ -821,10 +821,10 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   />
                   
                   {/* Button content with centered logo at top */}
-                  <div className="relative z-10 flex flex-col items-center justify-center w-full gap-3">
+                  <div className="relative z-10 flex flex-col items-center justify-center w-full gap-2">
                     {/* Logo at the top - centered */}
                     {config.logoUrl && (
-                      <div className="min-w-[80px] min-h-[80px] max-w-[120px] max-h-[120px] flex items-center justify-center bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-md rounded-2xl border border-white/40 shadow-2xl group-hover:from-white/40 group-hover:to-white/20 group-hover:scale-110 transition-all duration-500 relative overflow-hidden p-3">
+                      <div className="min-w-[80px] min-h-[80px] max-w-[120px] max-h-[120px] flex items-center justify-center bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-md rounded-2xl border border-gray-700/50 shadow-2xl group-hover:from-gray-700/90 group-hover:to-gray-800/90 group-hover:scale-110 transition-all duration-500 relative overflow-hidden p-3">
                         {/* Animated background pattern */}
                         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.3),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -885,10 +885,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                       )}
                     </div>
                     
-                    {/* Arrow at bottom */}
-                    <div className="w-8 h-8 flex items-center justify-center">
-                      <ArrowRight className="w-5 h-5 opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300" />
-                    </div>
                   </div>
                 </motion.a>
               )
