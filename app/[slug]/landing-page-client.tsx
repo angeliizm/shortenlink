@@ -855,7 +855,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     
                     {/* Buton fotoğrafı - centered below logo */}
                     {action.image_url && (
-                      <div className="min-w-[48px] min-h-[48px] max-w-[60px] max-h-[60px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-black backdrop-blur-sm rounded-xl border border-gray-800 shadow-lg group-hover:from-gray-800 group-hover:to-gray-900 group-hover:scale-105 transition-all duration-300 p-2">
+                      <div className="min-w-[80px] min-h-[40px] max-w-[120px] max-h-[60px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-black backdrop-blur-sm rounded-xl border border-gray-800 shadow-lg group-hover:from-gray-800 group-hover:to-gray-900 group-hover:scale-105 transition-all duration-300 p-2">
                         <img
                           src={action.image_url}
                           alt={action.label}
