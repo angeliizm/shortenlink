@@ -37,6 +37,10 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   const [titleFontSize, setTitleFontSize] = useState<number>(config.titleFontSize || 28)
   const [avatarUrl, setAvatarUrl] = useState<string>('')
   
+  // Confirmation popup state
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [confirmationAction, setConfirmationAction] = useState<any>(null)
+  
   // Listen for preset changes from edit page (if same site)
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
@@ -200,6 +204,42 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   // Filter enabled actions and render in stored order only
   const enabledActions = config.actions?.filter(a => a.isEnabled) || []
   const sortedActions = enabledActions.sort((a, b) => a.sortOrder - b.sortOrder)
+
+  // Handle action click with confirmation
+  const handleActionClick = (action: any, index: number) => {
+    if (action.requires_confirmation) {
+      setConfirmationAction({ ...action, index })
+      setShowConfirmation(true)
+    } else {
+      // Direct navigation for actions without confirmation
+      window.open(action.href, '_blank', 'noopener,noreferrer')
+      
+      // Track action click
+      if (config.slug) {
+        trackActionClick(config.slug, index, action.label)
+      }
+    }
+  }
+
+  // Handle confirmation
+  const handleConfirmAction = () => {
+    if (confirmationAction) {
+      window.open(confirmationAction.href, '_blank', 'noopener,noreferrer')
+      
+      // Track action click
+      if (config.slug) {
+        trackActionClick(config.slug, confirmationAction.index, confirmationAction.label)
+      }
+    }
+    setShowConfirmation(false)
+    setConfirmationAction(null)
+  }
+
+  // Handle confirmation cancel
+  const handleCancelConfirmation = () => {
+    setShowConfirmation(false)
+    setConfirmationAction(null)
+  }
 
 
   // Determine which background to use
@@ -707,11 +747,10 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                 : { backgroundColor: styles.hoverBackgroundColor }
               
               return (
-                <motion.a
+                <motion.button
                   key={action.id || index}
-                  href={action.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  onClick={() => handleActionClick(action, index)}
+                  type="button"
                    className={`
                      relative block w-full text-center font-semibold
                      transition-all duration-300 ease-out overflow-visible
@@ -931,6 +970,57 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                 setPreviewBackground(null)
               }}
             />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirmation Popup */}
+      <AnimatePresence>
+        {showConfirmation && confirmationAction && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={handleCancelConfirmation}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Onaylama Gerekli
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  {confirmationAction.confirmation_message || 'Bu eylemi gerçekleştirmek istediğinizden emin misiniz?'}
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleCancelConfirmation}
+                    className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    İptal
+                  </button>
+                  <button
+                    onClick={handleConfirmAction}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Onayla
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
