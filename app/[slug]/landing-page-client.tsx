@@ -788,12 +788,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     transition: { duration: 0.2 }
                   }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    // Track action click
-                    if (config.slug) {
-                      trackActionClick(config.slug, index, action.label)
-                    }
-                  }}
                   onMouseEnter={(e) => {
                     if (styles.hoverBackgroundColor) {
                       if (preset.styles.gradient) {
@@ -922,7 +916,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     </div>
                     
                   </div>
-                </motion.a>
+                </motion.button>
               )
             })}
           </motion.div>
