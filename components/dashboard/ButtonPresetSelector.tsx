@@ -171,17 +171,17 @@ export default function ButtonPresetSelector({
           </div>
         </div>
 
-          <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 sm:pt-6 border-t border-gray-200">
             <Button 
               variant="outline" 
               onClick={onClose}
-              className="px-6 py-2 border-gray-300 hover:bg-gray-50"
+              className="flex-1 sm:flex-initial px-6 py-2 border-gray-300 hover:bg-gray-50 h-10"
             >
               İptal
             </Button>
             <Button 
               onClick={handleSave}
-              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+              className="flex-1 sm:flex-initial px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 h-10"
             >
               <Palette className="w-4 h-4 mr-2" />
               Stili Uygula

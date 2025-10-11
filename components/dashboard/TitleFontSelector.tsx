@@ -45,10 +45,10 @@ export function TitleFontSelector({
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden"
+          className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden flex flex-col"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b">
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b flex-shrink-0">
             <div>
               <h2 className="text-xl font-semibold">Başlık Font Stili Seçin</h2>
               <p className="text-sm text-gray-500 mt-1">
@@ -66,7 +66,7 @@ export function TitleFontSelector({
           </div>
 
           {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[60vh]">
+          <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-0">
 
             {/* Font Presets */}
             <h3 className="text-sm font-medium text-gray-700 mb-3">Font Stilleri</h3>
@@ -111,16 +111,16 @@ export function TitleFontSelector({
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between p-6 border-t bg-gray-50">
-            <div className="text-sm text-gray-500">
-              Seçilen: {getTitleFontPresetById(selectedPresetId)?.name || 'Hiçbiri'}
+          {/* Footer - Always visible */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between p-4 sm:p-6 border-t bg-gray-50 flex-shrink-0 gap-3">
+            <div className="text-sm text-gray-600 text-center sm:text-left order-2 sm:order-1">
+              Seçilen: <span className="font-medium text-gray-900">{getTitleFontPresetById(selectedPresetId)?.name || 'Hiçbiri'}</span>
             </div>
-            <div className="flex items-center gap-3">
-              <Button variant="outline" onClick={onClose}>
+            <div className="flex gap-3 w-full sm:w-auto order-1 sm:order-2">
+              <Button variant="outline" onClick={onClose} className="flex-1 sm:flex-initial sm:min-w-[100px] h-10">
                 İptal
               </Button>
-              <Button onClick={handleSave}>
+              <Button onClick={handleSave} className="flex-1 sm:flex-initial sm:min-w-[140px] h-10">
                 Font Stilini Uygula
               </Button>
             </div>

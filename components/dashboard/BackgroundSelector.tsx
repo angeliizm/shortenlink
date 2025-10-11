@@ -243,19 +243,19 @@ export function BackgroundSelector({
             )}
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
+          {/* Footer - Always visible */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between px-4 sm:px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex-shrink-0 gap-3">
             <button
               onClick={handleReset}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors order-2 sm:order-1"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Varsayılanı kullan
             </button>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto order-1 sm:order-2">
               <button
                 onClick={onClose}
-                className="px-4 py-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                className="flex-1 sm:flex-initial px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors h-10"
               >
                 İptal
               </button>
@@ -263,7 +263,7 @@ export function BackgroundSelector({
                 onClick={handleSave}
                 disabled={!selectedPreset || isSaving}
                 className={cn(
-                  'px-4 py-1.5 text-sm font-medium text-white rounded-lg transition-all',
+                  'flex-1 sm:flex-initial px-4 py-2 text-sm font-medium text-white rounded-lg transition-all h-10',
                   selectedPreset && !isSaving
                     ? 'bg-blue-600 hover:bg-blue-700'
                     : 'bg-gray-300 cursor-not-allowed'

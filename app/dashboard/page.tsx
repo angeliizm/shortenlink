@@ -4,7 +4,7 @@ import { useAuth } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shield, Sparkles, BarChart, Palette, Settings, Users, Key, Search } from 'lucide-react'
+import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shield, Sparkles, BarChart, Palette, Settings, Users, Key, Search, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,7 @@ import PageHeader from '@/components/ui/PageHeader'
 import LoadingScreen from '@/components/ui/LoadingScreen'
 import CreateSiteDialog from '@/components/dashboard/CreateSiteDialog'
 import DeleteSiteDialog from '@/components/dashboard/DeleteSiteDialog'
+import CopySiteDialog from '@/components/dashboard/CopySiteDialog'
 import RoleGuard from '@/components/auth/RoleGuard'
 import { getUserRole } from '@/lib/auth/roles'
 import { formatDistanceToNow } from 'date-fns'
@@ -45,6 +46,7 @@ export default function DashboardPage() {
   const [isLoadingSites, setIsLoadingSites] = useState(true)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Site | null>(null)
+  const [copyTarget, setCopyTarget] = useState<Site | null>(null)
   const [stats, setStats] = useState({ totalSites: 0, activeSites: 0 })
   const [userRole, setUserRole] = useState<string>('')
   
@@ -716,7 +718,7 @@ export default function DashboardPage() {
                           )}
                         </div>
                         
-                        {/* Edit and Delete buttons - for owners or admin */}
+                        {/* Edit, Copy and Delete buttons - for owners or admin */}
                         {(!site.permission_type || userRole === 'admin') && (
                           <div className="flex items-center space-x-1">
                             <Button
@@ -727,6 +729,16 @@ export default function DashboardPage() {
                               title="Siteyi Düzenle"
                             >
                               <Edit className="h-4 w-4" />
+                            </Button>
+                            {/* Copy button - for owners or admin */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setCopyTarget(site)}
+                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              title="Siteyi Kopyala"
+                            >
+                              <Copy className="h-4 w-4" />
                             </Button>
                             {/* Delete button - only for admin/moderator */}
                             {(userRole === 'admin' || userRole === 'moderator') && (
@@ -771,6 +783,13 @@ export default function DashboardPage() {
       <CreateSiteDialog 
         open={isCreateOpen} 
         onOpenChange={setIsCreateOpen}
+        onSuccess={fetchSites}
+      />
+      
+      <CopySiteDialog
+        site={copyTarget}
+        open={!!copyTarget}
+        onOpenChange={(open) => !open && setCopyTarget(null)}
         onSuccess={fetchSites}
       />
       

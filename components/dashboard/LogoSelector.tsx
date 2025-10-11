@@ -87,8 +87,8 @@ export default function LogoSelector({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
-        <CardHeader className="border-b border-gray-200">
+      <Card className="w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
+        <CardHeader className="border-b border-gray-200 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -102,7 +102,7 @@ export default function LogoSelector({
           </div>
         </CardHeader>
 
-        <CardContent className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <CardContent className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -226,27 +226,27 @@ export default function LogoSelector({
           )}
         </CardContent>
 
-        {/* Footer */}
-        <div className="border-t border-gray-200 p-4 sm:p-6 bg-gray-50">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-gray-600 text-center sm:text-left">
+        {/* Footer - Always visible */}
+        <div className="border-t border-gray-200 p-4 sm:p-6 bg-gray-50 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="text-sm text-gray-600 text-center sm:text-left order-2 sm:order-1">
               {selectedLogo ? (
-                <span className="text-green-600">✓ Logo seçildi</span>
+                <span className="text-green-600 font-medium">✓ Logo seçildi</span>
               ) : (
                 <span className="text-gray-500">Logo seçilmedi</span>
               )}
             </div>
-            <div className="flex gap-3 w-full sm:w-auto">
+            <div className="flex gap-3 w-full sm:w-auto order-1 sm:order-2">
               <Button
                 variant="outline"
                 onClick={onClose}
-                className="flex-1 sm:flex-none sm:px-6"
+                className="flex-1 sm:flex-initial sm:min-w-[100px] h-10"
               >
                 İptal
               </Button>
               <Button
                 onClick={handleSave}
-                className="flex-1 sm:flex-none sm:px-6 bg-blue-600 hover:bg-blue-700"
+                className="flex-1 sm:flex-initial sm:min-w-[120px] h-10 bg-blue-600 hover:bg-blue-700"
                 disabled={loading}
               >
                 <Check className="w-4 h-4 mr-2" />
