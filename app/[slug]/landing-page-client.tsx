@@ -498,6 +498,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           boxShadow: styles.containerShadow,
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'center',
           gap: '16px'
         }
         const scaledAvatarSize = scalePx(styles.avatarSize, compactScale)
