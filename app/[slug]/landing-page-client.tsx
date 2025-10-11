@@ -33,7 +33,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   // Initialize from config first, then localStorage will override if needed
   const [profilePresetId, setProfilePresetId] = useState<string>(config.profilePresetId || defaultProfilePresetId)
   const [titleFontPresetId, setTitleFontPresetId] = useState<string>(config.titleFontPresetId || defaultTitleFontPresetId)
-  const [titleColor, setTitleColor] = useState<string>(config.titleColor || '#1f2937')
+  const [titleColor, setTitleColor] = useState<string>(config.titleColor || '#ffffff')
   const [titleFontSize, setTitleFontSize] = useState<number>(config.titleFontSize || 28)
   const [avatarUrl, setAvatarUrl] = useState<string>('')
   
@@ -326,7 +326,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         /* Responsive font sizes */
         .responsive-title {
           font-size: ${titleFontSize}px !important;
-          color: ${config.titleColor || titleColor || '#111827'} !important;
+          color: ${config.titleColor || titleColor || '#ffffff'} !important;
           font-family: ${titleFontPreset?.fontFamily || 'Inter, sans-serif'} !important;
           font-weight: ${titleFontPreset?.fontWeight || '600'} !important;
           letter-spacing: ${titleFontPreset?.letterSpacing || '-0.02em'} !important;
@@ -576,7 +576,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                       style={{ 
                         fontSize: `${titleFontSize}px`,
                         fontWeight: titleFontPreset.fontWeight,
-                        color: config.titleColor || titleColor || '#111827',
+                        color: config.titleColor || titleColor || '#ffffff',
                         margin: scaledTitleMargin,
                         letterSpacing: titleFontPreset.letterSpacing,
                         fontFamily: titleFontPreset.fontFamily,
