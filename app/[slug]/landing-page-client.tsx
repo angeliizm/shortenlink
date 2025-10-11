@@ -570,7 +570,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                  </motion.div>
 
                 {/* Text Content - Right Side */}
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 flex flex-col justify-center">
                   {/* Name/Title */}
                   {(() => {
                     const titleFontPreset = getTitleFontPresetById(titleFontPresetId) || getTitleFontPresetById(defaultTitleFontPresetId)!
