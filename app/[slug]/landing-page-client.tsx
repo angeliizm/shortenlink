@@ -507,7 +507,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         
         return (
           <motion.div 
-              className="relative z-10 w-full max-w-md mx-auto mb-8"
+              className="relative z-10 w-full max-w-md mx-auto mb-8 px-4"
               style={{
                 margin: '0 auto 30px auto'
               }}
