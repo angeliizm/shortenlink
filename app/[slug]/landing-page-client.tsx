@@ -325,26 +325,26 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         
         /* Responsive font sizes */
         .responsive-title {
-          font-size: ${titleFontSize}px !important;
+          font-size: ${Math.max(16, titleFontSize * 0.85)}px !important;
           color: ${config.titleColor || titleColor || '#ffffff'} !important;
           font-family: ${titleFontPreset?.fontFamily || 'Inter, sans-serif'} !important;
           font-weight: ${titleFontPreset?.fontWeight || '600'} !important;
           letter-spacing: ${titleFontPreset?.letterSpacing || '-0.02em'} !important;
-          line-height: ${titleStyles?.titleLineHeight || '1.1'} !important;
-          text-align: ${titleStyles?.textAlign || 'center'} !important;
-          margin: ${styles.titleMargin || '0'} !important;
+          line-height: 1.2 !important;
+          text-align: left !important;
+          margin: 0 0 8px 0 !important;
         }
         
         .responsive-description {
-          font-size: ${titleStyles?.descriptionFontSize || '1.125rem'} !important;
+          font-size: 14px !important;
           color: ${titleStyles?.descriptionColor || '#6b7280'} !important;
           font-family: ${titleStyles?.descriptionFontFamily || 'Inter, sans-serif'} !important;
           font-weight: ${titleStyles?.descriptionFontWeight || '400'} !important;
           letter-spacing: ${titleStyles?.descriptionLetterSpacing || '0'} !important;
-          line-height: ${titleStyles?.descriptionLineHeight || '1.6'} !important;
-          text-align: ${titleStyles?.textAlign || 'center'} !important;
-          margin: ${styles.descriptionMargin || '0'} !important;
-          max-width: ${titleStyles?.descriptionMaxWidth || '100%'} !important;
+          line-height: 1.4 !important;
+          text-align: left !important;
+          margin: 4px 0 0 0 !important;
+          max-width: 100% !important;
         }
         
         @media (max-width: 768px) {
@@ -471,8 +471,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
       {/* Profile Card - Dynamic Preset Design */}
       {(() => {
         
-        // Create styles for the container (compact rendering)
-        const compactScale = 0.82
+        // Create styles for the container (horizontal compact layout)
+        const compactScale = 0.75
         const scalePx = (v: string, s: number) => {
           if (!v) return v
           if (typeof v !== 'string') return v as any
@@ -495,10 +495,13 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           borderRadius: scalePx(styles.containerBorderRadius, compactScale),
           background: styles.containerBackground,
           border: styles.containerBorder,
-          boxShadow: styles.containerShadow
+          boxShadow: styles.containerShadow,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px'
         }
         const scaledAvatarSize = scalePx(styles.avatarSize, compactScale)
-        const scaledTitleMargin = scaleSpacing(styles.titleMargin, compactScale)
+        const scaledTitleMargin = '0 0 8px 0' // Reduced margin for horizontal layout
         const scaledDecorativeSize = scalePx(styles.decorativeSize, compactScale)
         
         return (
@@ -514,20 +517,19 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             <div className="relative">
               {/* Profile Card Container */}
               <div 
-                className="relative overflow-hidden text-center w-full"
+                className="relative overflow-hidden w-full"
                 style={containerStyles}
               >
-                 {/* Profile Avatar */}
+                 {/* Profile Avatar - Left Side */}
                  <motion.div 
-                   className="relative mx-auto overflow-hidden"
-                  style={{
-                    width: scaledAvatarSize,
-                    height: scaledAvatarSize,
+                   className="relative overflow-hidden flex-shrink-0"
+                   style={{
+                     width: scaledAvatarSize,
+                     height: scaledAvatarSize,
                      borderRadius: styles.avatarBorderRadius,
                      border: styles.avatarBorder,
                      boxShadow: styles.avatarShadow,
                      background: styles.avatarBackground,
-                     marginBottom: '16px',
                      display: 'block',
                      visibility: 'visible',
                      position: 'relative',
@@ -566,60 +568,69 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                    )}
                  </motion.div>
 
-                {/* Name/Title */}
-                {(() => {
-                  const titleFontPreset = getTitleFontPresetById(titleFontPresetId) || getTitleFontPresetById(defaultTitleFontPresetId)!
-                  
-                  return (
-                    <motion.h1 
-                      className="responsive-title"
-                      style={{ 
-                        fontSize: `${titleFontSize}px`,
-                        fontWeight: titleFontPreset.fontWeight,
-                        color: config.titleColor || titleColor || '#ffffff',
-                        margin: scaledTitleMargin,
-                        letterSpacing: titleFontPreset.letterSpacing,
-                        fontFamily: titleFontPreset.fontFamily,
-                        lineHeight: titleStyles.titleLineHeight,
-                        textAlign: titleStyles.textAlign
-                      }}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      {config.title}
-                    </motion.h1>
-                  )
-                })()}
+                {/* Text Content - Right Side */}
+                <div className="flex-1 min-w-0">
+                  {/* Name/Title */}
+                  {(() => {
+                    const titleFontPreset = getTitleFontPresetById(titleFontPresetId) || getTitleFontPresetById(defaultTitleFontPresetId)!
+                    
+                    return (
+                      <motion.h1 
+                        className="responsive-title"
+                        style={{ 
+                          fontSize: `${Math.max(16, titleFontSize * 0.85)}px`, // Slightly smaller for horizontal layout
+                          fontWeight: titleFontPreset.fontWeight,
+                          color: config.titleColor || titleColor || '#ffffff',
+                          margin: scaledTitleMargin,
+                          letterSpacing: titleFontPreset.letterSpacing,
+                          fontFamily: titleFontPreset.fontFamily,
+                          lineHeight: '1.2', // Tighter line height for horizontal layout
+                          textAlign: 'left' // Left align for horizontal layout
+                        }}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                      >
+                        {config.title}
+                      </motion.h1>
+                    )
+                  })()}
 
-                {/* Description */}
-                {config.meta?.description && (
-                  <motion.p 
-                    className="responsive-description"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    {config.meta.description}
-                  </motion.p>
-                )}
+                  {/* Description */}
+                  {config.meta?.description && (
+                    <motion.p 
+                      className="responsive-description"
+                      style={{
+                        fontSize: '14px', // Smaller description for horizontal layout
+                        lineHeight: '1.4',
+                        textAlign: 'left',
+                        marginTop: '4px'
+                      }}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {config.meta.description}
+                    </motion.p>
+                  )}
+                </div>
 
                 {/* Decorative Elements */}
                 {styles.showDecorativeElements && (
                   <>
                     <div 
-                      className="absolute top-4 right-4 rounded-full opacity-60" 
+                      className="absolute top-2 right-2 rounded-full opacity-60" 
                       style={{ 
-                        width: scaledDecorativeSize,
-                        height: scaledDecorativeSize,
+                        width: `${Math.max(4, parseInt(scaledDecorativeSize) * 0.7)}px`,
+                        height: `${Math.max(4, parseInt(scaledDecorativeSize) * 0.7)}px`,
                         backgroundColor: styles.decorativeColor 
                       }} 
                     />
                     <div 
-                      className="absolute bottom-4 left-4 rounded-full opacity-40" 
+                      className="absolute bottom-2 left-2 rounded-full opacity-40" 
                       style={{ 
-                        width: `${parseInt(scaledDecorativeSize) / 2}px`,
-                        height: `${parseInt(scaledDecorativeSize) / 2}px`,
+                        width: `${Math.max(2, parseInt(scaledDecorativeSize) * 0.4)}px`,
+                        height: `${Math.max(2, parseInt(scaledDecorativeSize) * 0.4)}px`,
                         backgroundColor: styles.decorativeColor 
                       }} 
                     />
