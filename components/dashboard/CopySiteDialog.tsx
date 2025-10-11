@@ -128,7 +128,7 @@ export default function CopySiteDialog({ site, open, onOpenChange, onSuccess }: 
 
     try {
       // 1. Create new page with copied data
-      const { data: newPage, error: pageError } = await supabase
+      const { data: newPage, error: pageError } = await (supabase as any)
         .from('pages')
         .insert({
           owner_id: user.id,
@@ -152,7 +152,7 @@ export default function CopySiteDialog({ site, open, onOpenChange, onSuccess }: 
       if (pageError) throw pageError
 
       // 2. Copy page actions
-      const { data: actions, error: actionsError } = await supabase
+      const { data: actions, error: actionsError } = await (supabase as any)
         .from('page_actions')
         .select('*')
         .eq('page_id', site.id)
@@ -160,7 +160,7 @@ export default function CopySiteDialog({ site, open, onOpenChange, onSuccess }: 
       if (actionsError) throw actionsError
 
       if (actions && actions.length > 0) {
-        const newActions = actions.map(action => ({
+        const newActions = actions.map((action: any) => ({
           page_id: newPage.id,
           label: action.label,
           href: action.href,
@@ -172,7 +172,7 @@ export default function CopySiteDialog({ site, open, onOpenChange, onSuccess }: 
           is_enabled: action.is_enabled
         }))
 
-        const { error: insertActionsError } = await supabase
+        const { error: insertActionsError } = await (supabase as any)
           .from('page_actions')
           .insert(newActions)
 
@@ -180,19 +180,19 @@ export default function CopySiteDialog({ site, open, onOpenChange, onSuccess }: 
       }
 
       // 3. Copy background preferences
-      const { data: bgPref, error: bgPrefError } = await supabase
+      const { data: bgPref, error: bgPrefError } = await (supabase as any)
         .from('background_preferences')
         .select('*')
         .eq('site_id', site.id)
         .single()
 
       if (!bgPrefError && bgPref) {
-        const { error: insertBgError } = await supabase
+        const { error: insertBgError } = await (supabase as any)
           .from('background_preferences')
           .insert({
             site_id: newPage.id,
-            preset_id: bgPref.preset_id,
-            control_values: bgPref.control_values
+            preset_id: (bgPref as any).preset_id,
+            control_values: (bgPref as any).control_values
           })
 
         if (insertBgError && insertBgError.code !== '23505') { // Ignore duplicate key errors
