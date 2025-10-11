@@ -80,9 +80,6 @@ export default function EditSitePage({ params }: PageProps) {
   const [logoSelectorOpen, setLogoSelectorOpen] = useState(false)
   const [currentActionIndex, setCurrentActionIndex] = useState<number>(0)
   
-  // Logo state
-  const [selectedLogo, setSelectedLogo] = useState<string | null>(null)
-  
   // URL unique kontrolü için state
   const [urlError, setUrlError] = useState<string>('')
   const [isCheckingUrl, setIsCheckingUrl] = useState<boolean>(false)
@@ -312,16 +309,6 @@ export default function EditSitePage({ params }: PageProps) {
         }
       }
 
-      // Load logo URL from database first, then localStorage as fallback
-      if (page.logo_url) {
-        setSelectedLogo(page.logo_url)
-        localStorage.setItem(`logo-${siteId}`, page.logo_url)
-      } else {
-        const savedLogoUrl = localStorage.getItem(`logo-${siteId}`)
-        if (savedLogoUrl) {
-          setSelectedLogo(savedLogoUrl)
-        }
-      }
       
       // Load profile preset from database first, then localStorage
       if (page.profile_preset_id) {
@@ -613,34 +600,6 @@ export default function EditSitePage({ params }: PageProps) {
     }
   }
 
-  const handleLogoSave = async (logoPath: string | null) => {
-    setSelectedLogo(logoPath)
-    
-    if (siteId) {
-      if (logoPath) {
-        localStorage.setItem(`logo-${siteId}`, logoPath)
-      } else {
-        localStorage.removeItem(`logo-${siteId}`)
-      }
-      
-      // Save to database
-      if (user?.id) {
-        try {
-          const { error } = await (supabase as any)
-            .from('pages')
-            .update({ logo_url: logoPath })
-            .eq('id', siteId)
-            .eq('owner_id', user.id)
-        
-          if (error) {
-            console.error('Failed to save logo to database:', error)
-          }
-        } catch (err) {
-          console.error('Error saving logo:', err)
-        }
-      }
-    }
-  }
 
   const handleAvatarChange = async (url: string) => {
     // If URL is empty (avatar removed), also clear from localStorage
@@ -993,53 +952,6 @@ export default function EditSitePage({ params }: PageProps) {
             </CardContent>
           </Card>
 
-          {/* Logo Selection Card */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ImageIcon className="h-5 w-5" />
-                Logo Seçimi
-              </CardTitle>
-              <CardDescription>
-                Buton kutucuklarınız için logo seçin
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-16 h-16 rounded-lg border border-gray-200 flex items-center justify-center bg-gray-50">
-                      {selectedLogo ? (
-                        <img
-                          src={selectedLogo}
-                          alt="Seçili Logo"
-                          className="w-12 h-12 object-contain"
-                        />
-                      ) : (
-                        <ImageIcon className="w-6 h-6 text-gray-400" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">
-                        {selectedLogo ? 'Logo Seçildi' : 'Logo Seçilmedi'}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Logo seçmek için tıklayın
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setLogoSelectorOpen(true)}
-                  >
-                    <ImageIcon className="h-4 w-4 mr-2" />
-                    Logo Seç
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Title Font & Color Card */}
           <Card className="mb-6">
@@ -1328,16 +1240,6 @@ export default function EditSitePage({ params }: PageProps) {
               setButtonPresetSelectorOpen(false)
             }}
             onClose={() => setButtonPresetSelectorOpen(false)}
-          />
-        )}
-
-        {/* Logo Selector Dialog */}
-        {logoSelectorOpen && (
-          <LogoSelector
-            siteId={siteId}
-            currentLogo={selectedLogo || undefined}
-            onSave={handleLogoSave}
-            onClose={() => setLogoSelectorOpen(false)}
           />
         )}
 
