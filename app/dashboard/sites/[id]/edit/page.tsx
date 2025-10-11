@@ -41,8 +41,6 @@ interface Action {
   image_url?: string
   sort_order: number
   is_enabled: boolean
-  requires_confirmation?: boolean
-  confirmation_message?: string
 }
 
 export default function EditSitePage({ params }: PageProps) {
@@ -946,40 +944,6 @@ export default function EditSitePage({ params }: PageProps) {
                             )}
                           </div>
                         </div>
-                      </div>
-                      
-                      {/* Onaylama kısmı */}
-                      <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <div className="flex items-center gap-2 mb-3">
-                          <input
-                            type="checkbox"
-                            id={`confirmation-${index}`}
-                            checked={action.requires_confirmation || false}
-                            onChange={(e) => updateAction(index, 'requires_confirmation', e.target.checked)}
-                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                          />
-                          <Label htmlFor={`confirmation-${index}`} className="text-sm font-medium text-blue-800">
-                            Onaylama Gerekli
-                          </Label>
-                        </div>
-                        {action.requires_confirmation && (
-                          <div>
-                            <Label htmlFor={`confirmation-message-${index}`} className="text-sm font-medium text-blue-800">
-                              Onaylama Mesajı
-                            </Label>
-                            <Textarea
-                              id={`confirmation-message-${index}`}
-                              placeholder="Bu eylemi gerçekleştirmek istediğinizden emin misiniz?"
-                              value={action.confirmation_message || ''}
-                              onChange={(e) => updateAction(index, 'confirmation_message', e.target.value)}
-                              className="mt-1 min-h-[60px] border-blue-300 focus:border-blue-500 focus:ring-blue-500"
-                              rows={2}
-                            />
-                            <p className="text-xs text-blue-600 mt-1">
-                              Bu mesaj kullanıcıya onaylama popup'ında gösterilecek
-                            </p>
-                          </div>
-                        )}
                       </div>
                     </div>
                   ))}

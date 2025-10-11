@@ -222,45 +222,31 @@ export default function LogoSelector({
                   </div>
                 )}
               </div>
-
-              {/* Logo Yükleme Bilgisi */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <Upload className="w-5 h-5 text-blue-600 mt-0.5" />
-                  <div>
-                    <h4 className="text-sm font-medium text-blue-900">Logo Ekleme</h4>
-                    <p className="text-xs text-blue-700 mt-1">
-                      Yeni logo eklemek için dosyalarınızı <code className="bg-blue-100 px-1 rounded">public/images</code> klasörüne yükleyin.
-                      Desteklenen formatlar: PNG, JPG, JPEG, SVG, WEBP
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
         </CardContent>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 p-6 bg-gray-50">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600">
+        <div className="border-t border-gray-200 p-4 sm:p-6 bg-gray-50">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-gray-600 text-center sm:text-left">
               {selectedLogo ? (
                 <span className="text-green-600">✓ Logo seçildi</span>
               ) : (
                 <span className="text-gray-500">Logo seçilmedi</span>
               )}
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 w-full sm:w-auto">
               <Button
                 variant="outline"
                 onClick={onClose}
-                className="px-6"
+                className="flex-1 sm:flex-none sm:px-6"
               >
                 İptal
               </Button>
               <Button
                 onClick={handleSave}
-                className="px-6 bg-blue-600 hover:bg-blue-700"
+                className="flex-1 sm:flex-none sm:px-6 bg-blue-600 hover:bg-blue-700"
                 disabled={loading}
               >
                 <Check className="w-4 h-4 mr-2" />
