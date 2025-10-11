@@ -471,14 +471,35 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
       {/* Profile Card - Dynamic Preset Design */}
       {(() => {
         
-        // Create styles for the container
+        // Create styles for the container (compact rendering)
+        const compactScale = 0.82
+        const scalePx = (v: string, s: number) => {
+          if (!v) return v
+          if (typeof v !== 'string') return v as any
+          if (v.endsWith('px')) {
+            const num = parseFloat(v.replace('px', ''))
+            return `${Math.max(1, Math.round(num * s))}px`
+          }
+          return v
+        }
+        const scaleSpacing = (v: string, s: number) => {
+          if (!v || typeof v !== 'string') return v as any
+          return v
+            .split(' ')
+            .map(part => (part.endsWith('px') ? scalePx(part, s) : part))
+            .join(' ')
+        }
+
         const containerStyles = {
-          padding: styles.containerPadding,
-          borderRadius: styles.containerBorderRadius,
+          padding: scalePx(styles.containerPadding, compactScale),
+          borderRadius: scalePx(styles.containerBorderRadius, compactScale),
           background: styles.containerBackground,
           border: styles.containerBorder,
           boxShadow: styles.containerShadow
         }
+        const scaledAvatarSize = scalePx(styles.avatarSize, compactScale)
+        const scaledTitleMargin = scaleSpacing(styles.titleMargin, compactScale)
+        const scaledDecorativeSize = scalePx(styles.decorativeSize, compactScale)
         
         return (
           <motion.div 
@@ -499,9 +520,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                  {/* Profile Avatar */}
                  <motion.div 
                    className="relative mx-auto overflow-hidden"
-                   style={{
-                     width: styles.avatarSize,
-                     height: styles.avatarSize,
+                  style={{
+                    width: scaledAvatarSize,
+                    height: scaledAvatarSize,
                      borderRadius: styles.avatarBorderRadius,
                      border: styles.avatarBorder,
                      boxShadow: styles.avatarShadow,
@@ -556,7 +577,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                         fontSize: `${titleFontSize}px`,
                         fontWeight: titleFontPreset.fontWeight,
                         color: config.titleColor || titleColor || '#111827',
-                        margin: styles.titleMargin,
+                        margin: scaledTitleMargin,
                         letterSpacing: titleFontPreset.letterSpacing,
                         fontFamily: titleFontPreset.fontFamily,
                         lineHeight: titleStyles.titleLineHeight,
@@ -589,16 +610,16 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     <div 
                       className="absolute top-4 right-4 rounded-full opacity-60" 
                       style={{ 
-                        width: styles.decorativeSize,
-                        height: styles.decorativeSize,
+                        width: scaledDecorativeSize,
+                        height: scaledDecorativeSize,
                         backgroundColor: styles.decorativeColor 
                       }} 
                     />
                     <div 
                       className="absolute bottom-4 left-4 rounded-full opacity-40" 
                       style={{ 
-                        width: `${parseInt(styles.decorativeSize) / 2}px`,
-                        height: `${parseInt(styles.decorativeSize) / 2}px`,
+                        width: `${parseInt(scaledDecorativeSize) / 2}px`,
+                        height: `${parseInt(scaledDecorativeSize) / 2}px`,
                         backgroundColor: styles.decorativeColor 
                       }} 
                     />
