@@ -397,6 +397,17 @@ export const buttonPresets: ButtonPreset[] = [
       borderRadius: '12px',
     },
     bannerImage: '/images/mersobanner.gif'
+  },
+  {
+    id: 'hojabet-banner',
+    name: 'Hojabet Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/hojabet.png'
   }
 ]
 
