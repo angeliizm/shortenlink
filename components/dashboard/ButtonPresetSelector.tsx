@@ -47,40 +47,51 @@ export default function ButtonPresetSelector({
           fontFamily: 'Helvetica, Arial, sans-serif'
         }}
       >
-        <span className="relative z-10 flex items-center gap-2">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-          Örnek Buton
-        </span>
-        
-        {/* Hover effect overlay */}
-        <div 
-          className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300"
-          style={{
-            backgroundColor: styles.hoverBackgroundColor?.includes('gradient') 
-              ? 'transparent' 
-              : styles.hoverBackgroundColor || styles.backgroundColor,
-            backgroundImage: styles.hoverBackgroundColor?.includes('gradient') 
-              ? styles.hoverBackgroundColor 
-              : 'none',
-            color: styles.hoverTextColor || styles.color
-          }}
-        >
-          <div 
-            className="w-full h-full flex items-center justify-center text-sm font-semibold"
-            style={{
-              color: styles.hoverTextColor || styles.color
-            }}
-          >
-            <span className="flex items-center gap-2">
+        {preset.bannerImage ? (
+          // Banner image preview
+          <img
+            src={preset.bannerImage}
+            alt={preset.name}
+            className="w-full h-full object-cover rounded-xl"
+          />
+        ) : (
+          <>
+            <span className="relative z-10 flex items-center gap-2">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
               </svg>
               Örnek Buton
             </span>
-          </div>
-        </div>
+            
+            {/* Hover effect overlay */}
+            <div 
+              className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300"
+              style={{
+                backgroundColor: styles.hoverBackgroundColor?.includes('gradient') 
+                  ? 'transparent' 
+                  : styles.hoverBackgroundColor || styles.backgroundColor,
+                backgroundImage: styles.hoverBackgroundColor?.includes('gradient') 
+                  ? styles.hoverBackgroundColor 
+                  : 'none',
+                color: styles.hoverTextColor || styles.color
+              }}
+            >
+              <div 
+                className="w-full h-full flex items-center justify-center text-sm font-semibold"
+                style={{
+                  color: styles.hoverTextColor || styles.color
+                }}
+              >
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                  Örnek Buton
+                </span>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     )
   }
@@ -147,6 +158,11 @@ export default function ButtonPresetSelector({
                         <span className="text-sm text-gray-600 font-medium">Ana Renk</span>
                       </div>
                       <div className="flex flex-wrap gap-1">
+                        {preset.bannerImage && (
+                          <span className="px-2 py-1 text-xs font-medium text-orange-700 bg-orange-100 rounded-full">
+                            🖼️ Banner
+                          </span>
+                        )}
                         {preset.styles.gradient && (
                           <span className="px-2 py-1 text-xs font-medium text-purple-700 bg-purple-100 rounded-full">
                             ✨ Gradient

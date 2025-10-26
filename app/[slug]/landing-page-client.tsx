@@ -740,6 +740,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
               // Get preset or use default
               const preset = getPresetById(action.preset || defaultPresetId) || getPresetById(defaultPresetId)!
               const styles = preset.styles
+              const isBannerPreset = !!preset.bannerImage
               
               // Handle gradients and regular colors
               const backgroundStyle = styles.backgroundColor.includes('gradient') 
@@ -757,16 +758,16 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   type="button"
                    className={`
                      relative block w-full text-center font-semibold
-                     transition-all duration-300 ease-out overflow-visible
-                     ${action.description ? 'py-6 px-6' : 'py-5 px-6'} rounded-xl
+                     transition-all duration-300 ease-out overflow-hidden
+                     ${isBannerPreset ? 'py-0' : action.description ? 'py-6 px-6' : 'py-5 px-6'} rounded-xl
                      hover:shadow-xl hover:shadow-purple-200/30
                      transform-gpu
                      group
-                     min-h-[90px]
+                     ${isBannerPreset ? 'min-h-[120px]' : 'min-h-[90px]'}
                    `}
                    style={{
-                     backgroundColor: styles.gradient ? 'transparent' : styles.backgroundColor,
-                     backgroundImage: styles.gradient ? styles.backgroundColor : 'none',
+                     backgroundColor: isBannerPreset ? 'transparent' : (styles.gradient ? 'transparent' : styles.backgroundColor),
+                     backgroundImage: isBannerPreset ? 'none' : (styles.gradient ? styles.backgroundColor : 'none'),
                      color: styles.color,
                      borderColor: 'transparent',
                      borderWidth: '0px',
@@ -776,7 +777,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                      letterSpacing: '-0.01em',
                      position: 'relative',
                      isolation: 'isolate',
-                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                     boxShadow: isBannerPreset ? '0 4px 12px -1px rgba(0, 0, 0, 0.15)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                      fontFamily: 'Helvetica, Arial, sans-serif'
                    }}
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -787,28 +788,32 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     ease: [0.22, 1, 0.36, 1]
                   }}
                   whileHover={{ 
-                    scale: 1.02,
+                    scale: isBannerPreset ? 1.01 : 1.02,
                     y: -2,
                     transition: { duration: 0.2 }
                   }}
                   whileTap={{ scale: 0.98 }}
                   onMouseEnter={(e) => {
-                    if (styles.hoverBackgroundColor) {
-                      if (preset.styles.gradient) {
-                        e.currentTarget.style.backgroundImage = styles.hoverBackgroundColor
-                        e.currentTarget.style.backgroundColor = 'transparent'
-                      } else {
-                        e.currentTarget.style.backgroundColor = styles.hoverBackgroundColor
-                        e.currentTarget.style.backgroundImage = 'none'
+                    if (!isBannerPreset) {
+                      if (styles.hoverBackgroundColor) {
+                        if (preset.styles.gradient) {
+                          e.currentTarget.style.backgroundImage = styles.hoverBackgroundColor
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                        } else {
+                          e.currentTarget.style.backgroundColor = styles.hoverBackgroundColor
+                          e.currentTarget.style.backgroundImage = 'none'
+                        }
                       }
-                    }
-                    if (styles.hoverTextColor) {
-                      e.currentTarget.style.color = styles.hoverTextColor
+                      if (styles.hoverTextColor) {
+                        e.currentTarget.style.color = styles.hoverTextColor
+                      }
                     }
                     // Kenarlık yok
                     e.currentTarget.style.borderColor = 'transparent'
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'
-                    e.currentTarget.style.boxShadow = styles.shadow ? `${styles.shadow}, 0 10px 25px -5px rgba(0, 0, 0, 0.15)` : `0 10px 25px -5px ${styles.color}40, 0 10px 10px -5px rgba(0, 0, 0, 0.04)`
+                    e.currentTarget.style.transform = `translateY(-2px) scale(${isBannerPreset ? '1.01' : '1.02'})`
+                    e.currentTarget.style.boxShadow = isBannerPreset 
+                      ? '0 8px 20px -5px rgba(0, 0, 0, 0.2)' 
+                      : (styles.shadow ? `${styles.shadow}, 0 10px 25px -5px rgba(0, 0, 0, 0.15)` : `0 10px 25px -5px ${styles.color}40, 0 10px 10px -5px rgba(0, 0, 0, 0.04)`)
                     // Update dashed border opacity for all buttons
                     const dashedBorder = e.currentTarget.querySelector('.dashed-border-static') as HTMLElement
                     if (dashedBorder) {
@@ -816,18 +821,22 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (preset.styles.gradient) {
-                      e.currentTarget.style.backgroundImage = styles.backgroundColor
-                      e.currentTarget.style.backgroundColor = 'transparent'
-                    } else {
-                      e.currentTarget.style.backgroundColor = styles.backgroundColor
-                      e.currentTarget.style.backgroundImage = 'none'
+                    if (!isBannerPreset) {
+                      if (preset.styles.gradient) {
+                        e.currentTarget.style.backgroundImage = styles.backgroundColor
+                        e.currentTarget.style.backgroundColor = 'transparent'
+                      } else {
+                        e.currentTarget.style.backgroundColor = styles.backgroundColor
+                        e.currentTarget.style.backgroundImage = 'none'
+                      }
+                      e.currentTarget.style.color = styles.color
                     }
-                    e.currentTarget.style.color = styles.color
                     // Kenarlık yok
                     e.currentTarget.style.borderColor = 'transparent'
                     e.currentTarget.style.transform = 'translateY(0) scale(1)'
-                    e.currentTarget.style.boxShadow = styles.shadow || '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                    e.currentTarget.style.boxShadow = isBannerPreset 
+                      ? '0 4px 12px -1px rgba(0, 0, 0, 0.15)' 
+                      : (styles.shadow || '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)')
                     // Reset dashed border opacity for all buttons
                     const dashedBorder = e.currentTarget.querySelector('.dashed-border-static') as HTMLElement
                     if (dashedBorder) {
@@ -857,69 +866,85 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     }}
                   />
                   
-                  {/* Button content with centered logo at top */}
-                  <div className="relative z-10 flex flex-col items-center justify-center w-full gap-2">
-                    {/* Logo at the top - centered */}
-                    {config.logoUrl && (
-                      <div className="min-w-[120px] min-h-[70px] max-w-[180px] max-h-[90px] flex items-center justify-center bg-gradient-to-br from-white via-gray-50 to-gray-100 backdrop-blur-xl rounded-3xl border-2 border-white/50 shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500 relative overflow-hidden p-4">
-                        {/* Glass effect overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-white/30 opacity-50"></div>
-
-                        {/* Animated gradient glow */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-xl"></div>
-
-                        {/* Shine effect */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
-
-                        {/* Inner glow */}
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.8),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                        <img
-                          src={config.logoUrl}
-                          alt="Logo"
-                          className="max-w-full max-h-full w-auto h-auto object-contain relative z-10 filter drop-shadow-lg group-hover:drop-shadow-2xl group-hover:scale-110 transition-all duration-500"
-                          style={{
-                            width: 'auto',
-                            height: 'auto',
-                            maxWidth: '100%',
-                            maxHeight: '100%',
-                            objectFit: 'contain',
-                            filter: 'contrast(1.1) brightness(1.05)'
-                          }}
-                        />
-                      </div>
-                    )}
-                    
-                    {/* Buton fotoğrafı - centered below logo */}
-                    {action.image_url && (
-                      <div className="min-w-[80px] min-h-[40px] max-w-[120px] max-h-[60px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-black backdrop-blur-sm rounded-xl border border-gray-800 shadow-lg group-hover:from-gray-800 group-hover:to-gray-900 group-hover:scale-105 transition-all duration-300 p-2">
-                        <img
-                          src={action.image_url}
-                          alt={action.label}
-                          className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg group-hover:scale-105 transition-transform duration-300"
-                          style={{
-                            width: 'auto',
-                            height: 'auto',
-                            maxWidth: '100%',
-                            maxHeight: '100%',
-                            objectFit: 'contain'
-                          }}
-                        />
-                      </div>
-                    )}
-                    
-                    
-                    {/* Text content - centered */}
-                    <div className="flex flex-col items-center justify-center text-center">
-                      <span className="font-semibold text-lg group-hover:scale-105 transition-transform duration-300">{action.label}</span>
-                      {action.description && (
-                        <span className="text-sm opacity-90 font-normal max-w-[250px] text-center leading-tight mt-1 group-hover:opacity-100 transition-opacity duration-300">
-                          {action.description}
-                        </span>
-                      )}
+                  {/* Banner image mode */}
+                  {isBannerPreset ? (
+                    <div className="relative z-10 w-full h-full">
+                      <img
+                        src={preset.bannerImage}
+                        alt={action.label}
+                        className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-300"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
                     </div>
-                    
-                  </div>
+                  ) : (
+                    /* Button content with centered logo at top */
+                    <div className="relative z-10 flex flex-col items-center justify-center w-full gap-2">
+                      {/* Logo at the top - centered */}
+                      {config.logoUrl && (
+                        <div className="min-w-[120px] min-h-[70px] max-w-[180px] max-h-[90px] flex items-center justify-center bg-gradient-to-br from-white via-gray-50 to-gray-100 backdrop-blur-xl rounded-3xl border-2 border-white/50 shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500 relative overflow-hidden p-4">
+                          {/* Glass effect overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-white/30 opacity-50"></div>
+
+                          {/* Animated gradient glow */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-xl"></div>
+
+                          {/* Shine effect */}
+                          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
+
+                          {/* Inner glow */}
+                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.8),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                          <img
+                            src={config.logoUrl}
+                            alt="Logo"
+                            className="max-w-full max-h-full w-auto h-auto object-contain relative z-10 filter drop-shadow-lg group-hover:drop-shadow-2xl group-hover:scale-110 transition-all duration-500"
+                            style={{
+                              width: 'auto',
+                              height: 'auto',
+                              maxWidth: '100%',
+                              maxHeight: '100%',
+                              objectFit: 'contain',
+                              filter: 'contrast(1.1) brightness(1.05)'
+                            }}
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Buton fotoğrafı - centered below logo */}
+                      {action.image_url && (
+                        <div className="min-w-[80px] min-h-[40px] max-w-[120px] max-h-[60px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-black backdrop-blur-sm rounded-xl border border-gray-800 shadow-lg group-hover:from-gray-800 group-hover:to-gray-900 group-hover:scale-105 transition-all duration-300 p-2">
+                          <img
+                            src={action.image_url}
+                            alt={action.label}
+                            className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg group-hover:scale-105 transition-transform duration-300"
+                            style={{
+                              width: 'auto',
+                              height: 'auto',
+                              maxWidth: '100%',
+                              maxHeight: '100%',
+                              objectFit: 'contain'
+                            }}
+                          />
+                        </div>
+                      )}
+                      
+                      
+                      {/* Text content - centered */}
+                      <div className="flex flex-col items-center justify-center text-center">
+                        <span className="font-semibold text-lg group-hover:scale-105 transition-transform duration-300">{action.label}</span>
+                        {action.description && (
+                          <span className="text-sm opacity-90 font-normal max-w-[250px] text-center leading-tight mt-1 group-hover:opacity-100 transition-opacity duration-300">
+                            {action.description}
+                          </span>
+                        )}
+                      </div>
+                      
+                    </div>
+                  )}
                 </motion.button>
               )
             })}

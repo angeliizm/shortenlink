@@ -15,6 +15,7 @@ export interface ButtonPreset {
     gradient?: boolean
     pattern?: string
   }
+  bannerImage?: string  // Path to banner image for banner-type presets
 }
 
 export const buttonPresets: ButtonPreset[] = [
@@ -374,6 +375,28 @@ export const buttonPresets: ButtonPreset[] = [
       hoverBackgroundColor: 'linear-gradient(135deg, #5a67d8 0%, #6b46a2 100%)',
       hoverTextColor: '#FFFFFF',
     }
+  },
+  {
+    id: 'amg-banner',
+    name: 'AMG Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/amgbanner.png'
+  },
+  {
+    id: 'merso-banner',
+    name: 'Merso Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/mersobanner.gif'
   }
 ]
 
