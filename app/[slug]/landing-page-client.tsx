@@ -999,7 +999,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
       >
         <div className="text-center">
           <p className="text-xs text-white opacity-70">
-            Linkfy. bir Deniz Aksoy Medya projesidir.
+            Linkfy. bir KirveHUB projesidir.
           </p>
         </div>
       </motion.footer>
