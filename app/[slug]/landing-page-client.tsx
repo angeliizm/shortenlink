@@ -762,7 +762,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: 'clamp(8px, 1rem, 16px)'
+              gap: 'clamp(4px, 0.5rem, 8px)'
             }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
