@@ -53,6 +53,28 @@ export const buttonPresets: ButtonPreset[] = [
     bannerImage: '/images/hojabet.png'
   },
   {
+    id: 'vaycasino-banner',
+    name: 'VayCasino Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/vaycasino.png'
+  },
+  {
+    id: 'sheraton-banner',
+    name: 'Sheraton Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/sheraton.png'
+  },
+  {
     id: 'dashed-modern',
     name: 'Modern Dashed',
     styles: {
