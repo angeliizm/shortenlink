@@ -61,7 +61,7 @@ export const buttonPresets: ButtonPreset[] = [
       borderWidth: '0px',
       borderRadius: '12px',
     },
-    bannerImage: '/images/vaycasino.png'
+    bannerImage: '/images/vaycasinobanner.png'
   },
   {
     id: 'sheraton-banner',
@@ -72,7 +72,7 @@ export const buttonPresets: ButtonPreset[] = [
       borderWidth: '0px',
       borderRadius: '12px',
     },
-    bannerImage: '/images/sheraton.png'
+    bannerImage: '/images/sheratonbanner.png'
   },
   {
     id: 'dashed-modern',
