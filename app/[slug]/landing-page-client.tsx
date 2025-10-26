@@ -349,13 +349,43 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         
         @media (max-width: 768px) {
           .responsive-title {
-            font-size: ${Math.max(titleFontSize * 0.7, 20)}px !important;
+            font-size: ${Math.max(titleFontSize * 0.7, 18)}px !important;
+            line-height: 1.3 !important;
+            word-break: break-word !important;
+            text-align: center !important;
           }
           
           .responsive-description {
-            font-size: ${titleStyles?.descriptionFontSizeMobile || '1rem'} !important;
+            font-size: ${titleStyles?.descriptionFontSizeMobile || '0.9rem'} !important;
             color: ${titleStyles?.descriptionColor || '#6b7280'} !important;
             font-family: ${titleStyles?.descriptionFontFamily || 'Inter, sans-serif'} !important;
+            text-align: center !important;
+            line-height: 1.5 !important;
+          }
+          
+          .profile-card-container {
+            flex-direction: column !important;
+            text-align: center !important;
+            padding: 16px !important;
+            gap: 12px !important;
+          }
+          
+          .profile-card-avatar {
+            margin: 0 auto 12px auto !important;
+          }
+          
+          .profile-card-text {
+            text-align: center !important;
+            align-items: center !important;
+          }
+          
+          .banner-button-mobile {
+            min-height: 80px !important;
+            max-height: 120px !important;
+          }
+          
+          .banner-image-mobile {
+            object-fit: contain !important;
           }
         }
         
@@ -501,6 +531,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           justifyContent: 'center',
           gap: '16px'
         }
+        // Mobile-specific scale factor
+        const mobileScale = 0.6
         const scaledAvatarSize = scalePx(styles.avatarSize, compactScale)
         const scaledTitleMargin = '0 0 8px 0' // Reduced margin for horizontal layout
         const scaledDecorativeSize = scalePx(styles.decorativeSize, compactScale)
@@ -518,12 +550,12 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             <div className="relative">
               {/* Profile Card Container */}
               <div 
-                className="relative overflow-hidden w-full"
+                className="relative overflow-hidden w-full profile-card-container"
                 style={containerStyles}
               >
                  {/* Profile Avatar - Left Side */}
                  <motion.div 
-                   className="relative overflow-hidden flex-shrink-0"
+                   className="relative overflow-hidden flex-shrink-0 profile-card-avatar"
                    style={{
                      width: scaledAvatarSize,
                      height: scaledAvatarSize,
@@ -570,7 +602,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                  </motion.div>
 
                 {/* Text Content - Right Side */}
-                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                <div className="flex-1 min-w-0 flex flex-col justify-center profile-card-text">
                   {/* Name/Title */}
                   {(() => {
                     const titleFontPreset = getTitleFontPresetById(titleFontPresetId) || getTitleFontPresetById(defaultTitleFontPresetId)!
@@ -763,7 +795,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                      hover:shadow-xl hover:shadow-purple-200/30
                      transform-gpu
                      group
-                     ${isBannerPreset ? 'min-h-[120px]' : 'min-h-[90px]'}
+                     ${isBannerPreset ? 'min-h-[120px] banner-button-mobile' : 'min-h-[90px]'}
                    `}
                    style={{
                      backgroundColor: isBannerPreset ? 'transparent' : (styles.gradient ? 'transparent' : styles.backgroundColor),
@@ -872,7 +904,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                       <img
                         src={preset.bannerImage}
                         alt={action.label}
-                        className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-300 banner-image-mobile"
                         style={{
                           width: '100%',
                           height: '100%',
