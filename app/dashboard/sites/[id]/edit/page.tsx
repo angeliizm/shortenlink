@@ -612,20 +612,22 @@ export default function EditSitePage({ params }: PageProps) {
     
     setAvatarUrl(url)
     
-    // Also save to database (temporarily disabled due to type issues)
-    // try {
-    //   const { error } = await supabase
-    //     .from('pages')
-    //     .update({ avatar_url: url })
-    //     .eq('id', siteId)
-    //     .eq('owner_id', user?.id)
-    //   
-    //   if (error) {
-    //     console.error('Failed to save avatar URL to database:', error)
-    //   }
-    // } catch (err) {
-    //   console.error('Error saving avatar URL:', err)
-    // }
+    // Also persist to database so it loads on all devices
+    try {
+      if (siteId && user?.id) {
+        const { error } = await (supabase as any)
+          .from('pages')
+          .update({ avatar_url: url })
+          .eq('id', siteId)
+          .eq('owner_id', user.id)
+
+        if (error) {
+          console.error('Failed to save avatar URL to database:', error)
+        }
+      }
+    } catch (err) {
+      console.error('Error saving avatar URL:', err)
+    }
   }
 
   if (isLoading || authLoading) {

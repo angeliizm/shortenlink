@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { PageConfig } from '@/lib/types/page'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getPresetById, defaultPresetId } from '@/lib/button-presets'
@@ -36,6 +36,22 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   const [titleColor, setTitleColor] = useState<string>(config.titleColor || '#ffffff')
   const [titleFontSize, setTitleFontSize] = useState<number>(config.titleFontSize || 28)
   const [avatarUrl, setAvatarUrl] = useState<string>('')
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false)
+
+  // Normalize avatar URL and enforce HTTPS to avoid mixed-content issues on some devices
+  const sanitizedAvatarUrl = useMemo(() => {
+    if (!avatarUrl) return ''
+    try {
+      const base = typeof window !== 'undefined' ? window.location.origin : 'https://'
+      const urlObj = new URL(avatarUrl, base)
+      if (urlObj.protocol === 'http:') {
+        urlObj.protocol = 'https:'
+      }
+      return urlObj.toString()
+    } catch {
+      return avatarUrl
+    }
+  }, [avatarUrl])
   
   // Listen for preset changes from edit page (if same site)
   useEffect(() => {
@@ -107,6 +123,11 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [config.slug, config.backgroundPreference, config.titleStylePreference, titleStylePreset, trackPageView])
+
+  // Reset avatar error state when URL changes
+  useEffect(() => {
+    if (avatarLoadFailed) setAvatarLoadFailed(false)
+  }, [avatarUrl])
 
   // Load preferences: database values take priority, then localStorage, then defaults
   useEffect(() => {
@@ -572,23 +593,26 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                    animate={{ scale: 1 }}
                    transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
                  >
-                   {avatarUrl ? (
-                     <img
-                       src={avatarUrl}
-                       alt="Profile Avatar"
-                       className="w-full h-full object-cover"
-                       loading="eager"
-                       crossOrigin="anonymous"
-                       style={{
-                         display: 'block',
-                         visibility: 'visible',
-                         width: '100%',
-                         height: '100%',
-                         objectFit: 'cover',
-                         borderRadius: '50%'
-                       }}
-                     />
-                   ) : (
+                  {sanitizedAvatarUrl && !avatarLoadFailed ? (
+                    <img
+                      src={sanitizedAvatarUrl}
+                      alt="Profile Avatar"
+                      className="w-full h-full object-cover"
+                      loading="eager"
+                      decoding="async"
+                      referrerPolicy="no-referrer"
+                      crossOrigin="anonymous"
+                      onError={() => setAvatarLoadFailed(true)}
+                      style={{
+                        display: 'block',
+                        visibility: 'visible',
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: '50%'
+                      }}
+                    />
+                  ) : (
                      <div className="w-full h-full flex items-center justify-center">
                        <svg 
                          className="w-8 h-8 text-white" 
