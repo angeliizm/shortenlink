@@ -72,7 +72,7 @@ export const buttonPresets: ButtonPreset[] = [
       borderWidth: '0px',
       borderRadius: '12px',
     },
-    bannerImage: '/images/sheratonbanner.png'
+    bannerImage: '/images/sheratonbetbanner.PNG'
   },
   {
     id: 'dashed-modern',
