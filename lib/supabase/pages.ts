@@ -33,6 +33,29 @@ export async function getPageConfig(slug: string): Promise<PageConfig | null> {
     pageData = data
   }
   
+  // Ensure critical fields (avatar/logo/profile/title styles) are present even if RPC doesn't include them
+  try {
+    if (pageData?.id) {
+      const { data: pageRow } = await (supabase as any)
+        .from('pages')
+        .select('avatar_url, logo_url, profile_preset_id, title_font_preset_id, title_color, title_font_size, owner_id')
+        .eq('id', pageData.id)
+        .single()
+
+      if (pageRow) {
+        pageData.avatar_url = pageData.avatar_url ?? pageRow.avatar_url
+        pageData.logo_url = pageData.logo_url ?? pageRow.logo_url
+        pageData.profile_preset_id = pageData.profile_preset_id ?? pageRow.profile_preset_id
+        pageData.title_font_preset_id = pageData.title_font_preset_id ?? pageRow.title_font_preset_id
+        pageData.title_color = pageData.title_color ?? pageRow.title_color
+        pageData.title_font_size = pageData.title_font_size ?? pageRow.title_font_size
+        pageData.user_id = pageData.user_id ?? pageRow.owner_id
+      }
+    }
+  } catch (e) {
+    // Non-fatal; continue with available pageData
+  }
+
   // Fetch background preferences
   const { data: bgPrefs } = await supabase
     .from('background_preferences')

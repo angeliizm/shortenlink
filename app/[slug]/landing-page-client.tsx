@@ -240,8 +240,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   let animationClass = ''
   let animationCSS = ''
   
-  // Get title styles for responsive CSS
-  const currentTitleStylePreset = titleStylePresets.find(p => p.id === titleFontPresetId) || titleStylePresets.find(p => p.id === defaultTitleFontPresetId)!
+  // Get title styles for responsive CSS from the selected title style preset
+  const currentTitleStylePreset = titleStylePreset || titleStylePresets[0]
   const titleStyles = currentTitleStylePreset.styles
   
   // Get title font preset for color and font
