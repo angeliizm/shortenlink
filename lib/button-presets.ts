@@ -83,7 +83,7 @@ export const buttonPresets: ButtonPreset[] = [
       borderWidth: '0px',
       borderRadius: '12px',
     },
-    bannerImage: '/images/betcibanner.jpg'
+    bannerImage: '/images/betcibanner.png'
   },
   {
     id: 'dashed-modern',
