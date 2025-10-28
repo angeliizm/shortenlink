@@ -75,6 +75,17 @@ export const buttonPresets: ButtonPreset[] = [
     bannerImage: '/images/sheratonbetbanner.PNG'
   },
   {
+    id: 'betci-banner',
+    name: 'BETCI Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/betcibanner.jpg'
+  },
+  {
     id: 'dashed-modern',
     name: 'Modern Dashed',
     styles: {
