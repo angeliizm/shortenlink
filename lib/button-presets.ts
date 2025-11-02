@@ -94,7 +94,7 @@ export const buttonPresets: ButtonPreset[] = [
       borderWidth: '0px',
       borderRadius: '12px',
     },
-    bannerImage: '/images/carkbet.png'
+    bannerImage: '/images/carkbetbanner.png'
   },
   {
     id: 'betvslot-banner',
@@ -105,7 +105,7 @@ export const buttonPresets: ButtonPreset[] = [
       borderWidth: '0px',
       borderRadius: '12px',
     },
-    bannerImage: '/images/betvslot.png'
+    bannerImage: '/images/betvslotbanner.png'
   },
   {
     id: 'dashed-modern',
