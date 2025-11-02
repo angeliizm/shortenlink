@@ -86,6 +86,28 @@ export const buttonPresets: ButtonPreset[] = [
     bannerImage: '/images/betcibanner.png'
   },
   {
+    id: 'carkbet-banner',
+    name: 'CarkBet Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/carkbet.png'
+  },
+  {
+    id: 'betvslot-banner',
+    name: 'BETVSLOT Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/betvslot.png'
+  },
+  {
     id: 'dashed-modern',
     name: 'Modern Dashed',
     styles: {
