@@ -97,6 +97,28 @@ export const buttonPresets: ButtonPreset[] = [
     bannerImage: '/images/carkbetbanner.png'
   },
   {
+    id: 'grandpasha-banner',
+    name: 'GrandPasha Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/grandpashabanner.png'
+  },
+  {
+    id: 'hizlicasino-banner',
+    name: 'HizliCasino Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/hizlicasinobanner.png'
+  },
+  {
     id: 'betvslot-banner',
     name: 'BETVSLOT Banner',
     styles: {
