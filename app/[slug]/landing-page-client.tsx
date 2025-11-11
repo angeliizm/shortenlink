@@ -30,6 +30,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
     controls: Record<string, string | number>
   } | null>(null)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  const [isCompactMobile, setIsCompactMobile] = useState(false)
   // Initialize from config first, then localStorage will override if needed
   const [profilePresetId, setProfilePresetId] = useState<string>(config.profilePresetId || defaultProfilePresetId)
   const [titleFontPresetId, setTitleFontPresetId] = useState<string>(config.titleFontPresetId || defaultTitleFontPresetId)
@@ -123,6 +124,17 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [config.slug, config.backgroundPreference, config.titleStylePreference, titleStylePreset, trackPageView])
+
+  useEffect(() => {
+    const updateCompactState = () => {
+      if (typeof window !== 'undefined') {
+        setIsCompactMobile(window.innerWidth <= 480)
+      }
+    }
+    updateCompactState()
+    window.addEventListener('resize', updateCompactState)
+    return () => window.removeEventListener('resize', updateCompactState)
+  }, [])
 
   // Reset avatar error state when URL changes
   useEffect(() => {
@@ -521,9 +533,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
 
       {/* Profile Card - Dynamic Preset Design */}
       {(() => {
-        
         // Create styles for the container (horizontal compact layout)
-        const compactScale = 0.75
+        const compactScale = isCompactMobile ? 0.55 : 0.75
         const scalePx = (v: string, s: number) => {
           if (!v) return v
           if (typeof v !== 'string') return v as any
@@ -542,27 +553,27 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         }
 
         const containerStyles = {
-          padding: scalePx(styles.containerPadding, compactScale),
+          padding: isCompactMobile ? '14px 18px' : scalePx(styles.containerPadding, compactScale),
           borderRadius: scalePx(styles.containerBorderRadius, compactScale),
           background: styles.containerBackground,
           border: styles.containerBorder,
           boxShadow: styles.containerShadow,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          gap: '16px'
+          justifyContent: isCompactMobile ? 'flex-start' : 'center',
+          gap: isCompactMobile ? '12px' : '16px'
         }
-        // Mobile-specific scale factor
-        const mobileScale = 0.6
-        const scaledAvatarSize = scalePx(styles.avatarSize, compactScale)
-        const scaledTitleMargin = '0 0 8px 0' // Reduced margin for horizontal layout
+        const avatarScale = isCompactMobile ? 0.5 : compactScale
+        const scaledAvatarSize = scalePx(styles.avatarSize, avatarScale)
+        const scaledTitleMargin = isCompactMobile ? '0' : '0 0 8px 0' // Reduced margin for horizontal layout
         const scaledDecorativeSize = scalePx(styles.decorativeSize, compactScale)
         
         return (
           <motion.div 
               className="relative z-10 w-full max-w-md mx-auto mb-8 px-4"
               style={{
-                margin: '0 auto 30px auto'
+                margin: isCompactMobile ? '0 auto 18px auto' : '0 auto 30px auto',
+                maxWidth: isCompactMobile ? '360px' : undefined
               }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -635,14 +646,14 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                       <motion.h1 
                         className="responsive-title"
                         style={{ 
-                          fontSize: `${Math.max(16, titleFontSize * 0.85)}px`, // Slightly smaller for horizontal layout
+                          fontSize: `${Math.max(16, titleFontSize * (isCompactMobile ? 0.65 : 0.85))}px`, // Slightly smaller for horizontal layout
                           fontWeight: titleFontPreset.fontWeight,
                           color: config.titleColor || titleColor || '#ffffff',
                           margin: scaledTitleMargin,
                           letterSpacing: titleFontPreset.letterSpacing,
                           fontFamily: titleFontPreset.fontFamily,
-                          lineHeight: '1.2', // Tighter line height for horizontal layout
-                          textAlign: 'left' // Left align for horizontal layout
+                          lineHeight: isCompactMobile ? '1.15' : '1.2', // Tighter line height for horizontal layout
+                          textAlign: isCompactMobile ? 'center' : 'left' // Left align for horizontal layout
                         }}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -658,10 +669,10 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     <motion.p 
                       className="responsive-description"
                       style={{
-                        fontSize: '14px', // Smaller description for horizontal layout
-                        lineHeight: '1.4',
-                        textAlign: 'left',
-                        marginTop: '4px'
+                        fontSize: isCompactMobile ? '13px' : '14px', // Smaller description for horizontal layout
+                        lineHeight: isCompactMobile ? '1.35' : '1.4',
+                        textAlign: isCompactMobile ? 'center' : 'left',
+                        marginTop: isCompactMobile ? '2px' : '4px'
                       }}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
