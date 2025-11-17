@@ -152,6 +152,17 @@ export const buttonPresets: ButtonPreset[] = [
     bannerImage: '/images/pusulabanner.png'
   },
   {
+    id: 'misty-banner',
+    name: 'Misty Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/mistybanner.png'
+  },
+  {
     id: 'betvslot-banner',
     name: 'BETVSLOT Banner',
     styles: {
