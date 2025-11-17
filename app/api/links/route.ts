@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { nanoid } from 'nanoid'
 
+export const dynamic = 'force-dynamic';
+
 const createLinkSchema = z.object({
   target_url: z.string().url(),
   slug: z.string().min(3).max(50).optional(),

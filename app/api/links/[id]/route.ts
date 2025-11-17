@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 
+export const dynamic = 'force-dynamic';
+
 const updateLinkSchema = z.object({
   target_url: z.string().url().optional(),
   slug: z.string().min(3).max(50).optional(),

@@ -15,6 +15,8 @@ interface InvitationCode {
   used_at: string | null
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   console.log('=== INVITATION CODE USE API CALLED ===')
   
