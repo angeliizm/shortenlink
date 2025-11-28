@@ -174,6 +174,28 @@ export const buttonPresets: ButtonPreset[] = [
     bannerImage: '/images/dodobetbanner.png'
   },
   {
+    id: 'bahibom-banner',
+    name: 'Bahibom Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/bahibombanner.png'
+  },
+  {
+    id: 'palazzobet-banner',
+    name: 'Palazzobet Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/palazzobetbanner.png'
+  },
+  {
     id: 'betvslot-banner',
     name: 'BETVSLOT Banner',
     styles: {

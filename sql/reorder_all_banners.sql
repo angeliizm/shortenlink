@@ -1,12 +1,24 @@
 -- Tüm aktif sayfalardaki banner sıralamasını güncelleme scripti
--- Sıralama: 1.Merso, 2.AMG, 3.Misty, 4.GrandPasha, 5.Dodobet, 6.Betçi, 7.HizliCasino, 8.Padisah, 9.BetPuan, 10.Pusula
+-- Sıralama: 1.Betçi, 2.Merso, 3.AMG, 4.Misty, 5.GrandPasha, 6.Dodobet, 7.HizliCasino, 8.Padisah, 9.BetPuan, 10.Pusula
 
 BEGIN;
 
 -- Önce tüm banner'ları belirtilen sıraya göre güncelle
--- Merso - sort_order = 1
+-- Betçi - sort_order = 1 (ilk sıra)
 UPDATE public.page_actions pa
 SET sort_order = 1,
+    updated_at = NOW()
+WHERE EXISTS (
+  SELECT 1 FROM public.pages p
+  WHERE p.id = pa.page_id
+    AND p.is_enabled = true
+)
+AND pa.href = 'https://betcilink2.com/affiliates/?btag=2564486'
+AND pa.is_enabled = true;
+
+-- Merso - sort_order = 2
+UPDATE public.page_actions pa
+SET sort_order = 2,
     updated_at = NOW()
 WHERE EXISTS (
   SELECT 1 FROM public.pages p
@@ -16,9 +28,9 @@ WHERE EXISTS (
 AND pa.preset = 'merso-banner'
 AND pa.is_enabled = true;
 
--- AMG - sort_order = 2
+-- AMG - sort_order = 3
 UPDATE public.page_actions pa
-SET sort_order = 2,
+SET sort_order = 3,
     updated_at = NOW()
 WHERE EXISTS (
   SELECT 1 FROM public.pages p
@@ -28,9 +40,9 @@ WHERE EXISTS (
 AND pa.preset = 'amg-banner'
 AND pa.is_enabled = true;
 
--- Misty Casino - sort_order = 3
+-- Misty Casino - sort_order = 4
 UPDATE public.page_actions pa
-SET sort_order = 3,
+SET sort_order = 4,
     updated_at = NOW()
 WHERE EXISTS (
   SELECT 1 FROM public.pages p
@@ -40,9 +52,9 @@ WHERE EXISTS (
 AND pa.href = 'https://tr.fgtrack.net/click?key=503a7225e89b71f9ffc3&uid=f263c030-6a10-4021-bbe3-b21739d94dbd&domain=mistycasino.com&offer_id=1'
 AND pa.is_enabled = true;
 
--- GrandPasha - sort_order = 4
+-- GrandPasha - sort_order = 5
 UPDATE public.page_actions pa
-SET sort_order = 4,
+SET sort_order = 5,
     updated_at = NOW()
 WHERE EXISTS (
   SELECT 1 FROM public.pages p
@@ -52,19 +64,7 @@ WHERE EXISTS (
 AND pa.href = 'https://shorttwelve.online/denizaksoy'
 AND pa.is_enabled = true;
 
--- Dodobet - sort_order = 5
-UPDATE public.page_actions pa
-SET sort_order = 5,
-    updated_at = NOW()
-WHERE EXISTS (
-  SELECT 1 FROM public.pages p
-  WHERE p.id = pa.page_id
-    AND p.is_enabled = true
-)
-AND pa.href = 'https://cutt.ly/2r7JwG3d'
-AND pa.is_enabled = true;
-
--- Betçi - sort_order = 6
+-- Dodobet - sort_order = 6
 UPDATE public.page_actions pa
 SET sort_order = 6,
     updated_at = NOW()
@@ -73,7 +73,7 @@ WHERE EXISTS (
   WHERE p.id = pa.page_id
     AND p.is_enabled = true
 )
-AND pa.href = 'https://betcilink2.com/affiliates/?btag=2564486'
+AND pa.href = 'https://cutt.ly/2r7JwG3d'
 AND pa.is_enabled = true;
 
 -- HizliCasino - sort_order = 7
@@ -139,10 +139,10 @@ WITH other_actions AS (
     AND NOT (
       pa.preset IN ('merso-banner', 'amg-banner')
       OR pa.href IN (
+        'https://betcilink2.com/affiliates/?btag=2564486',
         'https://tr.fgtrack.net/click?key=503a7225e89b71f9ffc3&uid=f263c030-6a10-4021-bbe3-b21739d94dbd&domain=mistycasino.com&offer_id=1',
         'https://shorttwelve.online/denizaksoy',
         'https://cutt.ly/2r7JwG3d',
-        'https://betcilink2.com/affiliates/?btag=2564486',
         'https://dub.is/hizli-kirve',
         'https://p.t2m.io/EfQMjRJ',
         'https://www.betpuanpartner.com/links/?btag=2098924',
@@ -181,10 +181,10 @@ WHERE p.is_enabled = true
   AND (
     pa.preset IN ('merso-banner', 'amg-banner')
     OR pa.href IN (
+      'https://betcilink2.com/affiliates/?btag=2564486',
       'https://tr.fgtrack.net/click?key=503a7225e89b71f9ffc3&uid=f263c030-6a10-4021-bbe3-b21739d94dbd&domain=mistycasino.com&offer_id=1',
       'https://shorttwelve.online/denizaksoy',
       'https://cutt.ly/2r7JwG3d',
-      'https://betcilink2.com/affiliates/?btag=2564486',
       'https://dub.is/hizli-kirve',
       'https://p.t2m.io/EfQMjRJ',
       'https://www.betpuanpartner.com/links/?btag=2098924',
