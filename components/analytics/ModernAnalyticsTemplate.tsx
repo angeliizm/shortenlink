@@ -25,7 +25,7 @@ interface ModernAnalyticsTemplateProps {
 
 export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTemplateProps) {
   const router = useRouter();
-  const [dateRange, setDateRange] = useState('30d');
+  const [dateRange, setDateRange] = useState('today');
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState<any>(null);
   const [siteInfo, setSiteInfo] = useState<any>(null);
@@ -33,20 +33,46 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      const days = parseInt(dateRange.replace('d', ''));
-      const endDate = endOfDay(new Date());
-      const startDate = startOfDay(subDays(endDate, days - 1)).toISOString();
+      let startDate: Date;
+      let endDate: Date;
+      
+      const now = new Date();
+      
+      switch (dateRange) {
+        case 'today':
+          startDate = startOfDay(now);
+          endDate = endOfDay(now);
+          break;
+        case 'yesterday':
+          const yesterday = subDays(now, 1);
+          startDate = startOfDay(yesterday);
+          endDate = endOfDay(yesterday);
+          break;
+        case 'last7days':
+          startDate = startOfDay(subDays(now, 6));
+          endDate = endOfDay(now);
+          break;
+        case 'last30days':
+          startDate = startOfDay(subDays(now, 29));
+          endDate = endOfDay(now);
+          break;
+        default:
+          startDate = startOfDay(now);
+          endDate = endOfDay(now);
+      }
+      
+      const startDateStr = startDate.toISOString();
       const endDateStr = endDate.toISOString();
 
       // Fetch all analytics data in parallel
       const [overview, actions, realtime, referrers, devices, geography, events] = await Promise.all([
-        fetch(`/api/analytics/${siteSlug}?metric=overview&startDate=${startDate}&endDate=${endDateStr}`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=actions&startDate=${startDate}&endDate=${endDateStr}`).then(r => r.json()),
+        fetch(`/api/analytics/${siteSlug}?metric=overview&startDate=${startDateStr}&endDate=${endDateStr}`).then(r => r.json()),
+        fetch(`/api/analytics/${siteSlug}?metric=actions&startDate=${startDateStr}&endDate=${endDateStr}`).then(r => r.json()),
         fetch(`/api/analytics/${siteSlug}?metric=realtime`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=referrers&startDate=${startDate}&endDate=${endDateStr}`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=devices&startDate=${startDate}&endDate=${endDateStr}`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=geography&startDate=${startDate}&endDate=${endDateStr}`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=events&startDate=${startDate}&endDate=${endDateStr}`).then(r => r.json())
+        fetch(`/api/analytics/${siteSlug}?metric=referrers&startDate=${startDateStr}&endDate=${endDateStr}`).then(r => r.json()),
+        fetch(`/api/analytics/${siteSlug}?metric=devices&startDate=${startDateStr}&endDate=${endDateStr}`).then(r => r.json()),
+        fetch(`/api/analytics/${siteSlug}?metric=geography&startDate=${startDateStr}&endDate=${endDateStr}`).then(r => r.json()),
+        fetch(`/api/analytics/${siteSlug}?metric=events&startDate=${startDateStr}&endDate=${endDateStr}`).then(r => r.json())
       ]);
 
       setAnalytics({ overview, actions, realtime, referrers, devices, geography, events });
@@ -139,9 +165,34 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
   const timeSeriesData = useMemo(() => {
     // Use real analytics data from events if available
     if (analytics?.events?.events && analytics.events.events.length > 0) {
-      const days = parseInt(dateRange.replace('d', ''));
-      const endDate = endOfDay(new Date());
-      const startDate = startOfDay(subDays(endDate, days - 1));
+      const now = new Date();
+      let startDate: Date;
+      let endDate: Date;
+      
+      switch (dateRange) {
+        case 'today':
+          startDate = startOfDay(now);
+          endDate = endOfDay(now);
+          break;
+        case 'yesterday':
+          const yesterday = subDays(now, 1);
+          startDate = startOfDay(yesterday);
+          endDate = endOfDay(yesterday);
+          break;
+        case 'last7days':
+          startDate = startOfDay(subDays(now, 6));
+          endDate = endOfDay(now);
+          break;
+        case 'last30days':
+          startDate = startOfDay(subDays(now, 29));
+          endDate = endOfDay(now);
+          break;
+        default:
+          startDate = startOfDay(now);
+          endDate = endOfDay(now);
+      }
+      
+      const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
       
       // Group events by day
       const dailyData = new Map();
@@ -202,10 +253,37 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
     }
     
     // Generate sample data if no real data available
-    const days = parseInt(dateRange.replace('d', ''));
+    const now = new Date();
+    let startDate: Date;
+    let endDate: Date;
+    
+    switch (dateRange) {
+      case 'today':
+        startDate = startOfDay(now);
+        endDate = endOfDay(now);
+        break;
+      case 'yesterday':
+        const yesterday = subDays(now, 1);
+        startDate = startOfDay(yesterday);
+        endDate = endOfDay(yesterday);
+        break;
+      case 'last7days':
+        startDate = startOfDay(subDays(now, 6));
+        endDate = endOfDay(now);
+        break;
+      case 'last30days':
+        startDate = startOfDay(subDays(now, 29));
+        endDate = endOfDay(now);
+        break;
+      default:
+        startDate = startOfDay(now);
+        endDate = endOfDay(now);
+    }
+    
+    const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     const sampleData = [];
     for (let i = days - 1; i >= 0; i--) {
-      const date = subDays(new Date(), i);
+      const date = subDays(endDate, i);
        sampleData.push({
          date: format(date, 'MMM dd'),
          pageviews: Math.floor(Math.random() * 1000) + 500,
@@ -304,10 +382,10 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
                   <SelectValue />
                 </SelectTrigger>
                  <SelectContent>
-                   <SelectItem value="1d">Son 24 saat</SelectItem>
-                   <SelectItem value="7d">Son 7 gün</SelectItem>
-                   <SelectItem value="30d">Bu ay</SelectItem>
-                   <SelectItem value="90d">Son 90 gün</SelectItem>
+                   <SelectItem value="today">Bugün</SelectItem>
+                   <SelectItem value="yesterday">Dün</SelectItem>
+                   <SelectItem value="last7days">Bu Son 7 Gün</SelectItem>
+                   <SelectItem value="last30days">Son 30 Gün</SelectItem>
                  </SelectContent>
               </Select>
             </div>
@@ -425,148 +503,7 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
            </Card>
         </div>
 
-        {/* Main Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Pageviews and Clicks Chart */}
-          <div className="lg:col-span-2">
-            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl h-full">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                   <div>
-                     <CardTitle className="text-lg font-semibold text-gray-900">Sayfa Görüntüleme ve Tıklamalar</CardTitle>
-                     <div className="flex items-center space-x-6 mt-2">
-                       <div className="flex items-center space-x-2">
-                         <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                         <span className="text-sm text-gray-600">Sayfa Görüntüleme</span>
-                       </div>
-                       <div className="flex items-center space-x-2">
-                         <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                         <span className="text-sm text-gray-600">Tıklamalar</span>
-                       </div>
-                     </div>
-                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ResponsiveContainer width="100%" height={320}>
-                  <AreaChart data={timeSeriesData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis 
-                      dataKey="date" 
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: '#666' }}
-                    />
-                    <YAxis 
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: '#666' }}
-                    />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: 'white',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '12px',
-                        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
-                      }}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="pageviews" 
-                      stackId="1"
-                      stroke="#f97316" 
-                      fill="url(#pageviewGradient)" 
-                      fillOpacity={0.8}
-                      strokeWidth={3}
-                    />
-                     <Area 
-                       type="monotone" 
-                       dataKey="clicks" 
-                       stackId="2"
-                       stroke="#eab308" 
-                       fill="url(#clickGradient)" 
-                       fillOpacity={0.8}
-                       strokeWidth={3}
-                     />
-                     <Area 
-                       type="monotone" 
-                       dataKey="signups" 
-                       stackId="3"
-                       stroke="#10b981" 
-                       fill="url(#signupGradient)" 
-                       fillOpacity={0.8}
-                       strokeWidth={3}
-                     />
-                     <defs>
-                       <linearGradient id="pageviewGradient" x1="0" y1="0" x2="0" y2="1">
-                         <stop offset="5%" stopColor="#f97316" stopOpacity={0.8}/>
-                         <stop offset="95%" stopColor="#f97316" stopOpacity={0.1}/>
-                       </linearGradient>
-                       <linearGradient id="clickGradient" x1="0" y1="0" x2="0" y2="1">
-                         <stop offset="5%" stopColor="#eab308" stopOpacity={0.8}/>
-                         <stop offset="95%" stopColor="#eab308" stopOpacity={0.1}/>
-                       </linearGradient>
-                       <linearGradient id="signupGradient" x1="0" y1="0" x2="0" y2="1">
-                         <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                         <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
-                       </linearGradient>
-                     </defs>
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Device Distribution */}
-          <div>
-            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl h-full">
-               <CardHeader className="pb-4">
-                 <CardTitle className="text-lg font-semibold text-gray-900">Cihaz Dağılımı</CardTitle>
-               </CardHeader>
-              <CardContent className="pt-0">
-                <ResponsiveContainer width="100%" height={320}>
-                  <PieChart>
-                    <Pie
-                      data={deviceData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={120}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {deviceData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: 'white',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '12px',
-                        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="mt-4 space-y-2">
-                  {deviceData.map((device, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center space-x-2">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: device.color }}
-                        ></div>
-                        <span className="text-gray-600">{device.name}</span>
-                      </div>
-                      <span className="font-medium text-gray-900">{device.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        {/* Main Charts Section - Removed Pageviews/Clicks and Device Distribution tables */}
 
         {/* Bottom Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
