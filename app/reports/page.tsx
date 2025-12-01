@@ -33,8 +33,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { 
   HourlyOverviewChart, 
-  HourlyPageViewsChart, 
-  HourlyClicksChart, 
   HourlySessionsChart, 
   HourlyPeakHours 
 } from '@/components/reports/HourlyCharts';
@@ -98,13 +96,9 @@ const getTimeRangeLabel = (timeRange: string) => {
     case 'yesterday':
       return 'Dün';
     case '7d':
-      return 'Son 1 Hafta';
+      return 'Bu Son 7 Gün';
     case '30d':
-      return 'Son 1 Ay';
-    case '1y':
-      return 'Son 1 Yıl';
-    case 'all':
-      return 'Tüm Zamanlar';
+      return 'Son 30 Gün';
     default:
       return 'Bugün';
   }
@@ -371,7 +365,7 @@ export default function ReportsPage() {
                     : 'bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70'
                 }`}
               >
-                Son 1 Hafta
+                Bu Son 7 Gün
               </Button>
               <Button
                 variant={timeRange === '30d' ? 'default' : 'outline'}
@@ -383,31 +377,7 @@ export default function ReportsPage() {
                     : 'bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70'
                 }`}
               >
-                Son 1 Ay
-              </Button>
-              <Button
-                variant={timeRange === '1y' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setTimeRange('1y')}
-                className={`transition-all duration-200 ${
-                  timeRange === '1y' 
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                    : 'bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70'
-                }`}
-              >
-                Son 1 Yıl
-              </Button>
-              <Button
-                variant={timeRange === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setTimeRange('all')}
-                className={`transition-all duration-200 ${
-                  timeRange === 'all' 
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                    : 'bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70'
-                }`}
-              >
-                Tüm Zamanlar
+                Son 30 Gün
               </Button>
             </div>
 
@@ -527,12 +497,6 @@ export default function ReportsPage() {
               {/* Peak Hours */}
               <HourlyPeakHours data={data?.hourly || []} />
               
-              {/* Detailed Charts */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <HourlyPageViewsChart data={data?.hourly || []} />
-                <HourlyClicksChart data={data?.hourly || []} />
-              </div>
-              
               {/* Sessions Chart */}
               <HourlySessionsChart data={data?.hourly || []} />
             </TabsContent>
@@ -540,31 +504,6 @@ export default function ReportsPage() {
             {/* Technology Tab */}
             <TabsContent value="technology" className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Devices */}
-                <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl">
-                  <CardHeader>
-                    <CardTitle>Cihaz Türleri</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {data?.analytics.devices.map((device, index) => (
-                        <div key={device.device} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-center space-x-3">
-                            {getDeviceIcon(device.device)}
-                            <span className="font-medium">{device.device}</span>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-bold">{device.count}</p>
-                            <p className="text-xs text-gray-500">
-                              {((device.count / data.overview.totalPageViews) * 100).toFixed(1)}%
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
                 {/* Browsers */}
                 <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl">
                   <CardHeader>
