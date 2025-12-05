@@ -207,6 +207,17 @@ export const buttonPresets: ButtonPreset[] = [
     bannerImage: '/images/betvslotbanner.png'
   },
   {
+    id: 'betplay-banner',
+    name: 'Betplay Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/betplaybanner.png'
+  },
+  {
     id: 'dashed-modern',
     name: 'Modern Dashed',
     styles: {
