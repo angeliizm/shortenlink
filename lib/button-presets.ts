@@ -215,7 +215,7 @@ export const buttonPresets: ButtonPreset[] = [
       borderWidth: '0px',
       borderRadius: '12px',
     },
-    bannerImage: '/images/betplaybanner.png'
+    bannerImage: '/images/betplay.gif'
   },
   {
     id: 'dashed-modern',

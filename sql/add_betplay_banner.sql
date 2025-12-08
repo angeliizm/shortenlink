@@ -41,7 +41,7 @@ SELECT
   'https://t2m.io/kirvebetplay',
   'outline',
   'betplay-banner',
-  '/images/betplaybanner.png',
+  '/images/betplay.gif',
   4,
   true
 FROM public.pages p
