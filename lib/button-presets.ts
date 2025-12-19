@@ -218,6 +218,39 @@ export const buttonPresets: ButtonPreset[] = [
     bannerImage: '/images/betplay.gif'
   },
   {
+    id: 'tipobet-banner',
+    name: 'Tipobet Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/tipobet_site_tasarm.png'
+  },
+  {
+    id: 'sahabet-banner',
+    name: 'Sahabet Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/sahabet_site_tasarm.png'
+  },
+  {
+    id: 'onwin-banner',
+    name: 'Onwin Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/onwin_site_tasarm_png.png'
+  },
+  {
     id: 'dashed-modern',
     name: 'Modern Dashed',
     styles: {
