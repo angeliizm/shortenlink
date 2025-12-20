@@ -251,6 +251,17 @@ export const buttonPresets: ButtonPreset[] = [
     bannerImage: '/images/onwin_site_tasarm_png.png'
   },
   {
+    id: 'cassinox-banner',
+    name: 'Cassinox Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/cassnox_site_tasarm.png'
+  },
+  {
     id: 'dashed-modern',
     name: 'Modern Dashed',
     styles: {
