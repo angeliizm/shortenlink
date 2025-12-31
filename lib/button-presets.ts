@@ -50,7 +50,7 @@ export const buttonPresets: ButtonPreset[] = [
       borderWidth: '0px',
       borderRadius: '12px',
     },
-    bannerImage: '/images/hojabet.png'
+    bannerImage: '/images/hojabet_site_tasarm.png'
   },
   {
     id: 'vaycasino-banner',
