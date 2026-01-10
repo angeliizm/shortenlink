@@ -284,6 +284,28 @@ export const buttonPresets: ButtonPreset[] = [
     bannerImage: '/images/betium_site_tasarm.png'
   },
   {
+    id: 'locabet-banner',
+    name: 'Locabet Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/locabet_site_tasarm_png.png'
+  },
+  {
+    id: 'millibahis-banner',
+    name: 'Millibahis Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/millibahis_site_tasarm.png'
+  },
+  {
     id: 'dashed-modern',
     name: 'Modern Dashed',
     styles: {
