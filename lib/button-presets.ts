@@ -306,6 +306,28 @@ export const buttonPresets: ButtonPreset[] = [
     bannerImage: '/images/millibahis_site_tasarm.png'
   },
   {
+    id: 'spinco-banner',
+    name: 'Spinco Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/spinco_site_tasarm.png'
+  },
+  {
+    id: 'anubis-banner',
+    name: 'Anubis Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/anubis_site_tasarm.png'
+  },
+  {
     id: 'dashed-modern',
     name: 'Modern Dashed',
     styles: {

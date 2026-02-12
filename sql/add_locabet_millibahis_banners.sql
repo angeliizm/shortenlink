@@ -1,59 +1,224 @@
--- Locabet ve Millibahis banner'larını tüm aktif sayfalara ekleme scripti
--- Bu banner'lar Onwin butonunun altına, 3. ve 4. sıralara yerleştirilecek (Onwin'den sonra 1. ve 2. pozisyonlar)
--- Sıralama: Onwin -> Locabet (3. sıra) -> Millibahis (4. sıra)
+-- Tüm sayfa banner'larını demo2 sayfasına ekleme scripti
+-- Bu script, demo2 sayfasına mevcut tüm banner'ları ekler
 
 BEGIN;
 
--- Önce Onwin'den sonraki tüm banner'ları 2 aşağı kaydır (Locabet ve Millibahis hariç)
-UPDATE public.page_actions pa
-SET sort_order = pa.sort_order + 2,
-    updated_at = NOW()
-WHERE EXISTS (
-  SELECT 1 FROM public.pages p
-  WHERE p.id = pa.page_id
-    AND p.is_enabled = true
-)
-AND pa.is_enabled = true
-AND pa.href NOT IN ('https://t2m.io/kirvegiris', 'https://t2m.io/kirvemilli')
-AND EXISTS (
-  SELECT 1 FROM public.page_actions onwin
-  WHERE onwin.page_id = pa.page_id
-    AND onwin.href = 'https://cutt.ly/NtaVWH22'
-    AND onwin.is_enabled = true
-    AND pa.sort_order > onwin.sort_order
-);
+-- Tüm banner'ları demo2 sayfasına ekle
+-- Her banner için önce mevcut olup olmadığını kontrol et, yoksa ekle
 
--- Locabet butonu - zaten varsa güncelle
-UPDATE public.page_actions pa
-SET label = 'Locabet Kampanyası',
-    variant = 'outline',
-    preset = 'locabet-banner',
-    image_url = '/images/locabet_site_tasarm_png.png',
-    is_enabled = true,
-    updated_at = NOW()
-WHERE EXISTS (
-  SELECT 1 FROM public.pages p
-  WHERE p.id = pa.page_id
-    AND p.is_enabled = true
-)
-AND pa.href = 'https://t2m.io/kirvegiris';
+-- Betçi banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'BETCI Fırsatı',
+  'https://betcilink2.com/affiliates/?btag=2564486',
+  'outline',
+  'betci-banner',
+  '/images/betcibanner.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://betcilink2.com/affiliates/?btag=2564486'
+  );
 
--- Millibahis butonu - zaten varsa güncelle
-UPDATE public.page_actions pa
-SET label = 'Millibahis Kampanyası',
-    variant = 'outline',
-    preset = 'millibahis-banner',
-    image_url = '/images/millibahis_site_tasarm.png',
-    is_enabled = true,
-    updated_at = NOW()
-WHERE EXISTS (
-  SELECT 1 FROM public.pages p
-  WHERE p.id = pa.page_id
-    AND p.is_enabled = true
-)
-AND pa.href = 'https://t2m.io/kirvemilli';
+-- Not: Merso ve AMG banner'ları href constraint'i nedeniyle atlanmıştır (geçerli URL gereklidir)
+-- Bu banner'ların URL'leri hazır olduğunda ayrıca eklenebilir
 
--- Locabet butonu - eksik olan sayfalara ekle (Onwin'den sonra 1. pozisyon, 3. sıra)
+-- Misty banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'Misty Casino Kampanyası',
+  'https://tr.fgtrack.net/click?key=503a7225e89b71f9ffc3&uid=f263c030-6a10-4021-bbe3-b21739d94dbd&domain=mistycasino.com&offer_id=1',
+  'outline',
+  'misty-banner',
+  '/images/mistybanner.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://tr.fgtrack.net/click?key=503a7225e89b71f9ffc3&uid=f263c030-6a10-4021-bbe3-b21739d94dbd&domain=mistycasino.com&offer_id=1'
+  );
+
+-- GrandPasha banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'GrandPasha Promosyonu',
+  'https://shorttwelve.online/denizaksoy',
+  'outline',
+  'grandpasha-banner',
+  '/images/grandpashabanner.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://shorttwelve.online/denizaksoy'
+  );
+
+-- Dodobet banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'Dodobet Kampanyası',
+  'https://cutt.ly/2r7JwG3d',
+  'outline',
+  'dodobet-banner',
+  '/images/dodobetbanner.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://cutt.ly/2r7JwG3d'
+  );
+
+-- HizliCasino banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'HizliCasino Avantajı',
+  'https://dub.is/hizli-kirve',
+  'outline',
+  'hizlicasino-banner',
+  '/images/hizlicasinobanner.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://dub.is/hizli-kirve'
+  );
+
+-- Padisah banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'Padisah Kampanyası',
+  'https://p.t2m.io/EfQMjRJ',
+  'outline',
+  'padisah-banner',
+  '/images/padisahbanner.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://p.t2m.io/EfQMjRJ'
+  );
+
+-- BetPuan banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'BetPuan Fırsatı',
+  'https://www.betpuanpartner.com/links/?btag=2098924',
+  'outline',
+  'betpuan-banner',
+  '/images/betpuanbanner.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://www.betpuanpartner.com/links/?btag=2098924'
+  );
+
+-- Pusula banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'Pusula Avantajı',
+  'https://t.ly/PusulaKumarlayasiyorum',
+  'outline',
+  'pusula-banner',
+  '/images/pusulabanner.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://t.ly/PusulaKumarlayasiyorum'
+  );
+
+-- Tipobet banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'Tipobet Kampanyası',
+  'https://cutt.ly/JtaVyZ7y',
+  'outline',
+  'tipobet-banner',
+  '/images/tipobet_site_tasarm.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://cutt.ly/JtaVyZ7y'
+  );
+
+-- Sahabet banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'Sahabet Kampanyası',
+  'https://cutt.ly/ktaV1HC6',
+  'outline',
+  'sahabet-banner',
+  '/images/sahabet_site_tasarm.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://cutt.ly/ktaV1HC6'
+  );
+
+-- Onwin banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'Onwin Kampanyası',
+  'https://cutt.ly/NtaVWH22',
+  'outline',
+  'onwin-banner',
+  '/images/onwin_site_tasarm_png.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://cutt.ly/NtaVWH22'
+  );
+
+-- Locabet banner'ı ekle
 INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
 SELECT
   p.id,
@@ -62,32 +227,17 @@ SELECT
   'outline',
   'locabet-banner',
   '/images/locabet_site_tasarm_png.png',
-  COALESCE((
-    SELECT onwin.sort_order + 1
-    FROM public.page_actions onwin
-    WHERE onwin.page_id = p.id
-      AND onwin.href = 'https://cutt.ly/NtaVWH22'
-      AND onwin.is_enabled = true
-    LIMIT 1
-  ), (SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id) + 1),
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
   true
 FROM public.pages p
-WHERE p.is_enabled = true
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
   AND NOT EXISTS (
-    SELECT 1
-    FROM public.page_actions pa
-    WHERE pa.page_id = p.id
-      AND pa.href = 'https://t2m.io/kirvegiris'
-  )
-  AND EXISTS (
-    SELECT 1
-    FROM public.page_actions onwin
-    WHERE onwin.page_id = p.id
-      AND onwin.href = 'https://cutt.ly/NtaVWH22'
-      AND onwin.is_enabled = true
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://t2m.io/kirvegiris'
   );
 
--- Millibahis butonu - eksik olan sayfalara ekle (Onwin'den sonra 2. pozisyon, 4. sıra, Locabet'ten sonra)
+-- Millibahis banner'ı ekle
 INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
 SELECT
   p.id,
@@ -96,83 +246,93 @@ SELECT
   'outline',
   'millibahis-banner',
   '/images/millibahis_site_tasarm.png',
-  COALESCE((
-    SELECT locabet.sort_order + 1
-    FROM public.page_actions locabet
-    WHERE locabet.page_id = p.id
-      AND locabet.href = 'https://t2m.io/kirvegiris'
-      AND locabet.is_enabled = true
-    LIMIT 1
-  ), (
-    SELECT onwin.sort_order + 2
-    FROM public.page_actions onwin
-    WHERE onwin.page_id = p.id
-      AND onwin.href = 'https://cutt.ly/NtaVWH22'
-      AND onwin.is_enabled = true
-    LIMIT 1
-  ), (SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id) + 1),
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
   true
 FROM public.pages p
-WHERE p.is_enabled = true
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
   AND NOT EXISTS (
-    SELECT 1
-    FROM public.page_actions pa
-    WHERE pa.page_id = p.id
-      AND pa.href = 'https://t2m.io/kirvemilli'
-  )
-  AND EXISTS (
-    SELECT 1
-    FROM public.page_actions onwin
-    WHERE onwin.page_id = p.id
-      AND onwin.href = 'https://cutt.ly/NtaVWH22'
-      AND onwin.is_enabled = true
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://t2m.io/kirvemilli'
   );
 
--- Şimdi sıralamayı düzelt: Onwin'den sonra Locabet (3. sıra), sonra Millibahis (4. sıra)
-WITH onwin_positions AS (
-  SELECT 
-    pa.page_id,
-    pa.sort_order AS onwin_sort_order
-  FROM public.page_actions pa
-  WHERE pa.href = 'https://cutt.ly/NtaVWH22'
-    AND pa.is_enabled = true
-    AND EXISTS (
-      SELECT 1 FROM public.pages p
-      WHERE p.id = pa.page_id
-        AND p.is_enabled = true
-    )
-)
-UPDATE public.page_actions pa
-SET sort_order = op.onwin_sort_order + 1,
-    updated_at = NOW()
-FROM onwin_positions op
-WHERE pa.page_id = op.page_id
-  AND pa.is_enabled = true
-  AND pa.href = 'https://t2m.io/kirvegiris';
+-- Betgamon banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'Betgamon Kampanyası',
+  'https://gamonaff.com/?ref=kirvehub',
+  'outline',
+  'betgamon-banner',
+  '/images/betgamon_site_tasarm.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://gamonaff.com/?ref=kirvehub'
+  );
 
--- Millibahis'i Locabet'ten sonra yerleştir (4. sıra)
-WITH locabet_positions AS (
-  SELECT 
-    pa.page_id,
-    pa.sort_order AS locabet_sort_order
-  FROM public.page_actions pa
-  WHERE pa.href = 'https://t2m.io/kirvegiris'
-    AND pa.is_enabled = true
-    AND EXISTS (
-      SELECT 1 FROM public.pages p
-      WHERE p.id = pa.page_id
-        AND p.is_enabled = true
-    )
-)
-UPDATE public.page_actions pa
-SET sort_order = lp.locabet_sort_order + 1,
-    updated_at = NOW()
-FROM locabet_positions lp
-WHERE pa.page_id = lp.page_id
-  AND pa.is_enabled = true
-  AND pa.href = 'https://t2m.io/kirvemilli';
+-- Betium banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'Betium Kampanyası',
+  'https://bit.ly/4s4gSqy',
+  'outline',
+  'betium-banner',
+  '/images/betium_site_tasarm.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://bit.ly/4s4gSqy'
+  );
 
--- Sonuçları doğrula - Onwin, Locabet ve Millibahis'in sıralamasını göster
+-- Bahibom banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'Bahibom Kampanyası',
+  'https://cutt.ly/denizaksoyxbahibom',
+  'outline',
+  'bahibom-banner',
+  '/images/bahibombanner.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://cutt.ly/denizaksoyxbahibom'
+  );
+
+-- Palazzobet banner'ı ekle
+INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
+SELECT
+  p.id,
+  'Palazzobet Avantajı',
+  'https://cutt.ly/pzdenizaksoy',
+  'outline',
+  'palazzobet-banner',
+  '/images/palazzobetbanner.png',
+  COALESCE((SELECT MAX(sort_order) FROM public.page_actions WHERE page_id = p.id), 0) + 1,
+  true
+FROM public.pages p
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
+  AND NOT EXISTS (
+    SELECT 1 FROM public.page_actions pa
+    WHERE pa.page_id = p.id AND pa.href = 'https://cutt.ly/pzdenizaksoy'
+  );
+
+-- Sonuçları doğrula - demo2 sayfasındaki tüm banner'ları göster
 SELECT
   p.site_slug,
   pa.label,
@@ -181,15 +341,10 @@ SELECT
   pa.sort_order
 FROM public.pages p
 INNER JOIN public.page_actions pa ON p.id = pa.page_id
-WHERE p.is_enabled = true
+WHERE p.site_slug = 'demo2'
+  AND p.is_enabled = true
   AND pa.is_enabled = true
-  AND (
-    pa.href = 'https://cutt.ly/NtaVWH22' OR -- Onwin
-    pa.href = 'https://t2m.io/kirvegiris' OR -- Locabet
-    pa.href = 'https://t2m.io/kirvemilli' -- Millibahis
-  )
-ORDER BY p.site_slug, pa.sort_order
-LIMIT 100;
+ORDER BY pa.sort_order;
 
 COMMIT;
 
