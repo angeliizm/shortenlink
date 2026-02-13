@@ -3,6 +3,36 @@ import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
+const PAGE_SIZE = 1000;
+
+// Supabase returns max 1000 rows by default. This function paginates to get ALL rows.
+async function fetchAllRows(
+  queryBuilder: () => any
+): Promise<any[]> {
+  let allRows: any[] = [];
+  let from = 0;
+  let hasMore = true;
+
+  while (hasMore) {
+    const { data, error } = await queryBuilder().range(from, from + PAGE_SIZE - 1);
+
+    if (error) {
+      console.error('[fetchAllRows] Query error:', error.message);
+      break;
+    }
+
+    if (!data || data.length === 0) {
+      hasMore = false;
+    } else {
+      allRows = allRows.concat(data);
+      from += PAGE_SIZE;
+      hasMore = data.length === PAGE_SIZE;
+    }
+  }
+
+  return allRows;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = createClient();
@@ -127,28 +157,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch sites data' }, { status: 500 });
     }
 
-    // Get global analytics metrics
-    const { data: analyticsData, error: analyticsError } = await supabase
-      .from('analytics_events')
-      .select('site_slug, event_type, timestamp, country, device_type, browser, referrer, action_index')
-      .gte('timestamp', startDate)
-      .lte('timestamp', endDate);
+    // Get global analytics metrics - paginated to get ALL events (Supabase default limit is 1000)
+    const analyticsData = await fetchAllRows(() =>
+      supabase
+        .from('analytics_events')
+        .select('site_slug, event_type, timestamp, country, device_type, browser, referrer, action_index')
+        .gte('timestamp', startDate)
+        .lte('timestamp', endDate)
+    );
 
-    // Get hourly analytics data
-    const { data: hourlyData, error: hourlyError } = await supabase
-      .from('analytics_events')
-      .select('timestamp, event_type')
-      .gte('timestamp', startDate)
-      .lte('timestamp', endDate)
-      .order('timestamp', { ascending: true });
+    // Get hourly analytics data - paginated
+    const hourlyData = await fetchAllRows(() =>
+      supabase
+        .from('analytics_events')
+        .select('timestamp, event_type')
+        .gte('timestamp', startDate)
+        .lte('timestamp', endDate)
+        .order('timestamp', { ascending: true })
+    );
 
-    console.log(`[Reports API] Found ${analyticsData?.length || 0} analytics events in range`);
-    console.log(`[Reports API] Found ${hourlyData?.length || 0} hourly events in range`);
-
-    if (analyticsError) {
-      console.error('Error fetching analytics:', analyticsError);
-      return NextResponse.json({ error: 'Failed to fetch analytics data' }, { status: 500 });
-    }
+    console.log(`[Reports API] Found ${analyticsData.length} analytics events in range`);
+    console.log(`[Reports API] Found ${hourlyData.length} hourly events in range`);
 
     // Process analytics data
     const siteMetrics = new Map();
@@ -177,7 +206,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    analyticsData?.forEach((event: any) => {
+    analyticsData.forEach((event: any) => {
       const siteSlug = event.site_slug;
       
       // Initialize site metrics if not exists
@@ -231,7 +260,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Process hourly data
-    hourlyData?.forEach((event: any) => {
+    hourlyData.forEach((event: any) => {
       const eventDate = new Date(event.timestamp);
       const hour = eventDate.getHours();
       const hourlyMetric = hourlyMetrics.get(hour);

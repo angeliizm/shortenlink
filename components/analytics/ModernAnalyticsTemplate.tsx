@@ -1,21 +1,22 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  AreaChart, Area, BarChart, Bar, LineChart, Line, 
+import {
+  AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
-import { 
-  Calendar, Users, Eye, MousePointer, DollarSign, Target, 
-  ArrowUpRight, ArrowDownRight, BarChart3, TrendingUp,
-  Activity, Globe, Smartphone, Monitor, Tablet, ArrowLeft
+import {
+  Calendar, Users, Eye, MousePointer, Target,
+  ArrowUpRight, BarChart3, Activity, Globe,
+  Smartphone, Monitor, Tablet, ArrowLeft, Loader2, RefreshCw
 } from 'lucide-react';
 import Logo from '@/components/ui/Logo';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { tr } from 'date-fns/locale';
+import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import LoadingScreen from '@/components/ui/LoadingScreen';
 
@@ -23,67 +24,111 @@ interface ModernAnalyticsTemplateProps {
   siteSlug: string;
 }
 
+const DEVICE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+const DATE_RANGES = [
+  { key: 'today', label: 'Bugün' },
+  { key: 'yesterday', label: 'Dün' },
+  { key: 'last7days', label: '7 Gün' },
+  { key: 'last30days', label: '30 Gün' },
+] as const;
+
+function getDateBounds(dateRange: string) {
+  const now = new Date();
+  switch (dateRange) {
+    case 'yesterday': {
+      const y = subDays(now, 1);
+      return { start: startOfDay(y), end: endOfDay(y) };
+    }
+    case 'last7days':
+      return { start: startOfDay(subDays(now, 6)), end: endOfDay(now) };
+    case 'last30days':
+      return { start: startOfDay(subDays(now, 29)), end: endOfDay(now) };
+    default:
+      return { start: startOfDay(now), end: endOfDay(now) };
+  }
+}
+
+function formatNum(num: number) {
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+  return num.toLocaleString('tr-TR');
+}
+
+const deviceLabel = (name: string) => {
+  if (name === 'desktop') return 'Masaüstü';
+  if (name === 'mobile') return 'Mobil';
+  if (name === 'tablet') return 'Tablet';
+  return name.charAt(0).toUpperCase() + name.slice(1);
+};
+
+const DeviceIcon = ({ type }: { type: string }) => {
+  switch (type.toLowerCase()) {
+    case 'mobile': case 'mobil': return <Smartphone className="w-4 h-4" />;
+    case 'tablet': return <Tablet className="w-4 h-4" />;
+    default: return <Monitor className="w-4 h-4" />;
+  }
+};
+
+const eventTypeLabel = (type: string) => {
+  switch (type) {
+    case 'page_view': return 'Sayfa Görüntüleme';
+    case 'action_click': return 'Buton Tıklama';
+    case 'session_start': return 'Oturum Başlatma';
+    case 'unique_visitor': return 'Yeni Ziyaretçi';
+    default: return type;
+  }
+};
+
+const eventDotColor = (type: string) => {
+  switch (type) {
+    case 'page_view': return 'bg-green-500';
+    case 'action_click': return 'bg-blue-500';
+    case 'session_start': return 'bg-purple-500';
+    case 'unique_visitor': return 'bg-orange-500';
+    default: return 'bg-gray-400';
+  }
+};
+
 export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTemplateProps) {
   const router = useRouter();
   const [dateRange, setDateRange] = useState('today');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [analytics, setAnalytics] = useState<any>(null);
   const [siteInfo, setSiteInfo] = useState<any>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const fetchAnalytics = async () => {
-    setLoading(true);
+  const fetchAnalytics = useCallback(async (range: string, signal?: AbortSignal) => {
     try {
-      let startDate: Date;
-      let endDate: Date;
-      
-      const now = new Date();
-      
-      switch (dateRange) {
-        case 'today':
-          startDate = startOfDay(now);
-          endDate = endOfDay(now);
-          break;
-        case 'yesterday':
-          const yesterday = subDays(now, 1);
-          startDate = startOfDay(yesterday);
-          endDate = endOfDay(yesterday);
-          break;
-        case 'last7days':
-          startDate = startOfDay(subDays(now, 6));
-          endDate = endOfDay(now);
-          break;
-        case 'last30days':
-          startDate = startOfDay(subDays(now, 29));
-          endDate = endOfDay(now);
-          break;
-        default:
-          startDate = startOfDay(now);
-          endDate = endOfDay(now);
-      }
-      
-      const startDateStr = startDate.toISOString();
-      const endDateStr = endDate.toISOString();
+      const { start, end } = getDateBounds(range);
+      const startStr = start.toISOString();
+      const endStr = end.toISOString();
 
-      // Fetch all analytics data in parallel
+      const base = `/api/analytics/${siteSlug}`;
+      const qs = `startDate=${startStr}&endDate=${endStr}`;
+
       const [overview, actions, realtime, referrers, devices, geography, events] = await Promise.all([
-        fetch(`/api/analytics/${siteSlug}?metric=overview&startDate=${startDateStr}&endDate=${endDateStr}`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=actions&startDate=${startDateStr}&endDate=${endDateStr}`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=realtime`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=referrers&startDate=${startDateStr}&endDate=${endDateStr}`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=devices&startDate=${startDateStr}&endDate=${endDateStr}`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=geography&startDate=${startDateStr}&endDate=${endDateStr}`).then(r => r.json()),
-        fetch(`/api/analytics/${siteSlug}?metric=events&startDate=${startDateStr}&endDate=${endDateStr}`).then(r => r.json())
+        fetch(`${base}?metric=overview&${qs}`, { signal }).then(r => r.json()),
+        fetch(`${base}?metric=actions&${qs}`, { signal }).then(r => r.json()),
+        fetch(`${base}?metric=realtime`, { signal }).then(r => r.json()),
+        fetch(`${base}?metric=referrers&${qs}`, { signal }).then(r => r.json()),
+        fetch(`${base}?metric=devices&${qs}`, { signal }).then(r => r.json()),
+        fetch(`${base}?metric=geography&${qs}`, { signal }).then(r => r.json()),
+        fetch(`${base}?metric=events&${qs}`, { signal }).then(r => r.json())
       ]);
 
       setAnalytics({ overview, actions, realtime, referrers, devices, geography, events });
-    } catch (error) {
-      console.error('Failed to fetch analytics:', error);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+      console.error('Failed to fetch analytics:', err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  };
+  }, [siteSlug]);
 
-  const fetchSiteInfo = async () => {
+  const fetchSiteInfo = useCallback(async () => {
     try {
       const response = await fetch(`/api/links?slug=${siteSlug}`);
       const data = await response.json();
@@ -91,256 +136,169 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
     } catch (error) {
       console.error('Failed to fetch site info:', error);
     }
-  };
+  }, [siteSlug]);
 
   useEffect(() => {
-    fetchAnalytics();
-    fetchSiteInfo();
-  }, [siteSlug, dateRange]);
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
-  // Calculate metrics from real data
+    if (!loading) setRefreshing(true);
+    fetchAnalytics(dateRange, controller.signal);
+
+    return () => controller.abort();
+  }, [dateRange, fetchAnalytics]);
+
+  useEffect(() => {
+    fetchSiteInfo();
+  }, [fetchSiteInfo]);
+
+  // Computed metrics - prefer overview totals (aggregated server-side), fallback to events
   const metrics = useMemo(() => {
-    // Calculate pageviews from events if available (most accurate)
-    let pageviews = 0;
-    if (analytics?.events?.events && analytics.events.events.length > 0) {
-      pageviews = analytics.events.events.filter((event: any) => event.event_type === 'page_view').length;
-    } else {
-      // Fallback to overview totals
-      pageviews = analytics?.overview?.totals?.pageViews || analytics?.overview?.totals?.page_views || 0;
+    const totals = analytics?.overview?.totals;
+    const events = analytics?.events?.events || [];
+
+    let pageviews = totals?.pageViews || totals?.page_views || 0;
+    let clicks = totals?.clicks || 0;
+    let visitors = totals?.uniqueVisitors || totals?.unique_visitors || 0;
+    let sessions = totals?.sessions || 0;
+
+    // If overview totals are all zero but we have events, count from events
+    if (pageviews === 0 && clicks === 0 && visitors === 0 && events.length > 0) {
+      pageviews = events.filter((e: any) => e.event_type === 'page_view').length;
+      clicks = events.filter((e: any) => e.event_type === 'action_click').length;
+      visitors = new Set(events.map((e: any) => e.visitor_id).filter(Boolean)).size;
+      sessions = new Set(events.map((e: any) => e.session_id).filter(Boolean)).size;
     }
-    
-    // Calculate clicks from events if available (most accurate)
-    let clicks = 0;
-    if (analytics?.events?.events && analytics.events.events.length > 0) {
-      clicks = analytics.events.events.filter((event: any) => event.event_type === 'action_click').length;
-    } else {
-      // Fallback to actions API
-      clicks = analytics?.actions?.actions ? 
-        Object.values(analytics.actions.actions).reduce((sum: number, count: any) => sum + (Number(count) || 0), 0) : 0;
-    }
-    // Calculate unique visitors from events if available
-    let visitors = 0;
-    if (analytics?.events?.events && analytics.events.events.length > 0) {
-      const uniqueVisitorIds = new Set(analytics.events.events.map((event: any) => event.visitor_id).filter(Boolean));
-      visitors = uniqueVisitorIds.size;
-    } else {
-      // Fallback to overview totals
-      visitors = analytics?.overview?.totals?.uniqueVisitors || analytics?.overview?.totals?.unique_visitors || 0;
-    }
-    
-    const sessions = analytics?.overview?.totals?.sessions || 0;
-    
-     // Calculate conversion rate and signups from real data
-     const conversionRate = visitors > 0 ? (clicks / visitors) * 100 : 0;
-     const conversions = Math.floor(clicks * (conversionRate / 100));
-     const signups = Math.floor(clicks * 0.15); // 15% of clicks become signups
-     
-     // Debug logging
-     console.log('Analytics Debug:', {
-       pageviews,
-       clicks,
-       visitors,
-       sessions,
-       eventsCount: analytics?.events?.events?.length || 0,
-       overviewTotals: analytics?.overview?.totals
-     });
-    
-     // Calculate trends (simplified - in real app you'd compare with previous period)
-     const pageviewTrend = pageviews > 0 ? 0.2 : 0;
-     const clickTrend = clicks > 0 ? 1.1 : 0;
-     const conversionTrend = conversions > 0 ? 0.9 : 0;
-     const signupTrend = signups > 0 ? 2.3 : 0;
-    
-     return {
-       pageviews: { total: pageviews, change: pageviewTrend, trend: pageviewTrend >= 0 ? 'up' : 'down' },
-       clicks: { total: clicks, change: clickTrend, trend: clickTrend >= 0 ? 'up' : 'down' },
-       conversions: { total: conversions, change: conversionTrend, trend: conversionTrend >= 0 ? 'up' : 'down' },
-       signups: { total: signups, change: Math.abs(signupTrend), trend: signupTrend >= 0 ? 'up' : 'down' },
-       visitors: visitors,
-       sessions: sessions,
-       conversionRate: conversionRate
-     };
+
+    const conversionRate = visitors > 0 ? (clicks / visitors) * 100 : 0;
+
+    return { pageviews, clicks, visitors, sessions, conversionRate };
   }, [analytics]);
 
+  // Time series chart data
   const timeSeriesData = useMemo(() => {
-    // Use real analytics data from events if available
-    if (analytics?.events?.events && analytics.events.events.length > 0) {
-      const now = new Date();
-      let startDate: Date;
-      let endDate: Date;
-      
-      switch (dateRange) {
-        case 'today':
-          startDate = startOfDay(now);
-          endDate = endOfDay(now);
-          break;
-        case 'yesterday':
-          const yesterday = subDays(now, 1);
-          startDate = startOfDay(yesterday);
-          endDate = endOfDay(yesterday);
-          break;
-        case 'last7days':
-          startDate = startOfDay(subDays(now, 6));
-          endDate = endOfDay(now);
-          break;
-        case 'last30days':
-          startDate = startOfDay(subDays(now, 29));
-          endDate = endOfDay(now);
-          break;
-        default:
-          startDate = startOfDay(now);
-          endDate = endOfDay(now);
-      }
-      
-      const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-      
-      // Group events by day
-      const dailyData = new Map();
-      
-      // Initialize all days with zero values
-      for (let i = 0; i < days; i++) {
-        const date = subDays(endDate, i);
-        const dateKey = format(date, 'yyyy-MM-dd');
-         dailyData.set(dateKey, {
-           date: format(date, 'MMM dd'),
-           pageviews: 0,
-           clicks: 0,
-           conversions: 0,
-           signups: 0
-         });
-      }
-      
-      // Process real events - filter by date range
-      analytics.events.events.forEach((event: any) => {
+    const events = analytics?.events?.events;
+    const { start, end } = getDateBounds(dateRange);
+    const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+
+    const dailyData = new Map<string, { date: string; views: number; clicks: number }>();
+    for (let i = 0; i < days; i++) {
+      const date = subDays(end, i);
+      const key = format(date, 'yyyy-MM-dd');
+      dailyData.set(key, { date: format(date, 'd MMM', { locale: tr }), views: 0, clicks: 0 });
+    }
+
+    if (events && events.length > 0) {
+      events.forEach((event: any) => {
         const eventDate = new Date(event.timestamp);
-        
-        // Only process events within the date range
-        if (eventDate >= startDate && eventDate <= endDate) {
-          const dateKey = format(eventDate, 'yyyy-MM-dd');
-          
-          if (dailyData.has(dateKey)) {
-            const dayData = dailyData.get(dateKey);
-            
-            if (event.event_type === 'page_view') {
-              dayData.pageviews += 1;
-             } else if (event.event_type === 'action_click') {
-               dayData.clicks += 1;
-               // Assume 10% of clicks are conversions
-               if (Math.random() < 0.1) {
-                 dayData.conversions += 1;
-               }
-               // Assume 15% of clicks become signups
-               if (Math.random() < 0.15) {
-                 dayData.signups = (dayData.signups || 0) + 1;
-               }
-             }
+        if (eventDate >= start && eventDate <= end) {
+          const key = format(eventDate, 'yyyy-MM-dd');
+          const day = dailyData.get(key);
+          if (day) {
+            if (event.event_type === 'page_view') day.views++;
+            else if (event.event_type === 'action_click') day.clicks++;
           }
         }
       });
-      
-      return Array.from(dailyData.values()).reverse();
     }
-    
-    // Fallback to overview timeSeries if available
-    if (analytics?.overview?.timeSeries && analytics.overview.timeSeries.length > 0) {
-       return analytics.overview.timeSeries.map((item: any) => ({
-         date: format(new Date(item.hour || item.timestamp), 'MMM dd'),
-         pageviews: item.page_views || item.pageViews || 0,
-         clicks: item.clicks || 0,
-         conversions: Math.floor((item.clicks || 0) * 0.1),
-         signups: Math.floor((item.clicks || 0) * 0.15)
-       }));
-    }
-    
-    // Generate sample data if no real data available
-    const now = new Date();
-    let startDate: Date;
-    let endDate: Date;
-    
-    switch (dateRange) {
-      case 'today':
-        startDate = startOfDay(now);
-        endDate = endOfDay(now);
-        break;
-      case 'yesterday':
-        const yesterday = subDays(now, 1);
-        startDate = startOfDay(yesterday);
-        endDate = endOfDay(yesterday);
-        break;
-      case 'last7days':
-        startDate = startOfDay(subDays(now, 6));
-        endDate = endOfDay(now);
-        break;
-      case 'last30days':
-        startDate = startOfDay(subDays(now, 29));
-        endDate = endOfDay(now);
-        break;
-      default:
-        startDate = startOfDay(now);
-        endDate = endOfDay(now);
-    }
-    
-    const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    const sampleData = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const date = subDays(endDate, i);
-       sampleData.push({
-         date: format(date, 'MMM dd'),
-         pageviews: Math.floor(Math.random() * 1000) + 500,
-         clicks: Math.floor(Math.random() * 200) + 50,
-         conversions: Math.floor(Math.random() * 20) + 5,
-         signups: Math.floor(Math.random() * 30) + 8
-       });
-    }
-    return sampleData;
+
+    return Array.from(dailyData.values()).reverse();
   }, [analytics, dateRange]);
 
-  // Device data for pie chart
+  // Device data
   const deviceData = useMemo(() => {
-    // Use real device data from events if available
-    if (analytics?.events?.events && analytics.events.events.length > 0) {
-      const deviceCounts = new Map();
-      
-      analytics.events.events.forEach((event: any) => {
-        if (event.device_type) {
-          const deviceType = event.device_type.toLowerCase();
-          deviceCounts.set(deviceType, (deviceCounts.get(deviceType) || 0) + 1);
+    const events = analytics?.events?.events;
+    if (events && events.length > 0) {
+      const counts = new Map<string, number>();
+      events.forEach((e: any) => {
+        if (e.device_type) {
+          const t = e.device_type.toLowerCase();
+          counts.set(t, (counts.get(t) || 0) + 1);
         }
       });
-      
-      if (deviceCounts.size > 0) {
-        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
-         return Array.from(deviceCounts.entries()).map(([name, value], index) => ({
-           name: name === 'desktop' ? 'Masaüstü' : 
-                 name === 'mobile' ? 'Mobil' : 
-                 name === 'tablet' ? 'Tablet' : 
-                 name.charAt(0).toUpperCase() + name.slice(1),
-           value: value as number,
-           color: colors[index % colors.length]
-         }));
+      if (counts.size > 0) {
+        return Array.from(counts.entries()).map(([name, value], i) => ({
+          name: deviceLabel(name), rawName: name, value, color: DEVICE_COLORS[i % DEVICE_COLORS.length]
+        }));
       }
     }
-    
-    // Fallback to devices API data
     if (analytics?.devices?.devices) {
-      const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
-       return Object.entries(analytics.devices.devices).map(([name, value], index) => ({
-         name: name === 'desktop' ? 'Masaüstü' : 
-               name === 'mobile' ? 'Mobil' : 
-               name === 'tablet' ? 'Tablet' : 
-               name.charAt(0).toUpperCase() + name.slice(1),
-         value: value as number,
-         color: colors[index % colors.length]
-       }));
+      return Object.entries(analytics.devices.devices).map(([name, value], i) => ({
+        name: deviceLabel(name), rawName: name, value: value as number, color: DEVICE_COLORS[i % DEVICE_COLORS.length]
+      }));
     }
-    
-     // Default fallback
-     return [
-       { name: 'Masaüstü', value: Math.floor(metrics.visitors * 0.6), color: '#3b82f6' },
-       { name: 'Mobil', value: Math.floor(metrics.visitors * 0.3), color: '#10b981' },
-       { name: 'Tablet', value: Math.floor(metrics.visitors * 0.1), color: '#f59e0b' }
-     ];
-  }, [analytics, metrics]);
+    return [];
+  }, [analytics]);
+
+  const deviceTotal = useMemo(() => deviceData.reduce((s, d) => s + d.value, 0), [deviceData]);
+
+  // Button clicks
+  const buttonData = useMemo(() => {
+    if (!analytics?.actions?.actions) return [];
+    const labels = analytics.actions.actionLabels || {};
+    return Object.entries(analytics.actions.actions)
+      .map(([index, count]) => ({
+        label: labels[index] || `Buton ${index}`,
+        count: Number(count) || 0
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6);
+  }, [analytics]);
+
+  const totalButtonClicks = useMemo(() => buttonData.reduce((s, b) => s + b.count, 0), [buttonData]);
+
+  // Referrers
+  const referrerData = useMemo(() => {
+    if (analytics?.referrers?.referrers && analytics.referrers.referrers.length > 0) {
+      return analytics.referrers.referrers.slice(0, 6);
+    }
+    if (analytics?.events?.events) {
+      const counts = new Map<string, number>();
+      analytics.events.events.forEach((e: any) => {
+        const ref = e.referrer || 'Doğrudan';
+        counts.set(ref, (counts.get(ref) || 0) + 1);
+      });
+      return Array.from(counts.entries())
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 6)
+        .map(([referrer, count]) => ({ referrer, count }));
+    }
+    return [];
+  }, [analytics]);
+
+  // Recent events
+  const recentEvents = useMemo(() => {
+    if (!analytics?.events?.events || analytics.events.events.length === 0) return [];
+    return [...analytics.events.events]
+      .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, 10);
+  }, [analytics]);
+
+  // Geography
+  const geoData = useMemo(() => {
+    if (!analytics?.geography?.countries) return [];
+    return Object.entries(analytics.geography.countries)
+      .sort(([, a], [, b]) => (b as number) - (a as number))
+      .slice(0, 6)
+      .map(([country, count]) => ({ country, count: count as number }));
+  }, [analytics]);
+
+  const geoTotal = useMemo(() => geoData.reduce((s, g) => s + g.count, 0), [geoData]);
+
+  // Active visitors
+  const activeVisitors = useMemo(() => {
+    if (analytics?.realtime?.activeVisitors !== undefined) return analytics.realtime.activeVisitors;
+    if (analytics?.events?.events?.length > 0) {
+      const cutoff = new Date(Date.now() - 5 * 60 * 1000);
+      const recent = new Set<string>();
+      analytics.events.events.forEach((e: any) => {
+        if (new Date(e.timestamp) > cutoff && e.visitor_id) recent.add(e.visitor_id);
+      });
+      return recent.size;
+    }
+    return 0;
+  }, [analytics]);
 
   if (loading) {
     return <LoadingScreen message="Analitik verileri yükleniyor..." />;
@@ -348,403 +306,327 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Modern Header with Gradient */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <Logo size="lg" showText={true} />
-                <div>
-                   <p className="text-xs text-gray-500">Analitik Paneli</p>
-                 </div>
-              </div>
-              <div className="hidden md:block">
-                 <nav className="flex space-x-8">
-                 </nav>
-              </div>
-              
-              {/* Dashboard'a geri dönüş */}
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-4">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => router.push('/dashboard')}
-                className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70 hover:border-gray-300 transition-all duration-200"
+                className="gap-2 text-gray-600 hover:text-gray-900"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Dashboard
+                <span className="hidden sm:inline">Dashboard</span>
               </Button>
+              <div className="h-6 w-px bg-gray-200" />
+              <div>
+                <h1 className="text-sm font-semibold text-gray-900 leading-tight">
+                  {siteInfo?.title || siteSlug}
+                </h1>
+                <p className="text-xs text-gray-500">/{siteSlug}</p>
+              </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <Select value={dateRange} onValueChange={setDateRange}>
-                <SelectTrigger className="w-40 bg-white/50 border-gray-200">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  <SelectValue />
-                </SelectTrigger>
-                 <SelectContent>
-                   <SelectItem value="today">Bugün</SelectItem>
-                   <SelectItem value="yesterday">Dün</SelectItem>
-                   <SelectItem value="last7days">Bu Son 7 Gün</SelectItem>
-                   <SelectItem value="last30days">Son 30 Gün</SelectItem>
-                 </SelectContent>
-              </Select>
+
+            <div className="flex items-center gap-3">
+              {/* Live indicator */}
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-green-50 border border-green-200 rounded-full">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-xs font-medium text-green-700">{activeVisitors} aktif</span>
+              </div>
+
+              {/* Date range */}
+              <div className="flex items-center gap-0.5 p-0.5 bg-gray-100 rounded-lg">
+                {DATE_RANGES.map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setDateRange(key)}
+                    disabled={refreshing}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                      dateRange === key
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
+                    } ${refreshing ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setRefreshing(true);
+                  fetchAnalytics(dateRange);
+                }}
+                disabled={refreshing}
+                className="h-8 w-8 p-0"
+              >
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-         {/* Welcome Section */}
-         <div className="mb-8">
-           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-             {siteInfo?.title || siteSlug} sayfasına hoş geldiniz
-           </h2>
-           <p className="text-gray-600">
-             <span className="font-medium text-blue-600">/{siteSlug}</span> sayfanızda bugün neler oluyor.
-           </p>
-         </div>
+      {/* Loading bar */}
+      {refreshing && (
+        <div className="h-0.5 bg-blue-100">
+          <div className="h-full bg-blue-500 animate-pulse" style={{ width: '60%' }} />
+        </div>
+      )}
 
-        {/* Modern Metrics Cards with Glassmorphism */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 items-stretch">
-          {/* Pageviews Card */}
-          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-r from-orange-400 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <Eye className="w-6 h-6 text-white" />
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 ${refreshing ? 'opacity-60' : ''}`}>
+        {/* Metric Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          {[
+            { label: 'Görüntüleme', value: metrics.pageviews, icon: Eye, color: 'text-purple-500', bg: 'bg-purple-50' },
+            { label: 'Tıklama', value: metrics.clicks, icon: MousePointer, color: 'text-blue-500', bg: 'bg-blue-50' },
+            { label: 'Ziyaretçi', value: metrics.visitors, icon: Users, color: 'text-green-500', bg: 'bg-green-50' },
+            { label: 'Oturum', value: metrics.sessions, icon: Activity, color: 'text-orange-500', bg: 'bg-orange-50' },
+            { label: 'Dönüşüm', value: `%${metrics.conversionRate.toFixed(1)}`, icon: Target, color: 'text-indigo-500', bg: 'bg-indigo-50' },
+          ].map(({ label, value, icon: Icon, color, bg }) => (
+            <Card key={label} className="bg-white border border-gray-100 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`w-8 h-8 ${bg} rounded-lg flex items-center justify-center`}>
+                    <Icon className={`w-4 h-4 ${color}`} />
                   </div>
-                   <div>
-                     <p className="text-sm font-medium text-gray-600">Sayfa Görüntüleme</p>
-                     <p className="text-xs text-green-600 font-medium flex items-center">
-                       {metrics.pageviews.change}% <ArrowUpRight className="w-3 h-3 ml-1" />
-                     </p>
-                   </div>
+                  <span className="text-xs font-medium text-gray-500">{label}</span>
                 </div>
-              </div>
-              <div className="space-y-1">
-                <div className="text-3xl font-bold text-gray-900">
-                  {metrics.pageviews.total.toLocaleString()}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Clicks Card */}
-          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <MousePointer className="w-6 h-6 text-white" />
-                  </div>
-                   <div>
-                     <p className="text-sm font-medium text-gray-600">Tıklamalar</p>
-                     <p className="text-xs text-green-600 font-medium flex items-center">
-                       {metrics.clicks.change}% <ArrowUpRight className="w-3 h-3 ml-1" />
-                     </p>
-                   </div>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <div className="text-3xl font-bold text-gray-900">
-                  {metrics.clicks.total.toLocaleString()}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Conversions Card */}
-          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <Target className="w-6 h-6 text-white" />
-                  </div>
-                   <div>
-                     <p className="text-sm font-medium text-gray-600">Dönüşümler</p>
-                     <p className="text-xs text-green-600 font-medium flex items-center">
-                       {metrics.conversions.change}% <ArrowUpRight className="w-3 h-3 ml-1" />
-                     </p>
-                   </div>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <div className="text-3xl font-bold text-gray-900">
-                  {metrics.conversions.total.toLocaleString()}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-           {/* Signups Card */}
-           <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
-             <CardContent className="p-6">
-               <div className="flex items-center justify-between mb-4">
-                 <div className="flex items-center space-x-3">
-                   <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                     <Users className="w-6 h-6 text-white" />
-                   </div>
-                   <div>
-                     <p className="text-sm font-medium text-gray-600">Buton Tıklaması</p>
-                     <p className="text-xs text-green-600 font-medium flex items-center">
-                       {metrics.signups.change}% <ArrowUpRight className="w-3 h-3 ml-1" />
-                     </p>
-                   </div>
-                 </div>
-               </div>
-               <div className="space-y-1">
-                 <div className="text-3xl font-bold text-gray-900">
-                   {metrics.signups.total.toLocaleString()}
-                 </div>
-               </div>
-             </CardContent>
-           </Card>
+                <p className="text-2xl font-bold text-gray-900">
+                  {typeof value === 'number' ? formatNum(value) : value}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
-        {/* Main Charts Section - Removed Pageviews/Clicks and Device Distribution tables */}
-
-        {/* Bottom Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Real-time Stats */}
-          <div className="space-y-4 flex flex-col">
-            {/* Active Visitors */}
-            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl flex-1">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                   <div>
-                     <p className="text-sm text-gray-600 mb-1">Aktif Ziyaretçiler</p>
-                     <p className="text-xs text-gray-500">Şu anda</p>
-                   </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-gray-900">
-                      {(() => {
-                        // Use real active visitors from realtime API
-                        if (analytics?.realtime?.activeVisitors !== undefined) {
-                          return analytics.realtime.activeVisitors;
-                        }
-                        
-                        // Calculate from recent events (last 5 minutes)
-                        if (analytics?.events?.events && analytics.events.events.length > 0) {
-                          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-                          const recentVisitors = new Set();
-                          
-                          analytics.events.events.forEach((event: any) => {
-                            if (new Date(event.timestamp) > fiveMinutesAgo && event.visitor_id) {
-                              recentVisitors.add(event.visitor_id);
-                            }
-                          });
-                          
-                          return recentVisitors.size;
-                        }
-                        
-                        return 0;
-                      })()}
-                    </p>
-                     <div className="flex items-center space-x-1 mt-1">
-                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                       <span className="text-xs text-green-600">Canlı</span>
-                     </div>
-                  </div>
+        {/* Charts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+          {/* Time Series - takes 2 cols */}
+          <Card className="lg:col-span-2 bg-white border border-gray-100 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-gray-900">Zaman Serisi</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {timeSeriesData.some(d => d.views > 0 || d.clicks > 0) ? (
+                <ResponsiveContainer width="100%" height={280}>
+                  <AreaChart data={timeSeriesData}>
+                    <defs>
+                      <linearGradient id="viewsGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.15} />
+                        <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="clicksGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.15} />
+                        <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="#94a3b8" />
+                    <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" />
+                    <Tooltip
+                      contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
+                    />
+                    <Area type="monotone" dataKey="views" name="Görüntüleme" stroke="#8b5cf6" fill="url(#viewsGrad)" strokeWidth={2} />
+                    <Area type="monotone" dataKey="clicks" name="Tıklama" stroke="#3b82f6" fill="url(#clicksGrad)" strokeWidth={2} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-[280px] text-gray-400 text-sm">
+                  Bu dönem için veri bulunmuyor
                 </div>
-              </CardContent>
-            </Card>
+              )}
+            </CardContent>
+          </Card>
 
-            {/* Button Click Analytics */}
-            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl flex-1">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900">En Çok Tıklanan Butonlar</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-3">
-                  {(() => {
-                    // Use real SQL data from actions API
-                    if (analytics?.actions?.actions && analytics?.actions?.actionLabels) {
-                      const buttonData = Object.entries(analytics.actions.actions)
-                        .map(([index, count]) => ({
-                          button: analytics.actions.actionLabels[index] || `Buton ${index}`,
-                          count: Number(count) || 0
-                        }))
-                        .filter(item => item.count > 0) // Only show buttons with clicks
-                        .sort((a, b) => b.count - a.count)
-                        .slice(0, 5);
-                      
-                      // If no buttons have clicks, show all buttons with 0 clicks
-                      if (buttonData.length === 0 && analytics.actions.actionLabels) {
-                        return Object.entries(analytics.actions.actionLabels)
-                          .map(([index, label]) => ({
-                            button: label,
-                            count: 0
-                          }))
-                          .slice(0, 5);
-                      }
-                      
-                      return buttonData;
-                    }
-                    
-                    // Fallback to events data if actions API not available
-                    if (analytics?.events?.events && analytics.events.events.length > 0) {
-                      const buttonClickCounts = new Map();
-                      
-                      analytics.events.events.forEach((event: any) => {
-                        if (event.event_type === 'action_click' || event.eventType === 'action_click') {
-                          const buttonName = event.action_name || event.button_name || `Buton ${event.action_index || 'Bilinmeyen'}`;
-                          buttonClickCounts.set(buttonName, (buttonClickCounts.get(buttonName) || 0) + 1);
-                        }
-                      });
-                      
-                      const topButtons = Array.from(buttonClickCounts.entries())
-                        .sort(([, a], [, b]) => (b as number) - (a as number))
-                        .slice(0, 5)
-                        .map(([button, count]) => ({ button, count }));
-                      
-                      return topButtons;
-                    }
-                    
-                    // Default fallback - no data available
-                    return [
-                      { button: 'Veri yok', count: 0 }
-                    ];
-                  })().map((button: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <span className="text-sm font-medium text-blue-600">
-                            {i + 1}
+          {/* Device Breakdown */}
+          <Card className="bg-white border border-gray-100 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-gray-900">Cihaz Dağılımı</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {deviceData.length > 0 ? (
+                <>
+                  <ResponsiveContainer width="100%" height={160}>
+                    <PieChart>
+                      <Pie
+                        data={deviceData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={45}
+                        outerRadius={70}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {deviceData.map((d, i) => (
+                          <Cell key={i} fill={d.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(val: number) => [`${val.toLocaleString('tr-TR')}`, '']}
+                        contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="space-y-2 mt-2">
+                    {deviceData.map((d) => (
+                      <div key={d.name} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <DeviceIcon type={d.rawName} />
+                          <span className="text-gray-700">{d.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-900">{formatNum(d.value)}</span>
+                          <span className="text-xs text-gray-400 w-10 text-right">
+                            {deviceTotal > 0 ? ((d.value / deviceTotal) * 100).toFixed(0) : 0}%
                           </span>
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            {button.button}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {button.count} tıklama
-                          </p>
-                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-gray-900">
-                          {button.count.toLocaleString()}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {(() => {
-                            const totalClicks = analytics?.actions?.actions ? 
-                              Object.values(analytics.actions.actions).reduce((sum: number, count: any) => sum + (Number(count) || 0), 0) : 0;
-                            return totalClicks > 0 ? ((button.count / totalClicks) * 100).toFixed(1) : 0;
-                          })()}%
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-center h-[280px] text-gray-400 text-sm">
+                  Cihaz verisi yok
                 </div>
-              </CardContent>
-            </Card>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* Top Referrers */}
-            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl flex-1">
-               <CardHeader className="pb-4">
-                 <CardTitle className="text-lg font-semibold text-gray-900">En İyi Referanslar</CardTitle>
-               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-3">
-                  {(() => {
-                    // Use real referrer data from events if available
-                    if (analytics?.events?.events && analytics.events.events.length > 0) {
-                      const referrerCounts = new Map();
-                      
-                       analytics.events.events.forEach((event: any) => {
-                         const referrer = event.referrer || 'Doğrudan';
-                         referrerCounts.set(referrer, (referrerCounts.get(referrer) || 0) + 1);
-                       });
-                      
-                      const topReferrers = Array.from(referrerCounts.entries())
-                        .sort(([, a], [, b]) => (b as number) - (a as number))
-                        .slice(0, 5)
-                        .map(([referrer, count]) => ({ referrer, count }));
-                      
-                      return topReferrers;
-                    }
-                    
-                    // Fallback to referrers API data
-                    if (analytics?.referrers?.referrers) {
-                      return analytics.referrers.referrers.slice(0, 5);
-                    }
-                    
-                     // Default fallback
-                     return [
-                       { referrer: 'google.com', count: 1250 },
-                       { referrer: 'facebook.com', count: 890 },
-                       { referrer: 'twitter.com', count: 650 },
-                       { referrer: 'linkedin.com', count: 420 },
-                       { referrer: 'Doğrudan', count: 2100 }
-                     ];
-                  })().map((ref: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600 truncate max-w-xs">{ref.referrer}</span>
-                      <span className="text-gray-900 font-medium">{ref.count.toLocaleString()}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="lg:col-span-2">
-            <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl h-full">
-               <CardHeader className="pb-4">
-                 <CardTitle className="text-lg font-semibold text-gray-900">Son Aktiviteler</CardTitle>
-               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-3">
-                  {(() => {
-                    // Use real events data if available
-                    if (analytics?.events?.events && analytics.events.events.length > 0) {
-                      return analytics.events.events
-                        .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                        .slice(0, 8);
-                    }
-                    
-                     // Fallback to sample data
-                     return [
-                       { event_type: 'page_view', referrer: 'google.com', timestamp: new Date().toISOString() },
-                       { event_type: 'action_click', referrer: 'facebook.com', timestamp: new Date(Date.now() - 6000).toISOString() },
-                       { event_type: 'page_view', referrer: 'twitter.com', timestamp: new Date(Date.now() - 12000).toISOString() },
-                       { event_type: 'action_click', referrer: 'Doğrudan', timestamp: new Date(Date.now() - 18000).toISOString() },
-                       { event_type: 'page_view', referrer: 'linkedin.com', timestamp: new Date(Date.now() - 24000).toISOString() },
-                       { event_type: 'action_click', referrer: 'google.com', timestamp: new Date(Date.now() - 30000).toISOString() },
-                       { event_type: 'page_view', referrer: 'facebook.com', timestamp: new Date(Date.now() - 36000).toISOString() },
-                       { event_type: 'action_click', referrer: 'twitter.com', timestamp: new Date(Date.now() - 42000).toISOString() }
-                     ];
-                  })().map((activity: any, i: number) => {
-                    const timeAgo = Math.floor((Date.now() - new Date(activity.timestamp).getTime()) / 1000);
-                    const timeStr = timeAgo < 60 ? `${timeAgo}sn` : timeAgo < 3600 ? `${Math.floor(timeAgo / 60)}dk` : 'Şimdi';
-                    const isClick = activity.event_type === 'action_click';
-                    const hasValue = isClick && Math.random() > 0.5;
-                    
+        {/* Middle Row: Buttons + Referrers + Geography */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          {/* Button Clicks */}
+          <Card className="bg-white border border-gray-100 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-gray-900">Buton Tıklamaları</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {buttonData.length > 0 ? (
+                <div className="space-y-2">
+                  {buttonData.map((btn, i) => {
+                    const pct = totalButtonClicks > 0 ? (btn.count / totalButtonClicks) * 100 : 0;
                     return (
-                    <div key={i} className="flex items-center justify-between text-sm p-3 bg-white/50 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-2 h-2 rounded-full ${isClick ? 'bg-blue-500' : 'bg-green-500'}`}></div>
-                         <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">
-                           {activity.referrer || 'Doğrudan'}
-                         </span>
-                         <span className="text-gray-600">
-                           {isClick ? 'Buton Tıklama' : 'Sayfa Görüntüleme'}
-                         </span>
+                      <div key={i} className="flex items-center gap-3">
+                        <div className="w-6 h-6 bg-blue-50 rounded flex items-center justify-center shrink-0">
+                          <span className="text-xs font-semibold text-blue-600">{i + 1}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="text-sm text-gray-700 truncate">{btn.label}</span>
+                            <span className="text-sm font-semibold text-gray-900 ml-2 shrink-0">{formatNum(btn.count)}</span>
+                          </div>
+                          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-blue-500 rounded-full"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-gray-500">{timeStr}</span>
-                      </div>
-                    </div>
                     );
                   })}
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              ) : (
+                <p className="text-sm text-gray-400 py-8 text-center">Tıklama verisi yok</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Referrers */}
+          <Card className="bg-white border border-gray-100 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-gray-900">Referanslar</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {referrerData.length > 0 ? (
+                <div className="space-y-2.5">
+                  {referrerData.map((ref: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Globe className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                        <span className="text-gray-700 truncate">{ref.referrer}</span>
+                      </div>
+                      <span className="font-medium text-gray-900 ml-2 shrink-0">{formatNum(ref.count)}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-400 py-8 text-center">Referans verisi yok</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Geography */}
+          <Card className="bg-white border border-gray-100 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-gray-900">Ülkeler</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {geoData.length > 0 ? (
+                <div className="space-y-2">
+                  {geoData.map((geo, i) => {
+                    const pct = geoTotal > 0 ? (geo.count / geoTotal) * 100 : 0;
+                    return (
+                      <div key={i} className="flex items-center gap-3">
+                        <span className="text-sm text-gray-600 w-24 truncate">{geo.country}</span>
+                        <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-emerald-500 rounded-full"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <span className="text-sm font-medium text-gray-900 w-12 text-right">{formatNum(geo.count)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-400 py-8 text-center">Ülke verisi yok</p>
+              )}
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Recent Events */}
+        <Card className="bg-white border border-gray-100 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold text-gray-900">Son Aktiviteler</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            {recentEvents.length > 0 ? (
+              <div className="space-y-1">
+                {recentEvents.map((event: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-2 h-2 rounded-full shrink-0 ${eventDotColor(event.event_type)}`} />
+                      <span className="text-sm font-medium text-gray-700">{eventTypeLabel(event.event_type)}</span>
+                      {event.referrer && (
+                        <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded truncate max-w-[200px]">
+                          {event.referrer}
+                        </span>
+                      )}
+                      {event.device_type && (
+                        <span className="hidden sm:inline text-xs text-gray-400">
+                          <DeviceIcon type={event.device_type} />
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs text-gray-400 shrink-0 ml-2">
+                      {formatDistanceToNow(new Date(event.timestamp), { addSuffix: true, locale: tr })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400 py-8 text-center">Henüz aktivite yok</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

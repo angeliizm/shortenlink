@@ -39,6 +39,36 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+const PAGE_SIZE = 1000;
+
+// Supabase returns max 1000 rows by default. This function paginates to get ALL rows.
+async function fetchAllRows(
+  queryBuilder: () => any
+): Promise<any[]> {
+  let allRows: any[] = [];
+  let from = 0;
+  let hasMore = true;
+
+  while (hasMore) {
+    const { data, error } = await queryBuilder().range(from, from + PAGE_SIZE - 1);
+
+    if (error) {
+      console.error('[fetchAllRows] Query error:', error.message);
+      break;
+    }
+
+    if (!data || data.length === 0) {
+      hasMore = false;
+    } else {
+      allRows = allRows.concat(data);
+      from += PAGE_SIZE;
+      hasMore = data.length === PAGE_SIZE;
+    }
+  }
+
+  return allRows;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string } }
@@ -173,17 +203,19 @@ export async function GET(
           bounces: acc.bounces + (m.bounces || 0),
         }), totals);
       } else {
-        // Fallback to raw events if no aggregated data
+        // Fallback to raw events if no aggregated data - paginated to get ALL events
         console.log('[Analytics API] No hourly metrics, falling back to raw events');
-        
-        const { data: events, error: eventsError } = await supabase
-          .from('analytics_events')
-          .select('*')
-          .eq('site_slug', slug)
-          .gte('timestamp', defaultStartDate)
-          .lte('timestamp', defaultEndDate) as { data: AnalyticsEvent[] | null; error: any };
 
-        if (events && events.length > 0) {
+        const events = await fetchAllRows(() =>
+          supabase
+            .from('analytics_events')
+            .select('*')
+            .eq('site_slug', slug)
+            .gte('timestamp', defaultStartDate)
+            .lte('timestamp', defaultEndDate)
+        ) as AnalyticsEvent[];
+
+        if (events.length > 0) {
           console.log(`[Analytics API] Found ${events.length} raw events`);
           
           totals.pageViews = events.filter(e => e.event_type === 'page_view').length;
@@ -249,18 +281,20 @@ export async function GET(
         .eq('page_actions.is_enabled', true)
         .order('sort_order', { referencedTable: 'page_actions' });
 
-      // Get action clicks from events
-      const { data: events, error } = await supabase
-        .from('analytics_events')
-        .select('action_index, action_type')
-        .eq('site_slug', slug)
-        .eq('event_type', 'action_click')
-        .gte('timestamp', defaultStartDate)
-        .lte('timestamp', defaultEndDate) as { data: any[] | null; error: any };
+      // Get action clicks from events - paginated
+      const events = await fetchAllRows(() =>
+        supabase
+          .from('analytics_events')
+          .select('action_index, action_type')
+          .eq('site_slug', slug)
+          .eq('event_type', 'action_click')
+          .gte('timestamp', defaultStartDate)
+          .lte('timestamp', defaultEndDate)
+      );
 
       const actionTotals: Record<string, number> = {};
       const actionLabels: Record<string, string> = {};
-      
+
       // Map action indices to labels
       if (pageData && pageData.length > 0 && pageData[0]) {
         const page = pageData[0] as any;
@@ -271,16 +305,14 @@ export async function GET(
           });
         }
       }
-      
-      if (events) {
-        console.log(`[Analytics API] Found ${events.length} action click events`);
-        events.forEach(event => {
-          const index = event.action_index?.toString() || 'unknown';
-          actionTotals[index] = (actionTotals[index] || 0) + 1;
-        });
-      }
 
-      return NextResponse.json({ 
+      console.log(`[Analytics API] Found ${events.length} action click events`);
+      events.forEach((event: any) => {
+        const index = event.action_index?.toString() || 'unknown';
+        actionTotals[index] = (actionTotals[index] || 0) + 1;
+      });
+
+      return NextResponse.json({
         actions: actionTotals,
         actionLabels: actionLabels
       }, {
@@ -291,22 +323,22 @@ export async function GET(
     }
 
     if (metric === 'referrers') {
-      const { data: events, error } = await supabase
-        .from('analytics_events')
-        .select('referrer')
-        .eq('site_slug', slug)
-        .gte('timestamp', defaultStartDate)
-        .lte('timestamp', defaultEndDate)
-        .not('referrer', 'is', null) as { data: any[] | null; error: any };
+      const events = await fetchAllRows(() =>
+        supabase
+          .from('analytics_events')
+          .select('referrer')
+          .eq('site_slug', slug)
+          .gte('timestamp', defaultStartDate)
+          .lte('timestamp', defaultEndDate)
+          .not('referrer', 'is', null)
+      );
 
       const referrerCounts: Record<string, number> = {};
-      
-      if (events) {
-        events.forEach(event => {
-          const ref = event.referrer || 'direct';
-          referrerCounts[ref] = (referrerCounts[ref] || 0) + 1;
-        });
-      }
+
+      events.forEach((event: any) => {
+        const ref = event.referrer || 'direct';
+        referrerCounts[ref] = (referrerCounts[ref] || 0) + 1;
+      });
 
       const topReferrers = Object.entries(referrerCounts)
         .sort(([, a], [, b]) => b - a)
@@ -323,26 +355,26 @@ export async function GET(
     }
 
     if (metric === 'devices') {
-      const { data: events, error } = await supabase
-        .from('analytics_events')
-        .select('device_type, browser')
-        .eq('site_slug', slug)
-        .gte('timestamp', defaultStartDate)
-        .lte('timestamp', defaultEndDate) as { data: any[] | null; error: any };
+      const events = await fetchAllRows(() =>
+        supabase
+          .from('analytics_events')
+          .select('device_type, browser')
+          .eq('site_slug', slug)
+          .gte('timestamp', defaultStartDate)
+          .lte('timestamp', defaultEndDate)
+      );
 
       const deviceTotals: Record<string, number> = {};
       const browserTotals: Record<string, number> = {};
-      
-      if (events) {
-        events.forEach(event => {
-          if (event.device_type) {
-            deviceTotals[event.device_type] = (deviceTotals[event.device_type] || 0) + 1;
-          }
-          if (event.browser) {
-            browserTotals[event.browser] = (browserTotals[event.browser] || 0) + 1;
-          }
-        });
-      }
+
+      events.forEach((event: any) => {
+        if (event.device_type) {
+          deviceTotals[event.device_type] = (deviceTotals[event.device_type] || 0) + 1;
+        }
+        if (event.browser) {
+          browserTotals[event.browser] = (browserTotals[event.browser] || 0) + 1;
+        }
+      });
 
       return NextResponse.json({ 
         devices: deviceTotals,
@@ -355,23 +387,23 @@ export async function GET(
     }
 
     if (metric === 'geography') {
-      const { data: events, error } = await supabase
-        .from('analytics_events')
-        .select('country')
-        .eq('site_slug', slug)
-        .gte('timestamp', defaultStartDate)
-        .lte('timestamp', defaultEndDate)
-        .not('country', 'is', null) as { data: any[] | null; error: any };
+      const events = await fetchAllRows(() =>
+        supabase
+          .from('analytics_events')
+          .select('country')
+          .eq('site_slug', slug)
+          .gte('timestamp', defaultStartDate)
+          .lte('timestamp', defaultEndDate)
+          .not('country', 'is', null)
+      );
 
       const countryTotals: Record<string, number> = {};
-      
-      if (events) {
-        events.forEach(event => {
-          if (event.country) {
-            countryTotals[event.country] = (countryTotals[event.country] || 0) + 1;
-          }
-        });
-      }
+
+      events.forEach((event: any) => {
+        if (event.country) {
+          countryTotals[event.country] = (countryTotals[event.country] || 0) + 1;
+        }
+      });
 
       return NextResponse.json({ 
         countries: countryTotals 
@@ -383,19 +415,21 @@ export async function GET(
     }
 
     if (metric === 'events') {
-      const { data: events, error } = await supabase
-        .from('analytics_events')
-        .select('*')
-        .eq('site_slug', slug)
-        .gte('timestamp', defaultStartDate)
-        .lte('timestamp', defaultEndDate)
-        .order('timestamp', { ascending: false })
-        .limit(100) as { data: any[] | null; error: any };
+      // Paginated to get ALL events for accurate time series and metric calculation
+      const events = await fetchAllRows(() =>
+        supabase
+          .from('analytics_events')
+          .select('*')
+          .eq('site_slug', slug)
+          .gte('timestamp', defaultStartDate)
+          .lte('timestamp', defaultEndDate)
+          .order('timestamp', { ascending: false })
+      );
 
-      console.log(`[Analytics API] Found ${events?.length || 0} recent events`);
+      console.log(`[Analytics API] Found ${events.length} events`);
 
-      return NextResponse.json({ 
-        events: events || [] 
+      return NextResponse.json({
+        events
       }, {
         headers: {
           'Cache-Control': 'no-store, max-age=0',
