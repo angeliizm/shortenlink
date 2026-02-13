@@ -358,11 +358,13 @@ export default function ReportsPage() {
             )}
           </div>
 
-          {/* Loading indicator for filter changes */}
+          {/* Loading overlay popup for filter changes */}
           {refreshing && data && (
-            <div className="mb-4 flex items-center justify-center gap-2 py-2 px-4 bg-blue-50 border border-blue-100 rounded-lg">
-              <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-              <span className="text-sm text-blue-700">Veriler güncelleniyor...</span>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+              <div className="flex flex-col items-center gap-3 rounded-2xl bg-white px-8 py-6 shadow-2xl border border-blue-100 animate-in fade-in zoom-in-95 duration-200">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="text-base font-semibold text-blue-700">Veriler güncelleniyor...</span>
+              </div>
             </div>
           )}
 
