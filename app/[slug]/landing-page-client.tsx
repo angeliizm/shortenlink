@@ -285,7 +285,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
          * {
            -webkit-font-smoothing: antialiased;
            -moz-osx-font-smoothing: grayscale;
-           font-family: 'Helvetica', 'Arial', sans-serif;
          }
         
         
@@ -341,19 +340,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         
         .button-shine:hover::before {
           transform: translateX(100%);
-        }
-        
-        @keyframes rotate-dash {
-          0% {
-            border-style: dashed;
-            border-dasharray: 12px 6px;
-            border-dashoffset: 0;
-          }
-          100% {
-            border-style: dashed;
-            border-dasharray: 12px 6px;
-            border-dashoffset: 18px;
-          }
         }
         
         /* Responsive font sizes */
@@ -413,8 +399,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           }
           
           .banner-button-mobile {
-            min-height: 80px !important;
-            max-height: 120px !important;
+            min-height: 72px !important;
+            max-height: 96px !important;
           }
           
           .banner-image-mobile {
@@ -449,7 +435,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          paddingTop: '30px'
+          paddingTop: '32px'
         }}
       >
         {/* Enhanced background elements */}
@@ -575,9 +561,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                 margin: isCompactMobile ? '0 auto 18px auto' : '0 auto 30px auto',
                 maxWidth: isCompactMobile ? '360px' : undefined
               }}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+              transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
             >
             <div className="relative">
               {/* Profile Card Container */}
@@ -602,7 +588,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                    }}
                    initial={{ scale: 0 }}
                    animate={{ scale: 1 }}
-                   transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                   transition={{ duration: 0.4, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                  >
                   {sanitizedAvatarUrl && !avatarLoadFailed ? (
                     <img
@@ -657,7 +643,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                         }}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{ duration: 0.4, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
                       >
                         {config.title}
                       </motion.h1>
@@ -676,12 +662,13 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                       }}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.4, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
                     >
                       {config.meta.description}
                     </motion.p>
                   )}
                 </div>
+
 
                 {/* Decorative Elements */}
                 {styles.showDecorativeElements && (
@@ -710,98 +697,18 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         )
       })()}
 
-      {/* Enhanced Main Content Container */}
-      <motion.div 
-        className="relative z-10 w-full max-w-md mx-auto px-4"
-        style={{
-          textAlign: titleStylePreset.styles.textAlign,
-        }}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ 
-          duration: 0.8, 
-          ease: [0.22, 1, 0.36, 1]
-        }}
-      >
-        {/* Content area - now simplified since title is in profile card */}
-
-
-        {/* Premium Enhanced Description with SEO focus */}
-        {config.meta?.description && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-12 relative"
-          >
-            {/* Description container with glass effect */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500" />
-              
-              <p 
-                className="description-styled leading-relaxed description-balance relative z-10 text-gray-600"
-                 style={{
-                   ...getDescriptionStyles(titleStylePreset),
-                   fontFamily: 'Helvetica, Arial, sans-serif',
-                   fontSize: `clamp(1rem, 2vw, ${titleStylePreset.styles.descriptionFontSize})`,
-                   maxWidth: '650px',
-                   margin: '0 auto',
-                   lineHeight: '1.8',
-                   letterSpacing: '0.01em',
-                   fontWeight: 450
-                 }}
-              >
-                {/* Highlight first sentence for SEO emphasis */}
-                {config.meta?.description?.split('. ').map((sentence, index) => (
-                  <motion.span
-                    key={index}
-                    className={index === 0 ? 'font-medium text-gray-700' : ''}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{
-                      duration: 0.5,
-                      delay: 0.3 + index * 0.1,
-                      ease: [0.22, 1, 0.36, 1]
-                    }}
-                  >
-                    {sentence}{index < (config.meta?.description?.split('. ').length || 0) - 1 ? '. ' : ''}
-                  </motion.span>
-                ))}
-              </p>
-            </div>
-            
-            {/* SEO Keywords visualization (subtle) */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="flex flex-wrap gap-2 justify-center mt-6"
-            >
-              {/* Extract and display key phrases */}
-              {config.meta?.description?.split(' ').slice(0, 3).map((word, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 text-xs font-medium text-purple-600 bg-purple-50 rounded-full border border-purple-100 opacity-60"
-                >
-                  {word}
-                </span>
-              ))}
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* Enhanced Action Buttons Container */}
+        {/* Action Buttons Container */}
         {sortedActions.length > 0 && (
-          <motion.div 
-            className="w-full mx-auto"
+          <motion.div
+            className="w-full max-w-md mx-auto px-4 mb-6"
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: 'clamp(4px, 0.5rem, 8px)'
+              gap: '12px'
             }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
             {sortedActions.map((action, index) => {
               // Get preset or use default
@@ -826,11 +733,11 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                    className={`
                      relative block w-full text-center font-semibold
                      transition-all duration-300 ease-out overflow-hidden
-                     ${isBannerPreset ? 'py-0' : action.description ? 'py-6 px-6' : 'py-5 px-6'} rounded-xl
+                     ${isBannerPreset ? 'py-0' : 'py-4 px-6'} rounded-xl
                      hover:shadow-xl hover:shadow-purple-200/30
                      transform-gpu
                      group
-                     ${isBannerPreset ? 'min-h-[120px] banner-button-mobile' : 'min-h-[90px]'}
+                     ${isBannerPreset ? 'min-h-[100px] banner-button-mobile' : 'min-h-[60px]'}
                    `}
                    style={{
                      backgroundColor: isBannerPreset ? 'transparent' : (styles.gradient ? 'transparent' : styles.backgroundColor),
@@ -844,14 +751,13 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                      letterSpacing: '-0.01em',
                      position: 'relative',
                      isolation: 'isolate',
-                     boxShadow: isBannerPreset ? '0 4px 12px -1px rgba(0, 0, 0, 0.15)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                     fontFamily: 'Helvetica, Arial, sans-serif'
+                     boxShadow: isBannerPreset ? '0 4px 12px -1px rgba(0, 0, 0, 0.15)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                    }}
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ 
-                    duration: 0.5, 
-                    delay: 0.3 + index * 0.08,
+                  transition={{
+                    duration: 0.4,
+                    delay: 0.3 + index * 0.06,
                     ease: [0.22, 1, 0.36, 1]
                   }}
                   whileHover={{ 
@@ -881,11 +787,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     e.currentTarget.style.boxShadow = isBannerPreset 
                       ? '0 8px 20px -5px rgba(0, 0, 0, 0.2)' 
                       : (styles.shadow ? `${styles.shadow}, 0 10px 25px -5px rgba(0, 0, 0, 0.15)` : `0 10px 25px -5px ${styles.color}40, 0 10px 10px -5px rgba(0, 0, 0, 0.04)`)
-                    // Update dashed border opacity for all buttons
-                    const dashedBorder = e.currentTarget.querySelector('.dashed-border-static') as HTMLElement
-                    if (dashedBorder) {
-                      dashedBorder.style.opacity = '1'
-                    }
                   }}
                   onMouseLeave={(e) => {
                     if (!isBannerPreset) {
@@ -904,35 +805,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     e.currentTarget.style.boxShadow = isBannerPreset 
                       ? '0 4px 12px -1px rgba(0, 0, 0, 0.15)' 
                       : (styles.shadow || '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)')
-                    // Reset dashed border opacity for all buttons
-                    const dashedBorder = e.currentTarget.querySelector('.dashed-border-static') as HTMLElement
-                    if (dashedBorder) {
-                      dashedBorder.style.opacity = '0.5'
-                    }
                   }}
                 >
-                  {/* Responsive dashed border */}
-                  <span 
-                    className="absolute rounded-2xl pointer-events-none dashed-border-static"
-                    style={{
-                      inset: '-6px',
-                      border: '2px dashed #E5E7EB',
-                      opacity: 0.5,
-                      transition: 'all 0.3s ease'
-                    }}
-                  />
-                  
-                  {/* Animated dashed border on hover */}
-                  <span 
-                    className="absolute rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100"
-                    style={{
-                      inset: '-6px',
-                      border: '2px dashed #E5E7EB',
-                      animation: 'rotate-dash 8s linear infinite',
-                      transition: 'opacity 0.3s ease'
-                    }}
-                  />
-                  
                   {/* Banner image mode */}
                   {isBannerPreset ? (
                     <div className="relative z-10 w-full h-full">
@@ -952,30 +826,17 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                     <div className="relative z-10 flex flex-col items-center justify-center w-full gap-2">
                       {/* Logo at the top - centered */}
                       {config.logoUrl && (
-                        <div className="min-w-[120px] min-h-[70px] max-w-[180px] max-h-[90px] flex items-center justify-center bg-gradient-to-br from-white via-gray-50 to-gray-100 backdrop-blur-xl rounded-3xl border-2 border-white/50 shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500 relative overflow-hidden p-4">
-                          {/* Glass effect overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-white/30 opacity-50"></div>
-
-                          {/* Animated gradient glow */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-xl"></div>
-
-                          {/* Shine effect */}
-                          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
-
-                          {/* Inner glow */}
-                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.8),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
+                        <div className="flex items-center justify-center max-w-[160px] max-h-[72px] p-3">
                           <img
                             src={config.logoUrl}
                             alt="Logo"
-                            className="max-w-full max-h-full w-auto h-auto object-contain relative z-10 filter drop-shadow-lg group-hover:drop-shadow-2xl group-hover:scale-110 transition-all duration-500"
+                            className="max-w-full max-h-full w-auto h-auto object-contain"
                             style={{
                               width: 'auto',
                               height: 'auto',
                               maxWidth: '100%',
                               maxHeight: '100%',
-                              objectFit: 'contain',
-                              filter: 'contrast(1.1) brightness(1.05)'
+                              objectFit: 'contain'
                             }}
                           />
                         </div>
@@ -1017,8 +878,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
             })}
           </motion.div>
         )}
-      </motion.div>
-      
+
       {/* Footer - Inside main container */}
       <motion.footer 
         className="relative z-10 w-full max-w-md mx-auto px-4 py-3 mt-6"
@@ -1030,7 +890,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.4, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="text-center">
           <p className="text-xs text-white opacity-70">
