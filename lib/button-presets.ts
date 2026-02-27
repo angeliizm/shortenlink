@@ -328,6 +328,171 @@ export const buttonPresets: ButtonPreset[] = [
     bannerImage: '/images/anubis_site_tasarm.png'
   },
   {
+    id: 'arkin-banner',
+    name: 'Arkın Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/arkın site tasarım.png'
+  },
+  {
+    id: 'bahibom-tasarim-banner',
+    name: 'Bahibom Tasarım Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/bahibom site tasarım (2).png'
+  },
+  {
+    id: 'betplay-tasarim-banner',
+    name: 'Betplay Tasarım Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/betplay site tasarım png (2).png'
+  },
+  {
+    id: 'dedebet-banner',
+    name: 'Dedebet Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/dedebet site tasarım (2).png'
+  },
+  {
+    id: 'egebet-banner',
+    name: 'Egebet Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/egebet site tasarımı.png'
+  },
+  {
+    id: 'elit-banner',
+    name: 'Elit Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/elit site tasarım.png'
+  },
+  {
+    id: 'grandpasha-tasarim-banner',
+    name: 'Grandpasha Tasarım Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/grandpasha site tasarım (3).png'
+  },
+  {
+    id: 'huqqabet-banner',
+    name: 'Huqqabet Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/huqqabet site tasarım.png'
+  },
+  {
+    id: 'olimpos-banner',
+    name: 'Olimpos Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/olimpos site tasarım.png'
+  },
+  {
+    id: 'pusulabet-banner',
+    name: 'Pusulabet Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/pusulabet site tasarım png.png'
+  },
+  {
+    id: 'slotio-banner',
+    name: 'Slotio Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/slotio site tasarım (2).png'
+  },
+  {
+    id: 'sloto-banner',
+    name: 'Sloto Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/sloto site tasarım.png'
+  },
+  {
+    id: 'stake-banner',
+    name: 'Stake Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/stake site tasarım (2).png'
+  },
+  {
+    id: 'tipobet-tasarim-banner',
+    name: 'Tipobet Tasarım Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/tipobet site tasarım.png'
+  },
+  {
+    id: 'turbobahis-banner',
+    name: 'Turbobahis Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/turbobahis site tasarım (2).png'
+  },
+  {
     id: 'dashed-modern',
     name: 'Modern Dashed',
     styles: {
