@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/stores/auth-store'
+import InertWhenAriaHidden from '@/components/InertWhenAriaHidden'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -24,6 +25,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <AuthProvider>
+          <InertWhenAriaHidden />
           {children}
         </AuthProvider>
       </body>

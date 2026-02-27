@@ -7,7 +7,7 @@ import Link from 'next/link'
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <main className="min-h-dvh bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -297,6 +297,6 @@ export default function PrivacyPolicyPage() {
           </Card>
         </div>
       </div>
-    </div>
+    </main>
   )
 }
