@@ -440,8 +440,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           animation-iteration-count: infinite;
         }` : ''}
       `}</style>
-      <div 
-        className={`min-h-screen relative overflow-hidden ${animationClass}`} 
+      <main 
+        className={`min-h-dvh relative overflow-hidden ${animationClass}`} 
         style={{
           ...backgroundStyle,
           transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -1038,7 +1038,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           </p>
         </div>
       </motion.footer>
-      </div>
+      </main>
 
       {/* Enhanced Background Picker Modal with Animation */}
       <AnimatePresence>

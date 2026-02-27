@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function AuthCodeError() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <main className="min-h-dvh flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <div className="max-w-md w-full mx-4">
         <div className="bg-white rounded-xl border border-blue-100/50 shadow-xl shadow-blue-500/5 p-8 text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -36,6 +36,6 @@ export default function AuthCodeError() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

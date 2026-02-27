@@ -333,7 +333,7 @@ export default function ModeratorPage() {
 
   if (!isAuthenticated || userRole !== 'moderator') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <main className="min-h-dvh bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
         <div className="text-center">
           <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Erişim Reddedildi</h1>
@@ -342,12 +342,12 @@ export default function ModeratorPage() {
             Dashboard'a Dön
           </Button>
         </div>
-      </div>
+      </main>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-dvh bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Modern Header */}
       <PageHeader
         title="Linkfy."
@@ -388,7 +388,7 @@ export default function ModeratorPage() {
       />
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="grant-permissions" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="grant-permissions">Site İzni Ver</TabsTrigger>
@@ -641,7 +641,7 @@ export default function ModeratorPage() {
             <InvitationCodes />
           </TabsContent>
         </Tabs>
-      </div>
+      </main>
     </div>
   )
 }

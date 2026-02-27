@@ -284,7 +284,7 @@ export default function ReportsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+      <main className="min-h-dvh bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle className="text-red-600">Hata</CardTitle>
@@ -301,13 +301,13 @@ export default function ReportsPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </main>
     );
   }
 
   return (
     <RoleGuard requiredRole={['admin', 'moderator']}>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="min-h-dvh bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
         <PageHeader
           title="Linkfy."
           subtitle={`Genel Raporlar - ${getTimeRangeLabel(timeRange)}`}
@@ -329,7 +329,7 @@ export default function ReportsPage() {
           }
         />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
           {/* Time Range Filter */}
           <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-1 p-1 bg-white/60 rounded-xl border border-gray-200/50 shadow-sm">
@@ -714,7 +714,7 @@ export default function ReportsPage() {
               </div>
             </TabsContent>
           </Tabs>
-        </div>
+        </main>
       </div>
     </RoleGuard>
   );

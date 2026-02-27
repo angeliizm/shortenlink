@@ -40,7 +40,7 @@ export default function AdminPage() {
 
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
           <Tabs defaultValue="users" className="space-y-8">
             <TabsList className="grid w-full grid-cols-3 bg-white/50 backdrop-blur-sm border border-white/20">
               <TabsTrigger 
@@ -78,7 +78,7 @@ export default function AdminPage() {
             <InvitationCodes />
           </TabsContent>
           </Tabs>
-        </div>
+        </main>
       </div>
     </RoleGuard>
   );

@@ -31,7 +31,7 @@ WHERE p.is_enabled = true
 INSERT INTO public.page_actions (page_id, label, href, variant, preset, image_url, sort_order, is_enabled)
 SELECT
   p.id,
-  'Bahibom Kampanyası (Tasarım)',
+  'Bahibom Kampanyası (Tasarım)',image.pngcan 
   'https://cutt.ly/denizaksoyxbahibom',
   'outline',
   'bahibom-tasarim-banner',
