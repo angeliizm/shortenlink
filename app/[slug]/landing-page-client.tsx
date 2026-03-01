@@ -4,12 +4,9 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { PageConfig } from '@/lib/types/page'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getPresetById, defaultPresetId } from '@/lib/button-presets'
-import { getProfilePresetById, defaultProfilePresetId } from '@/lib/profile-presets'
-import { getTitleFontPresetById, defaultTitleFontPresetId } from '@/lib/title-font-presets'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { BackgroundPicker } from '@/components/background-picker'
 import { backgroundPresets, applyPresetControls, type BackgroundPreset } from '@/lib/background-presets'
-import { titleStylePresets, getTitleStyles, getDescriptionStyles, getAccentElement, type TitleStylePreset } from '@/lib/title-style-presets'
 import { Palette, Sparkles, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -30,12 +27,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
     controls: Record<string, string | number>
   } | null>(null)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
-  const [isCompactMobile, setIsCompactMobile] = useState(false)
-  // Initialize from config first, then localStorage will override if needed
-  const [profilePresetId, setProfilePresetId] = useState<string>(config.profilePresetId || defaultProfilePresetId)
-  const [titleFontPresetId, setTitleFontPresetId] = useState<string>(config.titleFontPresetId || defaultTitleFontPresetId)
-  const [titleColor, setTitleColor] = useState<string>(config.titleColor || '#ffffff')
-  const [titleFontSize, setTitleFontSize] = useState<number>(config.titleFontSize || 28)
   const [avatarUrl, setAvatarUrl] = useState<string>('')
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false)
 
@@ -54,30 +45,17 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
     }
   }, [avatarUrl])
   
-  // Listen for preset changes from edit page (if same site)
+  // Listen for avatar changes from edit page (if same site)
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === `profile-preset-${config.id}` && e.newValue && getProfilePresetById(e.newValue)) {
-        setProfilePresetId(e.newValue)
-      }
-      if (e.key === `title-font-preset-${config.id}` && e.newValue && getTitleFontPresetById(e.newValue)) {
-        setTitleFontPresetId(e.newValue)
-      }
-      if (e.key === `title-color-${config.id}` && e.newValue) {
-        setTitleColor(e.newValue)
-      }
-      if (e.key === `title-font-size-${config.id}` && e.newValue) {
-        setTitleFontSize(parseInt(e.newValue) || 28)
-      }
       if (e.key === `avatar-url-${config.id}` && e.newValue) {
         setAvatarUrl(e.newValue)
       }
     }
-    
+
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [config.id])
-  const [titleStylePreset, setTitleStylePreset] = useState(titleStylePresets[0])
   const { trackPageView, trackActionClick } = useAnalytics()
   const supabase = createClient()
 
@@ -86,16 +64,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
     // Track page view when component mounts
     if (config.slug) {
       trackPageView(config.slug, window.location.pathname)
-    }
-    
-    // Load Google Fonts for title style
-    if (titleStylePreset.preview?.googleFonts) {
-      titleStylePreset.preview.googleFonts.forEach(font => {
-        const link = document.createElement('link')
-        link.href = `https://fonts.googleapis.com/css2?family=${font.replace(' ', '+')}&display=swap`
-        link.rel = 'stylesheet'
-        document.head.appendChild(link)
-      })
     }
     
     // Initialize background preference from server-side data
@@ -108,98 +76,32 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         })
       }
     }
-    
-    // Initialize title style preference from server-side data
-    if (config.titleStylePreference?.presetId) {
-      const preset = titleStylePresets.find(p => p.id === config.titleStylePreference!.presetId)
-      if (preset) {
-        setTitleStylePreset(preset)
-      }
-    }
-    
+
     // Check motion preference
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     setPrefersReducedMotion(mediaQuery.matches)
     const handleChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [config.slug, config.backgroundPreference, config.titleStylePreference, titleStylePreset, trackPageView])
-
-  useEffect(() => {
-    const updateCompactState = () => {
-      if (typeof window !== 'undefined') {
-        setIsCompactMobile(window.innerWidth <= 480)
-      }
-    }
-    updateCompactState()
-    window.addEventListener('resize', updateCompactState)
-    return () => window.removeEventListener('resize', updateCompactState)
-  }, [])
+  }, [config.slug, config.backgroundPreference, trackPageView])
 
   // Reset avatar error state when URL changes
   useEffect(() => {
     if (avatarLoadFailed) setAvatarLoadFailed(false)
   }, [avatarUrl])
 
-  // Load preferences: database values take priority, then localStorage, then defaults
+  // Load avatar URL: database takes priority
   useEffect(() => {
     if (config.id) {
-      // Profile preset: check database first via config
-      if (config.profilePresetId) {
-        setProfilePresetId(config.profilePresetId)
-      } else {
-        const savedProfilePreset = localStorage.getItem(`profile-preset-${config.id}`)
-        if (savedProfilePreset && getProfilePresetById(savedProfilePreset)) {
-          setProfilePresetId(savedProfilePreset)
-        }
-      }
-      
-      // Title font preset: check database first via config
-      if (config.titleFontPresetId) {
-        setTitleFontPresetId(config.titleFontPresetId)
-      } else {
-        const savedTitleFontPreset = localStorage.getItem(`title-font-preset-${config.id}`)
-        if (savedTitleFontPreset && getTitleFontPresetById(savedTitleFontPreset)) {
-          setTitleFontPresetId(savedTitleFontPreset)
-        }
-      }
-
-      // Title color: check database first via config
-      if (config.titleColor) {
-        setTitleColor(config.titleColor)
-      } else {
-        const savedTitleColor = localStorage.getItem(`title-color-${config.id}`)
-        if (savedTitleColor) {
-          setTitleColor(savedTitleColor)
-        }
-      }
-
-      // Title font size: check database first via config
-      if (config.titleFontSize) {
-        setTitleFontSize(config.titleFontSize)
-      } else {
-        const savedTitleFontSize = localStorage.getItem(`title-font-size-${config.id}`)
-        if (savedTitleFontSize) {
-          setTitleFontSize(parseInt(savedTitleFontSize) || 28)
-        }
-      }
-
-      // Avatar URL: database takes priority
       if (config.avatarUrl) {
         setAvatarUrl(config.avatarUrl)
-        // Sync to localStorage for offline access
         localStorage.setItem(`avatar-url-${config.id}`, config.avatarUrl)
       } else {
         const savedAvatarUrl = localStorage.getItem(`avatar-url-${config.id}`)
-        if (savedAvatarUrl) {
-          setAvatarUrl(savedAvatarUrl)
-        } else {
-          // Clear avatar URL if no saved value
-          setAvatarUrl('')
-        }
+        setAvatarUrl(savedAvatarUrl || '')
       }
     }
-  }, [config.id, config.avatarUrl, config.profilePresetId, config.titleFontPresetId, config.titleColor])
+  }, [config.id, config.avatarUrl])
 
 
   const handleSaveBackground = async (presetId: string, controls: Record<string, string | number>) => {
@@ -252,17 +154,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   let animationClass = ''
   let animationCSS = ''
   
-  // Get title styles for responsive CSS from the selected title style preset
-  const currentTitleStylePreset = titleStylePreset || titleStylePresets[0]
-  const titleStyles = currentTitleStylePreset.styles
-  
-  // Get title font preset for color and font
-  const titleFontPreset = getTitleFontPresetById(titleFontPresetId) || getTitleFontPresetById(defaultTitleFontPresetId)!
-  
-  // Get profile styles for responsive CSS
-  const profilePreset = getProfilePresetById(profilePresetId) || getProfilePresetById(defaultProfilePresetId)!
-  const styles = profilePreset.styles
-
   if (activeBackground.preset) {
     backgroundStyle = applyPresetControls(activeBackground.preset, activeBackground.controls)
     // Animations disabled - no animation class or CSS
@@ -282,6 +173,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
   return (
     <>
        <style jsx global>{`
+         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&display=swap');
+
          * {
            -webkit-font-smoothing: antialiased;
            -moz-osx-font-smoothing: grayscale;
@@ -342,67 +235,46 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           transform: translateX(100%);
         }
         
-        /* Responsive font sizes */
+        /* Typography */
         .responsive-title {
-          font-size: ${Math.max(16, titleFontSize * 0.85)}px !important;
-          color: ${config.titleColor || titleColor || '#ffffff'} !important;
-          font-family: ${titleFontPreset?.fontFamily || 'Inter, sans-serif'} !important;
-          font-weight: ${titleFontPreset?.fontWeight || '600'} !important;
-          letter-spacing: ${titleFontPreset?.letterSpacing || '-0.02em'} !important;
+          font-size: 22px !important;
+          color: #ffffff !important;
+          font-family: 'Cinzel', serif !important;
+          font-weight: 700 !important;
+          letter-spacing: 0.04em !important;
           line-height: 1.2 !important;
-          text-align: left !important;
-          margin: 0 0 8px 0 !important;
+          text-align: center !important;
+          margin: 0 !important;
+          text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55) !important;
         }
-        
+
         .responsive-description {
-          font-size: 14px !important;
-          color: ${titleStyles?.descriptionColor || '#6b7280'} !important;
-          font-family: ${titleStyles?.descriptionFontFamily || 'Inter, sans-serif'} !important;
-          font-weight: ${titleStyles?.descriptionFontWeight || '400'} !important;
-          letter-spacing: ${titleStyles?.descriptionLetterSpacing || '0'} !important;
+          font-size: 12px !important;
+          color: rgba(255, 255, 255, 0.5) !important;
+          font-family: inherit !important;
+          font-weight: 400 !important;
+          letter-spacing: 0.01em !important;
           line-height: 1.4 !important;
-          text-align: left !important;
+          text-align: center !important;
           margin: 4px 0 0 0 !important;
           max-width: 100% !important;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35) !important;
         }
-        
+
         @media (max-width: 768px) {
           .responsive-title {
-            font-size: ${Math.max(titleFontSize * 0.7, 18)}px !important;
-            line-height: 1.3 !important;
-            word-break: break-word !important;
-            text-align: center !important;
+            font-size: 20px !important;
           }
-          
+
           .responsive-description {
-            font-size: ${titleStyles?.descriptionFontSizeMobile || '0.9rem'} !important;
-            color: ${titleStyles?.descriptionColor || '#6b7280'} !important;
-            font-family: ${titleStyles?.descriptionFontFamily || 'Inter, sans-serif'} !important;
-            text-align: center !important;
-            line-height: 1.5 !important;
+            font-size: 11.5px !important;
           }
-          
-          .profile-card-container {
-            flex-direction: column !important;
-            text-align: center !important;
-            padding: 16px !important;
-            gap: 12px !important;
-          }
-          
-          .profile-card-avatar {
-            margin: 0 auto 12px auto !important;
-          }
-          
-          .profile-card-text {
-            text-align: center !important;
-            align-items: center !important;
-          }
-          
+
           .banner-button-mobile {
             min-height: 72px !important;
             max-height: 96px !important;
           }
-          
+
           .banner-image-mobile {
             object-fit: contain !important;
           }
@@ -517,185 +389,93 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
           </motion.button>
         )}
 
-      {/* Profile Card - Dynamic Preset Design */}
-      {(() => {
-        // Create styles for the container (horizontal compact layout)
-        const compactScale = isCompactMobile ? 0.55 : 0.75
-        const scalePx = (v: string, s: number) => {
-          if (!v) return v
-          if (typeof v !== 'string') return v as any
-          if (v.endsWith('px')) {
-            const num = parseFloat(v.replace('px', ''))
-            return `${Math.max(1, Math.round(num * s))}px`
-          }
-          return v
-        }
-        const scaleSpacing = (v: string, s: number) => {
-          if (!v || typeof v !== 'string') return v as any
-          return v
-            .split(' ')
-            .map(part => (part.endsWith('px') ? scalePx(part, s) : part))
-            .join(' ')
-        }
-
-        const containerStyles = {
-          padding: isCompactMobile ? '14px 18px' : scalePx(styles.containerPadding, compactScale),
-          borderRadius: scalePx(styles.containerBorderRadius, compactScale),
-          background: styles.containerBackground,
-          border: styles.containerBorder,
-          boxShadow: styles.containerShadow,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: isCompactMobile ? 'flex-start' : 'center',
-          gap: isCompactMobile ? '12px' : '16px'
-        }
-        const avatarScale = isCompactMobile ? 0.5 : compactScale
-        const scaledAvatarSize = scalePx(styles.avatarSize, avatarScale)
-        const scaledTitleMargin = isCompactMobile ? '0' : '0 0 8px 0' // Reduced margin for horizontal layout
-        const scaledDecorativeSize = scalePx(styles.decorativeSize, compactScale)
-        
-        return (
-          <motion.div 
-              className="relative z-10 w-full max-w-md mx-auto mb-8 px-4"
+      {/* Profile Card - Compact Horizontal */}
+      <motion.div
+        className="relative z-10 w-full max-w-md mx-auto px-4"
+        style={{ margin: '0 auto 20px auto' }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+      >
+        <div
+          className="relative flex items-center gap-4"
+          style={{
+            padding: '13px 16px',
+            borderRadius: '20px',
+            background: 'linear-gradient(145deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.05) 100%)',
+            backdropFilter: 'blur(20px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+            border: '1px solid rgba(255,255,255,0.16)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.18)',
+          }}
+        >
+          {/* Avatar - Left */}
+          <motion.div
+            className="relative flex-shrink-0"
+            style={{ width: '56px', height: '56px', borderRadius: '50%' }}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {/* Double ring: sharp 2px white + 4px diffuse glow */}
+            <div
               style={{
-                margin: isCompactMobile ? '0 auto 18px auto' : '0 auto 30px auto',
-                maxWidth: isCompactMobile ? '360px' : undefined
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                overflow: 'hidden',
+                boxShadow: '0 0 0 2px rgba(255,255,255,0.78), 0 0 0 5px rgba(255,255,255,0.1), 0 4px 16px rgba(0,0,0,0.3)',
               }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
             >
-            <div className="relative">
-              {/* Profile Card Container */}
-              <div 
-                className="relative overflow-hidden w-full profile-card-container"
-                style={containerStyles}
-              >
-                 {/* Profile Avatar - Left Side */}
-                 <motion.div 
-                   className="relative overflow-hidden flex-shrink-0 profile-card-avatar"
-                   style={{
-                     width: scaledAvatarSize,
-                     height: scaledAvatarSize,
-                     borderRadius: styles.avatarBorderRadius,
-                     border: styles.avatarBorder,
-                     boxShadow: styles.avatarShadow,
-                     background: styles.avatarBackground,
-                     display: 'block',
-                     visibility: 'visible',
-                     position: 'relative',
-                     zIndex: 10
-                   }}
-                   initial={{ scale: 0 }}
-                   animate={{ scale: 1 }}
-                   transition={{ duration: 0.4, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                 >
-                  {sanitizedAvatarUrl && !avatarLoadFailed ? (
-                    <img
-                      src={sanitizedAvatarUrl}
-                      alt="Profile Avatar"
-                      className="w-full h-full object-cover"
-                      loading="eager"
-                      decoding="async"
-                      referrerPolicy="no-referrer"
-                      crossOrigin="anonymous"
-                      onError={() => setAvatarLoadFailed(true)}
-                      style={{
-                        display: 'block',
-                        visibility: 'visible',
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        borderRadius: '50%'
-                      }}
-                    />
-                  ) : (
-                     <div className="w-full h-full flex items-center justify-center">
-                       <svg 
-                         className="w-8 h-8 text-white" 
-                         fill="currentColor" 
-                         viewBox="0 0 24 24"
-                       >
-                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                       </svg>
-                     </div>
-                   )}
-                 </motion.div>
-
-                {/* Text Content - Right Side */}
-                <div className="flex-1 min-w-0 flex flex-col justify-center profile-card-text">
-                  {/* Name/Title */}
-                  {(() => {
-                    const titleFontPreset = getTitleFontPresetById(titleFontPresetId) || getTitleFontPresetById(defaultTitleFontPresetId)!
-                    
-                    return (
-                      <motion.h1 
-                        className="responsive-title"
-                        style={{ 
-                          fontSize: `${Math.max(16, titleFontSize * (isCompactMobile ? 0.65 : 0.85))}px`, // Slightly smaller for horizontal layout
-                          fontWeight: titleFontPreset.fontWeight,
-                          color: config.titleColor || titleColor || '#ffffff',
-                          margin: scaledTitleMargin,
-                          letterSpacing: titleFontPreset.letterSpacing,
-                          fontFamily: titleFontPreset.fontFamily,
-                          lineHeight: isCompactMobile ? '1.15' : '1.2', // Tighter line height for horizontal layout
-                          textAlign: isCompactMobile ? 'center' : 'left' // Left align for horizontal layout
-                        }}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.4, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                      >
-                        {config.title}
-                      </motion.h1>
-                    )
-                  })()}
-
-                  {/* Description */}
-                  {config.meta?.description && (
-                    <motion.p 
-                      className="responsive-description"
-                      style={{
-                        fontSize: isCompactMobile ? '13px' : '14px', // Smaller description for horizontal layout
-                        lineHeight: isCompactMobile ? '1.35' : '1.4',
-                        textAlign: isCompactMobile ? 'center' : 'left',
-                        marginTop: isCompactMobile ? '2px' : '4px'
-                      }}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.4, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      {config.meta.description}
-                    </motion.p>
-                  )}
+              {sanitizedAvatarUrl && !avatarLoadFailed ? (
+                <img
+                  src={sanitizedAvatarUrl}
+                  alt="Profile Avatar"
+                  className="w-full h-full object-cover"
+                  loading="eager"
+                  decoding="async"
+                  referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
+                  onError={() => setAvatarLoadFailed(true)}
+                  style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <div
+                  className="w-full h-full flex items-center justify-center"
+                  style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.07) 100%)' }}
+                >
+                  <svg className="w-6 h-6 text-white" style={{ opacity: 0.7 }} fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  </svg>
                 </div>
-
-
-                {/* Decorative Elements */}
-                {styles.showDecorativeElements && (
-                  <>
-                    <div 
-                      className="absolute top-2 right-2 rounded-full opacity-60" 
-                      style={{ 
-                        width: `${Math.max(4, parseInt(scaledDecorativeSize) * 0.7)}px`,
-                        height: `${Math.max(4, parseInt(scaledDecorativeSize) * 0.7)}px`,
-                        backgroundColor: styles.decorativeColor 
-                      }} 
-                    />
-                    <div 
-                      className="absolute bottom-2 left-2 rounded-full opacity-40" 
-                      style={{ 
-                        width: `${Math.max(2, parseInt(scaledDecorativeSize) * 0.4)}px`,
-                        height: `${Math.max(2, parseInt(scaledDecorativeSize) * 0.4)}px`,
-                        backgroundColor: styles.decorativeColor 
-                      }} 
-                    />
-                  </>
-                )}
-              </div>
+              )}
             </div>
           </motion.div>
-        )
-      })()}
+
+          {/* Text - Centered in remaining space */}
+          <div className="flex-1 min-w-0 flex flex-col items-center text-center">
+            <motion.h1
+              className="responsive-title"
+              initial={{ opacity: 0, x: 8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {config.title}
+            </motion.h1>
+
+            {config.meta?.description && (
+              <motion.p
+                className="responsive-description"
+                initial={{ opacity: 0, x: 8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {config.meta.description}
+              </motion.p>
+            )}
+          </div>
+        </div>
+      </motion.div>
 
         {/* Action Buttons Container */}
         {sortedActions.length > 0 && (

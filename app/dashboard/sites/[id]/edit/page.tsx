@@ -13,15 +13,11 @@ import { Switch } from '@/components/ui/switch'
 import { PresetSelector } from '@/components/ui/preset-selector'
 import ButtonPresetSelector from '@/components/dashboard/ButtonPresetSelector'
 import { defaultPresetId } from '@/lib/button-presets'
-import { profilePresets, defaultProfilePresetId } from '@/lib/profile-presets'
-import { titleFontPresets, defaultTitleFontPresetId } from '@/lib/title-font-presets'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import PageHeader from '@/components/ui/PageHeader'
-import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, Type, User, Edit, Eye, Image as ImageIcon, X } from 'lucide-react'
+import { ArrowLeft, Save, Plus, Trash2, Globe, GripVertical, Palette, User, Edit, Eye, Image as ImageIcon, X } from 'lucide-react'
 import { BackgroundPreviewChip } from '@/components/dashboard/BackgroundPreviewChip'
 import { BackgroundSelector } from '@/components/dashboard/BackgroundSelector'
-import { TitleFontSelector } from '@/components/dashboard/TitleFontSelector'
-import { ProfileCardSelector } from '@/components/dashboard/ProfileCardSelector'
 import { AvatarUploader } from '@/components/dashboard/AvatarUploader'
 import LogoSelector from '@/components/dashboard/LogoSelector'
 import { backgroundPresets, applyPresetControls } from '@/lib/background-presets'
@@ -74,8 +70,6 @@ export default function EditSitePage({ params }: PageProps) {
   const [backgroundSelectorOpen, setBackgroundSelectorOpen] = useState(false)
   
   // Modal states
-  const [titleFontSelectorOpen, setTitleFontSelectorOpen] = useState(false)
-  const [profileCardSelectorOpen, setProfileCardSelectorOpen] = useState(false)
   const [buttonPresetSelectorOpen, setButtonPresetSelectorOpen] = useState(false)
   const [logoSelectorOpen, setLogoSelectorOpen] = useState(false)
   const [currentActionIndex, setCurrentActionIndex] = useState<number>(0)
@@ -157,13 +151,6 @@ export default function EditSitePage({ params }: PageProps) {
     }
   }
   
-  // Title font preset state
-  const [titleStylePresetId, setTitleStylePresetId] = useState<string>(defaultTitleFontPresetId)
-  const [titleColor, setTitleColor] = useState<string>('#111827')
-  const [titleFontSize, setTitleFontSize] = useState<number>(32)
-  
-  // Profile preset state
-  const [profilePresetId, setProfilePresetId] = useState<string>(defaultProfilePresetId)
   const [avatarUrl, setAvatarUrl] = useState<string>('')
 
   useEffect(() => {
@@ -263,40 +250,6 @@ export default function EditSitePage({ params }: PageProps) {
         setBackgroundPreferences({ [siteId]: bgPrefs })
       }
 
-      // Load title font preset from database first, then localStorage
-      if (page.title_font_preset_id) {
-        setTitleStylePresetId(page.title_font_preset_id)
-        localStorage.setItem(`title-font-preset-${siteId}`, page.title_font_preset_id)
-      } else {
-        const savedTitlePreset = localStorage.getItem(`title-font-preset-${siteId}`)
-        if (savedTitlePreset && titleFontPresets.find(p => p.id === savedTitlePreset)) {
-          setTitleStylePresetId(savedTitlePreset)
-        }
-      }
-
-      // Load title color from database first, then localStorage
-      if (page.title_color) {
-        setTitleColor(page.title_color)
-        localStorage.setItem(`title-color-${siteId}`, page.title_color)
-      } else {
-        const savedTitleColor = localStorage.getItem(`title-color-${siteId}`)
-        if (savedTitleColor) {
-          setTitleColor(savedTitleColor)
-        }
-      }
-
-      // Load title font size from database first, then localStorage
-      if (page.title_font_size) {
-        setTitleFontSize(page.title_font_size)
-        localStorage.setItem(`title-font-size-${siteId}`, page.title_font_size.toString())
-      } else {
-        const savedTitleFontSize = localStorage.getItem(`title-font-size-${siteId}`)
-        if (savedTitleFontSize) {
-          setTitleFontSize(parseInt(savedTitleFontSize) || 28)
-        }
-      }
-
-
       // Load avatar URL from database first, then localStorage as fallback
       if (page.avatar_url) {
         setAvatarUrl(page.avatar_url)
@@ -309,19 +262,6 @@ export default function EditSitePage({ params }: PageProps) {
         }
       }
 
-      
-      // Load profile preset from database first, then localStorage
-      if (page.profile_preset_id) {
-        setProfilePresetId(page.profile_preset_id)
-        localStorage.setItem(`profile-preset-${siteId}`, page.profile_preset_id)
-      } else {
-        const savedProfilePreset = localStorage.getItem(`profile-preset-${siteId}`)
-        if (savedProfilePreset && profilePresets.find(p => p.id === savedProfilePreset)) {
-          setProfilePresetId(savedProfilePreset)
-        } else {
-          setProfilePresetId(defaultProfilePresetId)
-        }
-      }
     } catch (err) {
       setError('Site verileri yüklenemedi')
     } finally {
@@ -394,10 +334,6 @@ export default function EditSitePage({ params }: PageProps) {
           meta: { description: formData.description },
           owner_name: formData.owner_name,
           avatar_url: avatarUrl,
-          profile_preset_id: profilePresetId,
-          title_font_preset_id: titleStylePresetId,
-          title_color: titleColor,
-          title_font_size: titleFontSize,
           updated_at: new Date().toISOString()
         })
         .eq('id', siteId)
@@ -546,61 +482,6 @@ export default function EditSitePage({ params }: PageProps) {
     }
   }
   
-  const handleTitleStyleSave = async (presetId: string) => {
-    // Save to state and localStorage for immediate preview
-    setTitleStylePresetId(presetId)
-    
-    if (siteId) {
-      localStorage.setItem(`title-font-preset-${siteId}`, presetId)
-      
-      // Save to database
-      if (user?.id) {
-        try {
-          const { error } = await (supabase as any)
-            .from('pages')
-            .update({ 
-              title_font_preset_id: presetId
-            })
-            .eq('id', siteId)
-            .eq('owner_id', user.id)
-        
-          if (error) {
-            console.error('Failed to save title style to database:', error)
-          }
-        } catch (err) {
-          console.error('Error saving title style:', err)
-        }
-      }
-    }
-  }
-
-  const handleProfileStyleSave = async (presetId: string) => {
-    // Save to state and localStorage for immediate preview
-    setProfilePresetId(presetId)
-    
-    if (siteId) {
-      localStorage.setItem(`profile-preset-${siteId}`, presetId)
-      
-      // Save to database
-      if (user?.id) {
-        try {
-          const { error } = await (supabase as any)
-            .from('pages')
-            .update({ profile_preset_id: presetId })
-            .eq('id', siteId)
-            .eq('owner_id', user.id)
-        
-          if (error) {
-            console.error('Failed to save profile preset to database:', error)
-          }
-        } catch (err) {
-          console.error('Error saving profile preset:', err)
-        }
-      }
-    }
-  }
-
-
   const handleAvatarChange = async (url: string) => {
     // If URL is empty (avatar removed), also clear from localStorage
     if (!url && siteId) {
@@ -955,147 +836,6 @@ export default function EditSitePage({ params }: PageProps) {
           </Card>
 
 
-          {/* Title Font & Color Card */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Type className="h-5 w-5" />
-                Başlık Fontu & Rengi
-              </CardTitle>
-              <CardDescription>
-                Başlığınız için font stili ve rengi seçin
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {/* Font Style Section */}
-                <div>
-                  <Label className="text-sm font-medium mb-3 block">Font Stili</Label>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-16 h-16 rounded-lg border border-gray-200 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                        <span
-                          style={{
-                            fontFamily: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontFamily || 'Helvetica',
-                            fontSize: '10px',
-                            fontWeight: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontWeight || '600',
-                            color: titleColor,
-                            letterSpacing: titleFontPresets.find(p => p.id === titleStylePresetId)?.letterSpacing || '-0.02em'
-                          }}
-                        >
-                          Aa
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">
-                          {titleFontPresets.find(p => p.id === titleStylePresetId)?.name || 'Modern Sans'}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Font stilini değiştirmek için tıklayın
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setTitleFontSelectorOpen(true)}
-                    >
-                      <Type className="h-4 w-4 mr-2" />
-                      Fontu Değiştir
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Color and Font Size Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Color Section */}
-                  <div>
-                    <Label className="text-sm font-medium mb-3 block">Metin Rengi</Label>
-                    <div className="flex items-center gap-4">
-                      <div 
-                        className="w-12 h-12 rounded-lg border-2 border-gray-200 flex items-center justify-center"
-                        style={{ backgroundColor: titleColor }}
-                      >
-                        <span 
-                          className="font-bold"
-                          style={{ 
-                            color: titleColor,
-                            fontFamily: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontFamily || 'Helvetica',
-                            fontWeight: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontWeight || '600'
-                          }}
-                        >
-                          Aa
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <Input
-                          id="titleColor"
-                          type="color"
-                          value={titleColor}
-                          onChange={(e) => {
-                            setTitleColor(e.target.value)
-                            if (siteId) {
-                              localStorage.setItem(`title-color-${siteId}`, e.target.value)
-                            }
-                          }}
-                          className="w-20 h-8 p-1 border rounded cursor-pointer"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          {titleColor}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Font Size Section */}
-                  <div>
-                    <Label className="text-sm font-medium mb-3 block">Font Boyutu</Label>
-                    <div className="flex items-center gap-4">
-                      <div 
-                        className="w-12 h-12 rounded-lg border-2 border-gray-200 flex items-center justify-center bg-gray-50"
-                      >
-                        <span 
-                          className="font-bold"
-                          style={{ 
-                            color: titleColor,
-                            fontFamily: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontFamily || 'Helvetica',
-                            fontWeight: titleFontPresets.find(p => p.id === titleStylePresetId)?.fontWeight || '600',
-                            fontSize: `${Math.min(Math.max(titleFontSize, 12), 72)}px`
-                          }}
-                        >
-                          Aa
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <Input
-                            id="titleFontSize"
-                            type="number"
-                            min="12"
-                            max="72"
-                            value={titleFontSize}
-                            onChange={(e) => {
-                              const newSize = parseInt(e.target.value) || 28
-                              setTitleFontSize(Math.min(Math.max(newSize, 12), 72))
-                              if (siteId) {
-                                localStorage.setItem(`title-font-size-${siteId}`, newSize.toString())
-                              }
-                            }}
-                            className="w-20 h-8 text-center"
-                          />
-                          <span className="text-sm text-gray-500">px</span>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {titleFontSize}px
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -1117,57 +857,6 @@ export default function EditSitePage({ params }: PageProps) {
                 />
               </div>
 
-              {/* Style Selection Section */}
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Kart Stili</h4>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-16 h-16 rounded-lg border border-gray-200 relative overflow-hidden"
-                      style={{
-                        background: profilePresets.find(p => p.id === profilePresetId)?.styles.containerBackground || 'rgba(255, 255, 255, 0.95)',
-                        borderRadius: '8px',
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                      }}
-                    >
-                      {/* Mini avatar preview */}
-                      <div
-                        className="absolute top-1 left-1/2 transform -translate-x-1/2"
-                        style={{
-                          width: '12px',
-                          height: '12px',
-                          borderRadius: profilePresets.find(p => p.id === profilePresetId)?.styles.avatarBorderRadius || '50%',
-                          background: profilePresets.find(p => p.id === profilePresetId)?.styles.avatarBackground || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                        }}
-                      />
-                      {/* Mini title preview */}
-                      <div
-                        className="absolute bottom-1 left-1 right-1 h-1 rounded"
-                        style={{
-                          background: titleColor || '#1f2937',
-                          opacity: 0.7
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">
-                        {profilePresets.find(p => p.id === profilePresetId)?.name || 'Minimal Clean'}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Kart stilini değiştirmek için tıklayın
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setProfileCardSelectorOpen(true)}
-                  >
-                    <User className="h-4 w-4 mr-2" />
-                    Stili Değiştir
-                  </Button>
-                </div>
-              </div>
             </CardContent>
           </Card>
 
@@ -1209,27 +898,6 @@ export default function EditSitePage({ params }: PageProps) {
               setBackgroundSelectorOpen(false)
             }}
             onClose={() => setBackgroundSelectorOpen(false)}
-          />
-        )}
-
-        {/* Title Font Selector Dialog */}
-        {titleFontSelectorOpen && (
-          <TitleFontSelector
-            siteId={siteId}
-            currentPresetId={titleStylePresetId}
-            currentTitle={formData.title}
-            onSave={handleTitleStyleSave}
-            onClose={() => setTitleFontSelectorOpen(false)}
-          />
-        )}
-
-        {/* Profile Card Selector Dialog */}
-        {profileCardSelectorOpen && (
-          <ProfileCardSelector
-            siteId={siteId}
-            currentPresetId={profilePresetId}
-            onSave={handleProfileStyleSave}
-            onClose={() => setProfileCardSelectorOpen(false)}
           />
         )}
 

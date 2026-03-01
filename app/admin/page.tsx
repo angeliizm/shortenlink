@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PageHeader from '@/components/ui/PageHeader';
-import { Shield, Users, Settings, BarChart3, ArrowLeft, Activity, Database, Globe, Ticket, FileText } from 'lucide-react';
+import { Shield, Users, Settings, BarChart3, ArrowLeft, Activity, Database, Globe, Ticket, FileText, Layers } from 'lucide-react';
+import BulkSiteManager from '@/components/admin/BulkSiteManager';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -42,27 +43,34 @@ export default function AdminPage() {
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
           <Tabs defaultValue="users" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-3 bg-white/50 backdrop-blur-sm border border-white/20">
-              <TabsTrigger 
-                value="users" 
+            <TabsList className="grid w-full grid-cols-4 bg-white/50 backdrop-blur-sm border border-white/20">
+              <TabsTrigger
+                value="users"
                 className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200"
               >
                 <Users className="w-4 h-4 mr-2" />
                 Kullanıcı Yönetimi
               </TabsTrigger>
-              <TabsTrigger 
-                value="permissions" 
+              <TabsTrigger
+                value="permissions"
                 className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200"
               >
                 <Shield className="w-4 h-4 mr-2" />
                 Site İzinleri
               </TabsTrigger>
-              <TabsTrigger 
-                value="invitation-codes" 
+              <TabsTrigger
+                value="invitation-codes"
                 className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200"
               >
                 <Ticket className="w-4 h-4 mr-2" />
                 Kod Oluşturucu
+              </TabsTrigger>
+              <TabsTrigger
+                value="bulk"
+                className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200"
+              >
+                <Layers className="w-4 h-4 mr-2" />
+                Toplu Yönetim
               </TabsTrigger>
             </TabsList>
             
@@ -76,6 +84,10 @@ export default function AdminPage() {
             
           <TabsContent value="invitation-codes" className="space-y-6">
             <InvitationCodes />
+          </TabsContent>
+
+          <TabsContent value="bulk" className="space-y-6">
+            <BulkSiteManager />
           </TabsContent>
           </Tabs>
         </main>
