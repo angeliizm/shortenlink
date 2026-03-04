@@ -1,6 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
+/** Defer opening a dialog to idle time so the button click doesn't block INP. */
+function deferOpen(open: () => void, timeoutMs = 80) {
+  if (typeof requestIdleCallback !== 'undefined') {
+    requestIdleCallback(open, { timeout: timeoutMs });
+  } else {
+    setTimeout(open, 0);
+  }
+}
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -371,7 +380,7 @@ export default function UserManagement() {
                           setEditingUser(u);
                           setNewRole(u.role);
                           setRoleNotes(u.role_notes || '');
-                          setEditDialogOpen(true);
+                          deferOpen(() => setEditDialogOpen(true));
                         }, 0);
                       }}
                       className="bg-white/50 backdrop-blur-sm border-white/30 hover:bg-white/70 hover:border-white/50 transition-all duration-200"
@@ -389,7 +398,7 @@ export default function UserManagement() {
                           setResettingPassword(u);
                           setNewPassword('');
                           setConfirmPassword('');
-                          setPasswordDialogOpen(true);
+                          deferOpen(() => setPasswordDialogOpen(true));
                         }, 0);
                       }}
                       className="bg-white/50 backdrop-blur-sm border-orange-200 hover:bg-orange-50 hover:border-orange-300 text-orange-600 hover:text-orange-700 transition-all duration-200"
@@ -406,7 +415,7 @@ export default function UserManagement() {
                           const u = user;
                           setTimeout(() => {
                             setDeletingUser(u);
-                            setDeleteDialogOpen(true);
+                            deferOpen(() => setDeleteDialogOpen(true));
                           }, 0);
                         }}
                         className="bg-white/50 backdrop-blur-sm border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600 hover:text-red-700 transition-all duration-200"
