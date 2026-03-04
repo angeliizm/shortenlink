@@ -18,7 +18,6 @@ import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import LoadingScreen from '@/components/ui/LoadingScreen';
 
 interface ModernAnalyticsTemplateProps {
   siteSlug: string;
@@ -96,7 +95,6 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [analytics, setAnalytics] = useState<any>(null);
-  const [siteInfo, setSiteInfo] = useState<any>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const fetchAnalytics = useCallback(async (range: string, signal?: AbortSignal) => {
@@ -128,16 +126,6 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
     }
   }, [siteSlug]);
 
-  const fetchSiteInfo = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/links?slug=${siteSlug}`);
-      const data = await response.json();
-      setSiteInfo(data);
-    } catch (error) {
-      console.error('Failed to fetch site info:', error);
-    }
-  }, [siteSlug]);
-
   useEffect(() => {
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
@@ -148,10 +136,6 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
 
     return () => controller.abort();
   }, [dateRange, fetchAnalytics]);
-
-  useEffect(() => {
-    fetchSiteInfo();
-  }, [fetchSiteInfo]);
 
   // Computed metrics - prefer overview totals (aggregated server-side), fallback to events
   const metrics = useMemo(() => {
@@ -300,10 +284,6 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
     return 0;
   }, [analytics]);
 
-  if (loading) {
-    return <LoadingScreen message="Analitik verileri yükleniyor..." />;
-  }
-
   return (
     <main className="min-h-dvh bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}
@@ -323,7 +303,7 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
               <div className="h-6 w-px bg-gray-200" />
               <div>
                 <h1 className="text-sm font-semibold text-gray-900 leading-tight">
-                  {siteInfo?.title || siteSlug}
+                  {siteSlug}
                 </h1>
                 <p className="text-xs text-gray-500">/{siteSlug}</p>
               </div>
@@ -342,12 +322,12 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
                   <button
                     key={key}
                     onClick={() => setDateRange(key)}
-                    disabled={refreshing}
+                    disabled={loading || refreshing}
                     className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
                       dateRange === key
                         ? 'bg-white text-gray-900 shadow-sm'
                         : 'text-gray-500 hover:text-gray-700'
-                    } ${refreshing ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    } ${(loading || refreshing) ? 'opacity-60 cursor-not-allowed' : ''}`}
                   >
                     {label}
                   </button>
@@ -361,10 +341,10 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
                   setRefreshing(true);
                   fetchAnalytics(dateRange);
                 }}
-                disabled={refreshing}
+                disabled={loading || refreshing}
                 className="h-8 w-8 p-0"
               >
-                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-4 w-4 ${(loading || refreshing) ? 'animate-spin' : ''}`} />
               </Button>
             </div>
           </div>
@@ -372,13 +352,13 @@ export default function ModernAnalyticsTemplate({ siteSlug }: ModernAnalyticsTem
       </div>
 
       {/* Loading bar */}
-      {refreshing && (
+      {(loading || refreshing) && (
         <div className="h-0.5 bg-blue-100">
           <div className="h-full bg-blue-500 animate-pulse" style={{ width: '60%' }} />
         </div>
       )}
 
-      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 ${refreshing ? 'opacity-60' : ''}`}>
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 ${(loading || refreshing) ? 'opacity-60 pointer-events-none' : ''}`}>
         {/* Metric Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           {[

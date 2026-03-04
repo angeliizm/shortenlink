@@ -8,7 +8,6 @@ import { useAnalytics } from '@/hooks/useAnalytics'
 import { BackgroundPicker } from '@/components/background-picker'
 import { backgroundPresets, applyPresetControls, type BackgroundPreset } from '@/lib/background-presets'
 import { Palette, Sparkles, ArrowRight } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 
 interface LandingPageClientProps {
   config: PageConfig
@@ -57,7 +56,6 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [config.id])
   const { trackPageView, trackActionClick } = useAnalytics()
-  const supabase = createClient()
 
   useEffect(() => {
     setMounted(true)
@@ -302,7 +300,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         className={`min-h-dvh relative overflow-hidden ${animationClass}`} 
         style={{
           ...backgroundStyle,
-          transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+          transition: 'background 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
@@ -313,37 +311,37 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         {/* Enhanced background elements */}
         {!activeBackground.preset && (
           <div className="absolute inset-0 pointer-events-none">
-            {/* Animated gradient orbs */}
-            <motion.div 
-              className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full"
-              style={{ 
+            {/* Gradient orbs - static when reduced motion, subtle animate otherwise */}
+            <motion.div
+              className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full"
+              style={{
                 background: `radial-gradient(circle, #3B82F608 0%, transparent 50%)`,
                 filter: 'blur(40px)'
               }}
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.5, 0.8, 0.5]
+              animate={prefersReducedMotion ? {} : {
+                scale: [1, 1.15, 1],
+                opacity: [0.5, 0.7, 0.5]
               }}
               transition={{
-                duration: 8,
+                duration: 10,
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
             />
-            <motion.div 
-              className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full"
-              style={{ 
-                background: `radial-gradient(circle, #3B82F612 0%, transparent 60%)`,
-                filter: 'blur(60px)',
-                opacity: 0.4
+            <motion.div
+              className="absolute -top-40 -right-40 w-[400px] h-[400px] rounded-full"
+              style={{
+                background: `radial-gradient(circle, #3B82F610 0%, transparent 60%)`,
+                filter: 'blur(50px)',
+                opacity: 0.35
               }}
-              animate={{
-                scale: [1, 1.1, 1],
-                x: [0, 30, 0],
-                y: [0, -20, 0]
+              animate={prefersReducedMotion ? {} : {
+                scale: [1, 1.08, 1],
+                x: [0, 20, 0],
+                y: [0, -15, 0]
               }}
               transition={{
-                duration: 10,
+                duration: 12,
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
@@ -375,7 +373,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
         {isOwner && (
           <motion.button
             onClick={() => setShowBackgroundPicker(true)}
-            className="fixed top-6 right-6 z-20 p-3.5 glass-effect rounded-2xl shadow-xl hover:shadow-2xl transition-all group"
+            className="fixed top-6 right-6 z-20 p-3.5 glass-effect rounded-2xl shadow-xl hover:shadow-2xl transition-shadow group"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, type: "spring", stiffness: 300 }}
@@ -512,9 +510,8 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                   type="button"
                    className={`
                      relative block w-full text-center font-semibold
-                     transition-all duration-300 ease-out overflow-hidden
+                     transition-shadow duration-200 ease-out overflow-hidden
                      ${isBannerPreset ? 'py-0' : 'py-4 px-6'} rounded-xl
-                     hover:shadow-xl hover:shadow-purple-200/30
                      transform-gpu
                      group
                      ${isBannerPreset ? 'min-h-[100px] banner-button-mobile' : 'min-h-[60px]'}
@@ -624,7 +621,7 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                       
                       {/* Buton fotoğrafı - centered below logo */}
                       {action.image_url && (
-                        <div className="min-w-[80px] min-h-[40px] max-w-[120px] max-h-[60px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-black backdrop-blur-sm rounded-xl border border-gray-800 shadow-lg group-hover:from-gray-800 group-hover:to-gray-900 group-hover:scale-105 transition-all duration-300 p-2">
+                        <div className="min-w-[80px] min-h-[40px] max-w-[120px] max-h-[60px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-black rounded-xl border border-gray-800 shadow-lg group-hover:scale-105 transition-transform duration-200 p-2">
                           <img
                             src={action.image_url}
                             alt={action.label}
@@ -643,9 +640,9 @@ export default function LandingPageClient({ config, isOwner = false }: LandingPa
                       
                       {/* Text content - centered */}
                       <div className="flex flex-col items-center justify-center text-center">
-                        <span className="font-semibold text-lg group-hover:scale-105 transition-transform duration-300">{action.label}</span>
+                        <span className="font-semibold text-lg">{action.label}</span>
                         {action.description && (
-                          <span className="text-sm opacity-90 font-normal max-w-[250px] text-center leading-tight mt-1 group-hover:opacity-100 transition-opacity duration-300">
+                          <span className="text-sm opacity-90 font-normal max-w-[250px] text-center leading-tight mt-1">
                             {action.description}
                           </span>
                         )}
