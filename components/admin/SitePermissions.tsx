@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 /** Defer state update to next tick to avoid blocking INP after select/click */
 function deferSetState<T>(setter: (v: T) => void, value: T) {
@@ -58,29 +58,33 @@ export default function SitePermissions() {
   }, []);
 
   // Site bazlı gruplama
-  const groupedPermissions = permissions
-    .filter(p => p.is_active)
-    .reduce((acc, permission) => {
-      const siteSlug = permission.site_slug;
-      if (!acc[siteSlug]) {
-        acc[siteSlug] = [];
-      }
-      acc[siteSlug].push(permission);
-      return acc;
-    }, {} as Record<string, SitePermission[]>);
+  const groupedPermissions = useMemo(() =>
+    permissions
+      .filter(p => p.is_active)
+      .reduce((acc, permission) => {
+        const siteSlug = permission.site_slug;
+        if (!acc[siteSlug]) {
+          acc[siteSlug] = [];
+        }
+        acc[siteSlug].push(permission);
+        return acc;
+      }, {} as Record<string, SitePermission[]>),
+    [permissions]);
 
   // Filtrelenmiş siteler (arama terimine göre)
-  const filteredSites = sites.filter(site => 
-    site.title.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
-    site.site_slug.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
-    site.owner_email.toLowerCase().includes(siteSearchTerm.toLowerCase())
-  );
+  const filteredSites = useMemo(() =>
+    sites.filter(site =>
+      site.title.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
+      site.site_slug.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
+      site.owner_email.toLowerCase().includes(siteSearchTerm.toLowerCase())
+    ), [sites, siteSearchTerm]);
 
   // Filtrelenmiş izinler (arama terimine göre)
-  const filteredPermissions = permissions.filter(permission => 
-    permission.user_email.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
-    permission.site_slug.toLowerCase().includes(siteSearchTerm.toLowerCase())
-  );
+  const filteredPermissions = useMemo(() =>
+    permissions.filter(permission =>
+      permission.user_email.toLowerCase().includes(siteSearchTerm.toLowerCase()) ||
+      permission.site_slug.toLowerCase().includes(siteSearchTerm.toLowerCase())
+    ), [permissions, siteSearchTerm]);
 
   // Accordion toggle fonksiyonu
   const toggleSiteExpansion = (siteSlug: string) => {
@@ -97,90 +101,50 @@ export default function SitePermissions() {
 
   const fetchData = async () => {
     try {
-      // Fetch sites
-      const { data: sitesData, error: sitesError } = await supabase
-        .from('pages')
-        .select(`
-          id,
-          site_slug,
-          title,
-          owner_id,
-          created_at
-        `);
+      // Fetch pages, all users, and permissions in parallel
+      const [sitesResult, allUsersResult, permissionsResult] = await Promise.all([
+        supabase.from('pages').select('id, site_slug, title, owner_id, created_at'),
+        (supabase as any).rpc('get_all_users'),
+        supabase.from('site_permissions').select('id, user_id, site_slug, permission_type, granted_at, expires_at, is_active'),
+      ]);
 
-      if (sitesError) throw sitesError;
+      if (sitesResult.error) throw sitesResult.error;
+      if (permissionsResult.error) throw permissionsResult.error;
 
-      // Get owner emails separately using RPC function
-      const ownerIds = sitesData?.map((site: any) => site.owner_id) || [];
-      let userEmailMap = new Map();
-      
-      if (ownerIds.length > 0) {
-        const { data: usersData, error: usersError } = await (supabase as any)
-          .rpc('get_user_emails', { user_ids: ownerIds });
+      const sitesData = sitesResult.data || [];
+      const permissionsData = permissionsResult.data || [];
 
-        if (usersError) {
-          console.warn('Could not fetch user emails:', usersError);
+      // Batch all unique user IDs into a single email lookup
+      const ownerIds = sitesData.map((s: any) => s.owner_id);
+      const permissionUserIds = permissionsData.map((p: any) => p.user_id);
+      const allUserIds = [...new Set([...ownerIds, ...permissionUserIds])];
+
+      let emailMap = new Map<string, string>();
+      if (allUserIds.length > 0) {
+        const { data: emailsData, error: emailsError } = await (supabase as any)
+          .rpc('get_user_emails', { user_ids: allUserIds });
+        if (emailsError) {
+          console.warn('Could not fetch user emails:', emailsError);
         } else {
-          (usersData as any[])?.forEach((user: any) => {
-            userEmailMap.set(user.id, user.email);
-          });
+          (emailsData as any[])?.forEach((u: any) => emailMap.set(u.id, u.email));
         }
       }
 
-      const formattedSites = sitesData?.map((site: any) => ({
+      setSites(sitesData.map((site: any) => ({
         id: site.id,
         site_slug: site.site_slug,
         title: site.title,
         owner_id: site.owner_id,
         created_at: site.created_at,
-        owner_email: userEmailMap.get(site.owner_id) || 'Unknown'
-      })) || [];
+        owner_email: emailMap.get(site.owner_id) || 'Unknown',
+      })));
 
-      setSites(formattedSites);
-
-      // Fetch all users for permission granting using RPC function
-      const { data: allUsersData, error: allUsersError } = await supabase
-        .rpc('get_all_users' as any);
-
-      if (allUsersError) {
-        console.warn('Could not fetch all users:', allUsersError);
+      if (allUsersResult.error) {
+        console.warn('Could not fetch all users:', allUsersResult.error);
       }
+      setUsers((allUsersResult.data as any[]) ?? []);
 
-      setUsers((allUsersData as unknown as any[]) ?? []);
-
-      // Fetch permissions
-      const { data: permissionsData, error: permissionsError } = await supabase
-        .from('site_permissions')
-        .select(`
-          id,
-          user_id,
-          site_slug,
-          permission_type,
-          granted_at,
-          expires_at,
-          is_active
-        `);
-
-      if (permissionsError) throw permissionsError;
-
-      // Get user emails for permissions using RPC function
-      const permissionUserIds = permissionsData?.map((p: any) => p.user_id) || [];
-      let permissionUserEmailMap = new Map();
-      
-      if (permissionUserIds.length > 0) {
-        const { data: permissionUsersData, error: permissionUsersError } = await (supabase as any)
-          .rpc('get_user_emails', { user_ids: permissionUserIds });
-
-        if (permissionUsersError) {
-          console.warn('Could not fetch permission user emails:', permissionUsersError);
-        } else {
-          (permissionUsersData as any[])?.forEach((user: any) => {
-            permissionUserEmailMap.set(user.id, user.email);
-          });
-        }
-      }
-
-      const formattedPermissions = permissionsData?.map((permission: any) => ({
+      setPermissions(permissionsData.map((permission: any) => ({
         id: permission.id,
         user_id: permission.user_id,
         site_slug: permission.site_slug,
@@ -188,10 +152,8 @@ export default function SitePermissions() {
         granted_at: permission.granted_at,
         expires_at: permission.expires_at,
         is_active: permission.is_active,
-        user_email: permissionUserEmailMap.get(permission.user_id) || 'Unknown'
-      })) || [];
-
-      setPermissions(formattedPermissions);
+        user_email: emailMap.get(permission.user_id) || 'Unknown',
+      })));
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -200,11 +162,12 @@ export default function SitePermissions() {
   };
 
   // Seçili kullanıcıları her zaman göster, arama terimi varsa filtrele
-  const filteredUsers = users.filter(user => {
-    const isSelected = selectedUser === user.id;
-    const matchesSearch = user.email.toLowerCase().includes(userSearchTerm.toLowerCase());
-    return isSelected || matchesSearch;
-  });
+  const filteredUsers = useMemo(() =>
+    users.filter(user => {
+      const isSelected = selectedUser === user.id;
+      const matchesSearch = user.email.toLowerCase().includes(userSearchTerm.toLowerCase());
+      return isSelected || matchesSearch;
+    }), [users, selectedUser, userSearchTerm]);
 
   const handleGrantPermission = async () => {
     if (!selectedSite || !selectedUser || selectedPermissions.length === 0) return;
@@ -226,13 +189,27 @@ export default function SitePermissions() {
       );
 
       const results = await Promise.all(permissionPromises);
-      
+
       // Hata kontrolü
       for (const result of results) {
         if (result.error) throw result.error;
       }
 
-      await fetchData();
+      // Optimistic local state update — no need to refetch
+      const userEmail = users.find(u => u.id === selectedUser)?.email || 'Unknown';
+      const now = new Date().toISOString();
+      const newPermissions: SitePermission[] = selectedPermissions.map(perm => ({
+        id: crypto.randomUUID(),
+        user_id: selectedUser,
+        site_slug: selectedSite,
+        permission_type: perm,
+        granted_at: now,
+        expires_at: expiryDate || undefined,
+        is_active: true,
+        user_email: userEmail,
+      }));
+      setPermissions(prev => [...prev, ...newPermissions]);
+
       setIsDialogOpen(false);
       setSelectedSite('');
       setSelectedUser('');
@@ -248,7 +225,6 @@ export default function SitePermissions() {
 
   const handleRevokePermission = async (permissionId: string) => {
     try {
-      // Simple approach with type assertion
       const { error } = await (supabase as any)
         .from('site_permissions')
         .update({ is_active: false })
@@ -256,7 +232,10 @@ export default function SitePermissions() {
 
       if (error) throw error;
 
-      await fetchData();
+      // Optimistic local state update — no need to refetch
+      setPermissions(prev =>
+        prev.map(p => p.id === permissionId ? { ...p, is_active: false } : p)
+      );
     } catch (error) {
       console.error('Error revoking permission:', error);
     }

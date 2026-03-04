@@ -1,6 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+
+function useDebounce<T>(value: T, delay = 300): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -89,10 +98,13 @@ export default function BulkSiteManager() {
     }
   }
 
-  const filteredSites = sites.filter(s =>
-    s.site_slug.includes(searchTerm.toLowerCase()) ||
-    s.title.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const debouncedSearch = useDebounce(searchTerm, 300)
+
+  const filteredSites = useMemo(() =>
+    sites.filter(s =>
+      s.site_slug.includes(debouncedSearch.toLowerCase()) ||
+      s.title.toLowerCase().includes(debouncedSearch.toLowerCase())
+    ), [sites, debouncedSearch])
 
   function toggleSelectAll() {
     if (selectedIds.size === filteredSites.length) {
@@ -120,7 +132,9 @@ export default function BulkSiteManager() {
     })
   }
 
-  const allLabels = Array.from(new Set(sites.flatMap(s => s.actions.map(a => a.label)))).sort()
+  const allLabels = useMemo(() =>
+    Array.from(new Set(sites.flatMap(s => s.actions.map(a => a.label)))).sort(),
+    [sites])
 
   async function applyOperation(operation: string, extraBody: Record<string, any>) {
     if (selectedIds.size === 0) {

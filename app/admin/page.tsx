@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import RoleGuard from '@/components/auth/RoleGuard';
 import UserManagement from '@/components/admin/UserManagement';
@@ -14,6 +15,13 @@ import BulkSiteManager from '@/components/admin/BulkSiteManager';
 
 export default function AdminPage() {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState('users');
+  const [visited, setVisited] = useState<Set<string>>(new Set(['users']));
+
+  function handleTabChange(value: string) {
+    setActiveTab(value);
+    setVisited(prev => new Set([...prev, value]));
+  }
 
   return (
     <RoleGuard requiredRole="admin">
@@ -42,8 +50,8 @@ export default function AdminPage() {
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-          <Tabs defaultValue="users" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-4 bg-white/50 backdrop-blur-sm border border-white/20">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
+            <TabsList className="grid w-full grid-cols-4 bg-white/50 border border-white/20">
               <TabsTrigger
                 value="users"
                 className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200"
@@ -73,22 +81,22 @@ export default function AdminPage() {
                 Toplu Yönetim
               </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="users" className="space-y-6">
               <UserManagement />
             </TabsContent>
-            
-            <TabsContent value="permissions" className="space-y-6">
-              <SitePermissions />
-            </TabsContent>
-            
-          <TabsContent value="invitation-codes" className="space-y-6">
-            <InvitationCodes />
-          </TabsContent>
 
-          <TabsContent value="bulk" className="space-y-6">
-            <BulkSiteManager />
-          </TabsContent>
+            <TabsContent value="permissions" className="space-y-6">
+              {visited.has('permissions') && <SitePermissions />}
+            </TabsContent>
+
+            <TabsContent value="invitation-codes" className="space-y-6">
+              {visited.has('invitation-codes') && <InvitationCodes />}
+            </TabsContent>
+
+            <TabsContent value="bulk" className="space-y-6">
+              {visited.has('bulk') && <BulkSiteManager />}
+            </TabsContent>
           </Tabs>
         </main>
       </div>

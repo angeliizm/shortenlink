@@ -1,6 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+
+function useDebounce<T>(value: T, delay = 300): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
 
 /** Defer opening a dialog to idle time so the button click doesn't block INP. */
 function deferOpen(open: () => void, timeoutMs = 80) {
@@ -106,7 +115,6 @@ export default function UserManagement() {
       setEditDialogOpen(false);
       setEditingUser(null);
       setRoleNotes('');
-      await fetchUsers();
     } catch (error) {
       console.error('Error updating role:', error);
       alert((error instanceof Error ? error.message : 'Rol güncellenemedi'));
@@ -130,7 +138,6 @@ export default function UserManagement() {
       setUsers((prev) =>
         prev.map((u) => (u.id === user.id ? { ...u, role: 'approved' as const } : u))
       );
-      await fetchUsers();
     } catch (error) {
       console.error('Error approving account:', error);
       alert(error instanceof Error ? error.message : 'Hesap onaylanamadı');
@@ -168,7 +175,7 @@ export default function UserManagement() {
         throw new Error(result.error || 'Kullanıcı silinirken hata oluştu');
       }
 
-      await fetchUsers();
+      setUsers(prev => prev.filter(u => u.id !== deletingUser.id));
       setDeleteDialogOpen(false);
       setDeletingUser(null);
       alert('Kullanıcı başarıyla silindi!');
@@ -225,18 +232,21 @@ export default function UserManagement() {
     }
   };
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = selectedRole === 'all' || user.role === selectedRole;
-    return matchesSearch && matchesRole;
-  });
+  const debouncedSearch = useDebounce(searchTerm, 300);
 
-  const roleStats = {
+  const filteredUsers = useMemo(() =>
+    users.filter(user => {
+      const matchesSearch = user.email.toLowerCase().includes(debouncedSearch.toLowerCase());
+      const matchesRole = selectedRole === 'all' || user.role === selectedRole;
+      return matchesSearch && matchesRole;
+    }), [users, debouncedSearch, selectedRole]);
+
+  const roleStats = useMemo(() => ({
     admin: users.filter(u => u.role === 'admin').length,
     moderator: users.filter(u => u.role === 'moderator').length,
     approved: users.filter(u => u.role === 'approved').length,
     pending: users.filter(u => u.role === 'pending').length,
-  };
+  }), [users]);
 
   if (loading) {
     return (

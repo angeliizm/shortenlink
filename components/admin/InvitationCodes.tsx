@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -150,21 +150,6 @@ export default function InvitationCodes() {
     return new Date(expiresAt) < new Date()
   }
 
-  const getFilteredCodes = () => {
-    return codes.filter(code => {
-      switch (filter) {
-        case 'active':
-          return !code.is_used && !isExpired(code.expires_at)
-        case 'used':
-          return code.is_used
-        case 'expired':
-          return !code.is_used && isExpired(code.expires_at)
-        default:
-          return true
-      }
-    })
-  }
-
   const getStatusBadge = (code: InvitationCode) => {
     if (code.is_used) {
       return <Badge variant="secondary" className="bg-green-100 text-green-800">Kullanıldı</Badge>
@@ -175,13 +160,22 @@ export default function InvitationCodes() {
     return <Badge variant="secondary" className="bg-blue-100 text-blue-800">Aktif</Badge>
   }
 
-  const filteredCodes = getFilteredCodes()
-  const stats = {
+  const stats = useMemo(() => ({
     total: codes.length,
     active: codes.filter(c => !c.is_used && !isExpired(c.expires_at)).length,
     used: codes.filter(c => c.is_used).length,
-    expired: codes.filter(c => !c.is_used && isExpired(c.expires_at)).length
-  }
+    expired: codes.filter(c => !c.is_used && isExpired(c.expires_at)).length,
+  }), [codes])
+
+  const filteredCodes = useMemo(() =>
+    codes.filter(code => {
+      switch (filter) {
+        case 'active': return !code.is_used && !isExpired(code.expires_at)
+        case 'used': return code.is_used
+        case 'expired': return !code.is_used && isExpired(code.expires_at)
+        default: return true
+      }
+    }), [codes, filter])
 
   return (
     <div className="space-y-6">
