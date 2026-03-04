@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 
 function useDebounce<T>(value: T, delay = 300): T {
   const [debounced, setDebounced] = useState(value);
@@ -63,7 +63,8 @@ export default function UserManagement() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [approvingUserId, setApprovingUserId] = useState<string | null>(null);
 
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
 
   useEffect(() => {
     fetchUsers();
@@ -266,56 +267,56 @@ export default function UserManagement() {
     <div className="space-y-8">
       {/* Modern Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+        <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Admin</p>
                 <p className="text-3xl font-bold text-red-600">{roleStats.admin}</p>
               </div>
-              <div className="w-14 h-14 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                 <Shield className="w-7 h-7 text-red-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+        <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Moderatör</p>
                 <p className="text-3xl font-bold text-blue-600">{roleStats.moderator}</p>
               </div>
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                 <Users className="w-7 h-7 text-blue-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+        <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Onaylı</p>
                 <p className="text-3xl font-bold text-green-600">{roleStats.approved}</p>
               </div>
-              <div className="w-14 h-14 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                 <Users className="w-7 h-7 text-green-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+        <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Beklemede</p>
                 <p className="text-3xl font-bold text-yellow-600">{roleStats.pending}</p>
               </div>
-              <div className="w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                 <Users className="w-7 h-7 text-yellow-600" />
               </div>
             </div>
@@ -324,7 +325,7 @@ export default function UserManagement() {
       </div>
 
       {/* Modern Filters */}
-      <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl">
+      <Card className="bg-white border-gray-200 shadow-md">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-3 text-xl">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
@@ -347,17 +348,17 @@ export default function UserManagement() {
                   placeholder="E-posta adresi ara..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-11 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                  className="pl-10 h-11 bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
                 />
               </div>
             </div>
             <div className="sm:w-48">
               <Label htmlFor="role-filter" className="text-sm font-medium text-gray-700 mb-2 block">Rol Filtrele</Label>
               <Select value={selectedRole} onValueChange={setSelectedRole}>
-                <SelectTrigger className="h-11 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
+                <SelectTrigger className="h-11 bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white/95 backdrop-blur-sm border-white/20">
+                <SelectContent className="bg-white border-gray-200">
                   <SelectItem value="all">Tümü</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="moderator">Moderatör</SelectItem>
@@ -371,7 +372,7 @@ export default function UserManagement() {
           {/* Modern Users List */}
           <div className="space-y-4">
             {filteredUsers.map((user) => (
-              <div key={user.id} className="group relative backdrop-blur-sm bg-white/60 border border-white/30 rounded-2xl p-6 hover:bg-white/80 hover:shadow-xl transition-all duration-300">
+              <div key={user.id} className="group relative bg-gray-50 border border-gray-200 rounded-2xl p-6 hover:bg-white hover:shadow-md transition-shadow duration-200">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-4 mb-3">
@@ -423,7 +424,7 @@ export default function UserManagement() {
                           });
                         }, 0);
                       }}
-                      className="bg-white/50 backdrop-blur-sm border-white/30 hover:bg-white/70 hover:border-white/50 transition-all duration-200"
+                      className="bg-white border-gray-300 hover:bg-gray-50 transition-colors duration-150"
                     >
                       <Edit className="w-4 h-4 mr-2" />
                       Düzenle
@@ -435,7 +436,7 @@ export default function UserManagement() {
                         size="sm"
                         onClick={() => handleApproveAccount(user)}
                         disabled={approvingUserId === user.id}
-                        className="bg-white/50 backdrop-blur-sm border-green-200 hover:bg-green-50 hover:border-green-300 text-green-700 hover:text-green-800 transition-all duration-200"
+                        className="bg-white border-green-200 hover:bg-green-50 hover:border-green-300 text-green-700 hover:text-green-800 transition-colors duration-150"
                       >
                         {approvingUserId === user.id ? (
                           <>
@@ -465,7 +466,7 @@ export default function UserManagement() {
                           });
                         }, 0);
                       }}
-                      className="bg-white/50 backdrop-blur-sm border-orange-200 hover:bg-orange-50 hover:border-orange-300 text-orange-600 hover:text-orange-700 transition-all duration-200"
+                      className="bg-white border-orange-200 hover:bg-orange-50 hover:border-orange-300 text-orange-600 hover:text-orange-700 transition-colors duration-150"
                     >
                       <Key className="w-4 h-4 mr-2" />
                       Şifre
@@ -484,7 +485,7 @@ export default function UserManagement() {
                             });
                           }, 0);
                         }}
-                        className="bg-white/50 backdrop-blur-sm border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600 hover:text-red-700 transition-all duration-200"
+                        className="bg-white border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600 hover:text-red-700 transition-colors duration-150"
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
                         Sil
@@ -508,7 +509,7 @@ export default function UserManagement() {
 
           {/* Edit role dialog (controlled, deferred open for INP) */}
           <Dialog open={editDialogOpen} onOpenChange={(open) => { setEditDialogOpen(open); if (!open) setEditingUser(null); }}>
-            <DialogContent className="bg-white/95 backdrop-blur-md border-white/30 shadow-2xl">
+            <DialogContent className="bg-white border-gray-200 shadow-2xl">
               <DialogHeader>
                 <DialogTitle className="text-xl font-semibold text-gray-900">Kullanıcı Rolü Düzenle</DialogTitle>
                 <DialogDescription className="text-gray-600">
@@ -521,10 +522,10 @@ export default function UserManagement() {
                     <div>
                       <Label htmlFor="role" className="text-sm font-medium text-gray-700 mb-2 block">Yeni Rol</Label>
                       <Select value={newRole} onValueChange={(value) => setNewRole(value as UserRole)}>
-                        <SelectTrigger className="h-11 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
+                        <SelectTrigger className="h-11 bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-sm border-white/20">
+                        <SelectContent className="bg-white border-gray-200">
                           <SelectItem value="admin">Admin</SelectItem>
                           <SelectItem value="moderator">Moderatör</SelectItem>
                           <SelectItem value="approved">Onaylı</SelectItem>
@@ -544,7 +545,7 @@ export default function UserManagement() {
                         placeholder="Rol atama sebebi veya notlar..."
                         value={roleNotes}
                         onChange={(e) => setRoleNotes(e.target.value)}
-                        className="bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 min-h-[100px]"
+                        className="bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 min-h-[100px]"
                       />
                     </div>
                   </div>
@@ -552,7 +553,7 @@ export default function UserManagement() {
                     <Button
                       onClick={handleRoleUpdate}
                       disabled={isSubmitting}
-                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
+                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2 rounded-lg transition-opacity duration-150 disabled:opacity-50"
                     >
                       {isSubmitting ? (
                         <>
@@ -571,7 +572,7 @@ export default function UserManagement() {
 
           {/* Reset password dialog (controlled, deferred open for INP) */}
           <Dialog open={passwordDialogOpen} onOpenChange={(open) => { setPasswordDialogOpen(open); if (!open) { setResettingPassword(null); setNewPassword(''); setConfirmPassword(''); } }}>
-            <DialogContent className="bg-white/95 backdrop-blur-md border-white/30 shadow-2xl">
+            <DialogContent className="bg-white border-gray-200 shadow-2xl">
               <DialogHeader>
                 <DialogTitle className="text-xl font-semibold text-orange-600">Şifre Sıfırla</DialogTitle>
                 <DialogDescription className="text-gray-600">
@@ -589,7 +590,7 @@ export default function UserManagement() {
                         placeholder="En az 6 karakter"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="h-11 bg-white/50 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
+                        className="h-11 bg-white border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
                       />
                     </div>
                     <div>
@@ -600,7 +601,7 @@ export default function UserManagement() {
                         placeholder="Şifreyi tekrar girin"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="h-11 bg-white/50 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
+                        className="h-11 bg-white border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
                       />
                     </div>
                     <div className="bg-orange-50/50 border border-orange-200/50 rounded-lg p-4">
@@ -623,7 +624,7 @@ export default function UserManagement() {
                     <Button
                       onClick={handleResetPassword}
                       disabled={isResetting || !newPassword || !confirmPassword}
-                      className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
+                      className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-2 rounded-lg transition-opacity duration-150 disabled:opacity-50"
                     >
                       {isResetting ? (
                         <>
@@ -645,7 +646,7 @@ export default function UserManagement() {
 
           {/* Delete user dialog (controlled, deferred open for INP) */}
           <Dialog open={deleteDialogOpen} onOpenChange={(open) => { setDeleteDialogOpen(open); if (!open) setDeletingUser(null); }}>
-            <DialogContent className="bg-white/95 backdrop-blur-md border-white/30 shadow-2xl">
+            <DialogContent className="bg-white border-gray-200 shadow-2xl">
               <DialogHeader>
                 <DialogTitle className="text-xl font-semibold text-red-600">Kullanıcıyı Sil</DialogTitle>
                 <DialogDescription className="text-gray-600">
@@ -676,7 +677,7 @@ export default function UserManagement() {
                     <Button
                       onClick={handleDeleteUser}
                       disabled={isDeleting}
-                      className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
+                      className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-2 rounded-lg transition-opacity duration-150 disabled:opacity-50"
                     >
                       {isDeleting ? (
                         <>

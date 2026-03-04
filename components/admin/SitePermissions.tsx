@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 
 /** Defer state update to next tick to avoid blocking INP after select/click */
 function deferSetState<T>(setter: (v: T) => void, value: T) {
@@ -51,7 +51,8 @@ export default function SitePermissions() {
   const [siteSearchTerm, setSiteSearchTerm] = useState<string>('');
   const [expandedSites, setExpandedSites] = useState<Set<string>>(new Set());
 
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
 
   useEffect(() => {
     fetchData();
@@ -276,7 +277,7 @@ export default function SitePermissions() {
   return (
     <div className="space-y-8">
       {/* Grant Permission Section */}
-      <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl">
+      <Card className="bg-white border-gray-200 shadow-md">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-3 text-xl">
             <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
@@ -294,10 +295,10 @@ export default function SitePermissions() {
             <div>
               <Label htmlFor="site-select" className="text-sm font-medium text-gray-700 mb-2 block">Site Seç</Label>
               <Select value={selectedSite} onValueChange={setSelectedSite}>
-                <SelectTrigger className="h-12 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
+                <SelectTrigger className="h-12 bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
                   <SelectValue placeholder="İzin verilecek siteyi seçin..." />
                 </SelectTrigger>
-                <SelectContent className="bg-white/95 backdrop-blur-sm border-white/20">
+                <SelectContent className="bg-white border-gray-200">
                   {sites.map((site) => (
                     <SelectItem key={site.id} value={site.site_slug}>
                       <div className="flex flex-col">
@@ -319,11 +320,11 @@ export default function SitePermissions() {
                   placeholder="Kullanıcı email'i ile ara..."
                   value={userSearchTerm}
                   onChange={(e) => setUserSearchTerm(e.target.value)}
-                  className="h-12 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                  className="h-12 bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
                 />
-                
+
                 {userSearchTerm && filteredUsers.length > 0 && (
-                  <div className="max-h-48 overflow-y-auto bg-white/80 backdrop-blur-sm border border-white/30 rounded-lg shadow-lg">
+                  <div className="max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg">
                     {filteredUsers.slice(0, 10).map((user) => (
                       <div
                         key={user.id}
@@ -368,7 +369,7 @@ export default function SitePermissions() {
                 ].map((permission) => (
                   <div
                     key={permission.value}
-                    className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                    className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition-colors duration-150 ${
                       selectedPermissions.includes(permission.value as any)
                         ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-200 bg-white hover:border-gray-300'
@@ -419,7 +420,7 @@ export default function SitePermissions() {
                 type="datetime-local"
                 value={expiryDate}
                 onChange={(e) => setExpiryDate(e.target.value)}
-                className="h-12 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                className="h-12 bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Boş bırakırsanız izin süresiz olacaktır
@@ -441,7 +442,7 @@ export default function SitePermissions() {
             <Button
               onClick={handleGrantPermission}
               disabled={!selectedSite || !selectedUser || selectedPermissions.length === 0 || isSubmitting}
-              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-3 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-3 rounded-lg transition-opacity duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -460,7 +461,7 @@ export default function SitePermissions() {
       </Card>
 
       {/* Permissions List */}
-      <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl">
+      <Card className="bg-white border-gray-200 shadow-md">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-3 text-xl">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
@@ -509,10 +510,10 @@ export default function SitePermissions() {
                 const isExpanded = expandedSites.has(siteSlug);
 
                 return (
-                  <div key={siteSlug} className="backdrop-blur-sm bg-white/60 border border-white/30 rounded-2xl overflow-hidden">
+                  <div key={siteSlug} className="bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden">
                     {/* Site Header - Clickable */}
-                    <div 
-                      className="flex items-center gap-4 p-6 cursor-pointer hover:bg-white/70 transition-all duration-200"
+                    <div
+                      className="flex items-center gap-4 p-6 cursor-pointer hover:bg-white transition-colors duration-150"
                       onClick={() => setTimeout(() => toggleSiteExpansion(siteSlug), 0)}
                     >
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
@@ -536,7 +537,7 @@ export default function SitePermissions() {
 
                     {/* Site Permissions - Collapsible */}
                     {isExpanded && (
-                      <div className="px-6 pb-6 border-t border-gray-200 bg-white/40">
+                      <div className="px-6 pb-6 border-t border-gray-200 bg-white">
                         <div className="pt-4">
                           <div className="flex items-center justify-between mb-4">
                             <h4 className="text-sm font-medium text-gray-700">İzin Detayları</h4>
@@ -545,7 +546,7 @@ export default function SitePermissions() {
                           
                           <div className="space-y-3">
                             {sitePermissions.map((permission) => (
-                              <div key={permission.id} className="group relative backdrop-blur-sm bg-white/80 border border-white/40 rounded-xl p-4 hover:bg-white/90 hover:shadow-lg transition-all duration-200">
+                              <div key={permission.id} className="group relative bg-gray-50 border border-gray-200 rounded-xl p-4 hover:bg-white hover:shadow-sm transition-shadow duration-150">
                                 <div className="flex items-center justify-between">
                                   <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-2">
@@ -586,7 +587,7 @@ export default function SitePermissions() {
                                       variant="outline"
                                       size="sm"
                                       onClick={() => handleRevokePermission(permission.id)}
-                                      className="bg-red-50 backdrop-blur-sm border-red-200 hover:bg-red-100 hover:border-red-300 text-red-600 transition-all duration-200"
+                                      className="bg-red-50 border-red-200 hover:bg-red-100 hover:border-red-300 text-red-600 transition-colors duration-150"
                                     >
                                       <Trash2 className="w-4 h-4 mr-2" />
                                       İptal Et

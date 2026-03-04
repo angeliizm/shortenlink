@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Link2, Plus, ExternalLink, Edit, Trash2, Globe, LogOut, Eye, Zap, Shield, Sparkles, BarChart, Palette, Settings, Users, Key, Search, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -40,8 +40,9 @@ interface Site {
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading, logout } = useAuth()
   const router = useRouter()
-  const supabase = createClient()
-  
+  const supabaseRef = useRef(createClient())
+  const supabase = supabaseRef.current
+
   const [sites, setSites] = useState<Site[]>([])
   const [isLoadingSites, setIsLoadingSites] = useState(true)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -49,18 +50,29 @@ export default function DashboardPage() {
   const [copyTarget, setCopyTarget] = useState<Site | null>(null)
   const [stats, setStats] = useState({ totalSites: 0, activeSites: 0 })
   const [userRole, setUserRole] = useState<string>('')
-  
+
   // Invitation code states
   const [invitationCode, setInvitationCode] = useState('')
   const [isUsingCode, setIsUsingCode] = useState(false)
   const [codeError, setCodeError] = useState('')
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState('')
-  const [filteredSites, setFilteredSites] = useState<Site[]>([])
-  
+
   // Invitation code popup state
   const [isInvitationCodeOpen, setIsInvitationCodeOpen] = useState(false)
+
+  const filteredSites = useMemo(() => {
+    if (!searchTerm.trim()) return sites
+    const lower = searchTerm.toLowerCase()
+    return sites.filter(site =>
+      site.title.toLowerCase().includes(lower) ||
+      site.site_slug.toLowerCase().includes(lower) ||
+      site.target_url.toLowerCase().includes(lower) ||
+      (site.meta?.description && site.meta.description.toLowerCase().includes(lower)) ||
+      (site.owner_name && site.owner_name.toLowerCase().includes(lower))
+    )
+  }, [sites, searchTerm])
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -238,8 +250,7 @@ export default function DashboardPage() {
       allSites.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
 
       setSites(allSites)
-      setFilteredSites(allSites) // Initialize filtered sites
-      
+
       const totalSites = allSites.length
       const activeSites = allSites.filter((site: any) => site.is_enabled).length
       
@@ -251,32 +262,8 @@ export default function DashboardPage() {
     }
   }
 
-  // Filter sites based on search term
-  const filterSites = (searchTerm: string) => {
-    if (!searchTerm.trim()) {
-      setFilteredSites(sites)
-      return
-    }
-
-    const filtered = sites.filter(site => {
-      const searchLower = searchTerm.toLowerCase()
-      return (
-        site.title.toLowerCase().includes(searchLower) ||
-        site.site_slug.toLowerCase().includes(searchLower) ||
-        site.target_url.toLowerCase().includes(searchLower) ||
-        (site.meta?.description && site.meta.description.toLowerCase().includes(searchLower)) ||
-        (site.owner_name && site.owner_name.toLowerCase().includes(searchLower))
-      )
-    })
-    
-    setFilteredSites(filtered)
-  }
-
-  // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setSearchTerm(value)
-    filterSites(value)
+    setSearchTerm(e.target.value)
   }
 
   const handleDeleteSite = async (siteId: string) => {
@@ -328,7 +315,7 @@ export default function DashboardPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => router.push('/admin')}
-                  className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70 hover:border-gray-300 transition-all duration-200"
+                  className="flex items-center gap-2 bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors duration-150"
                 >
                   <Settings className="h-4 w-4" />
                   Admin Panel
@@ -341,7 +328,7 @@ export default function DashboardPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => router.push('/moderator')}
-                  className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70 hover:border-gray-300 transition-all duration-200"
+                  className="flex items-center gap-2 bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors duration-150"
                 >
                   <Shield className="h-4 w-4" />
                   Moderatör Panel
@@ -352,7 +339,7 @@ export default function DashboardPage() {
                 variant="outline"
                 size="sm"
                 onClick={logout}
-                className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70 hover:border-gray-300 transition-all duration-200"
+                className="flex items-center gap-2 bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors duration-150"
               >
                 <LogOut className="h-4 w-4" />
                 Çıkış Yap
@@ -365,28 +352,28 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Modern Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+          <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200 group">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Toplam Site</p>
                   <p className="text-3xl font-bold text-blue-600">{stats.totalSites}</p>
                 </div>
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                   <Globe className="w-7 h-7 text-blue-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+          <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200 group">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Aktif Site</p>
                   <p className="text-3xl font-bold text-green-600">{stats.activeSites}</p>
                 </div>
-                <div className="w-14 h-14 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <div className="w-14 h-14 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                   <Zap className="w-7 h-7 text-green-600" />
                 </div>
               </div>
@@ -395,11 +382,11 @@ export default function DashboardPage() {
           
           {/* Site Oluşturma veya Bekleme Kartı */}
           {userRole === 'admin' ? (
-            <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+            <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200 group">
               <CardContent className="p-6">
-                <Button 
+                <Button
                   onClick={() => setIsCreateOpen(true)}
-                  className="w-full h-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 group-hover:scale-105"
+                  className="w-full h-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 group-hover:scale-105"
                   size="lg"
                 >
                   <Plus className="h-6 w-6 mr-2" />
@@ -408,11 +395,11 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           ) : userRole === 'approved' ? (
-            <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
+            <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200">
               <CardContent className="p-6">
-                <Button 
+                <Button
                   onClick={() => setIsInvitationCodeOpen(true)}
-                  className="w-full h-16 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 text-lg font-medium"
+                  className="w-full h-16 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-shadow duration-200 text-lg font-medium"
                 >
                   <Key className="w-5 h-5 mr-3" />
                   Kod Girin
@@ -420,9 +407,9 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           ) : (userRole === 'moderator' || userRole === 'admin') ? (
-            <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+            <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200 group">
               <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-200">
                   <Plus className="w-8 h-8 text-purple-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Yeni Site Oluştur</h3>
@@ -431,7 +418,7 @@ export default function DashboardPage() {
                 </p>
                 <Button 
                   onClick={() => setIsCreateOpen(true)}
-                  className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg hover:shadow-xl transition-shadow duration-200"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Site Oluştur
@@ -439,11 +426,11 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+            <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200 group">
               <CardContent className="p-6">
-                <Button 
+                <Button
                   onClick={() => setIsCreateOpen(true)}
-                  className="w-full h-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 group-hover:scale-105"
+                  className="w-full h-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 group-hover:scale-105"
                   size="lg"
                 >
                   <Plus className="h-6 w-6 mr-2" />
@@ -455,7 +442,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Modern Sites List */}
-        <Card className="backdrop-blur-sm bg-white/80 border-white/20 shadow-xl">
+        <Card className="bg-white border-gray-200 shadow-md">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-3 text-xl">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
@@ -476,7 +463,7 @@ export default function DashboardPage() {
                   placeholder="Site adı, slug, URL veya açıklama ara..."
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  className="pl-10 h-11 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                  className="pl-10 h-11 bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
                 />
               </div>
               {searchTerm && (
@@ -509,10 +496,7 @@ export default function DashboardPage() {
                   </p>
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      setSearchTerm('')
-                      setFilteredSites(sites)
-                    }}
+                    onClick={() => setSearchTerm('')}
                     className="border-gray-300 hover:bg-gray-50"
                   >
                     Aramayı Temizle
@@ -607,7 +591,7 @@ export default function DashboardPage() {
                   <Button 
                     onClick={() => setIsCreateOpen(true)}
                     size="lg"
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-shadow duration-200"
                   >
                     <Plus className="h-5 w-5 mr-2" />
                     İlk Sitenizi Oluşturun
@@ -642,7 +626,7 @@ export default function DashboardPage() {
                 {filteredSites.map((site) => (
                   <Card 
                     key={site.id} 
-                    className="group backdrop-blur-sm bg-white/90 border-white/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+                    className="group bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200"
                   >
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
