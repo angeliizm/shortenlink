@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
 
           const { error: updateError } = await serviceClient
             .from('page_actions')
-            .update(updateData)
+            .update(updateData as never)
             .eq('id', matchingAction.id) as { error: any }
 
           if (updateError) {
@@ -225,7 +225,7 @@ export async function POST(request: NextRequest) {
             const action = reordered[i]
             const { error: updateError } = await serviceClient
               .from('page_actions')
-              .update({ sort_order: i })
+              .update({ sort_order: i } as never)
               .eq('id', action.id) as { error: any }
 
             if (updateError) {
