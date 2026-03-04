@@ -78,28 +78,20 @@ export default function UserManagement() {
 
     setIsSubmitting(true);
     try {
-      // First, delete existing role if it exists
-      const { error: deleteError } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', editingUser.id);
-
-      if (deleteError) {
-        console.warn('Error deleting existing role:', deleteError);
-        // Continue anyway, might not exist
-      }
-
-      // Then insert the new role
-      const { error: insertError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: editingUser.id,
+      const res = await fetch('/api/admin/update-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: editingUser.id,
           role: newRole,
-          notes: roleNotes,
-          assigned_at: new Date().toISOString()
-        } as any);
+          notes: roleNotes || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
 
-      if (insertError) throw insertError;
+      if (!res.ok) {
+        throw new Error(data.error || 'Rol güncellenemedi');
+      }
 
       await fetchUsers();
       setEditDialogOpen(false);
@@ -107,6 +99,7 @@ export default function UserManagement() {
       setRoleNotes('');
     } catch (error) {
       console.error('Error updating role:', error);
+      alert((error instanceof Error ? error.message : 'Rol güncellenemedi'));
     } finally {
       setIsSubmitting(false);
     }
