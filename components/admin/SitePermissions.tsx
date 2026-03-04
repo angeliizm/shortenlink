@@ -1,6 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
+/** Defer state update to next tick to avoid blocking INP after select/click */
+function deferSetState<T>(setter: (v: T) => void, value: T) {
+  setTimeout(() => setter(value), 0);
+}
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -309,7 +314,7 @@ export default function SitePermissions() {
             {/* Site Selection */}
             <div>
               <Label htmlFor="site-select" className="text-sm font-medium text-gray-700 mb-2 block">Site Seç</Label>
-              <Select value={selectedSite} onValueChange={setSelectedSite}>
+              <Select value={selectedSite} onValueChange={(v) => deferSetState(setSelectedSite, v)}>
                 <SelectTrigger className="h-12 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
                   <SelectValue placeholder="İzin verilecek siteyi seçin..." />
                 </SelectTrigger>
@@ -344,8 +349,8 @@ export default function SitePermissions() {
                       <div
                         key={user.id}
                         onClick={() => {
-                          setSelectedUser(user.id);
-                          setUserSearchTerm(user.email);
+                          deferSetState(setSelectedUser, user.id);
+                          deferSetState(setUserSearchTerm, user.email);
                         }}
                         className={`p-3 hover:bg-blue-50 cursor-pointer transition-colors ${
                           selectedUser === user.id ? 'bg-blue-100 border-l-4 border-blue-500' : ''
@@ -390,13 +395,15 @@ export default function SitePermissions() {
                         : 'border-gray-200 bg-white hover:border-gray-300'
                     }`}
                     onClick={() => {
-                      setSelectedPermissions(prev => {
-                        if (prev.includes(permission.value as any)) {
-                          return prev.filter(p => p !== permission.value);
-                        } else {
-                          return [...prev, permission.value as any];
-                        }
-                      });
+                      setTimeout(() => {
+                        setSelectedPermissions(prev => {
+                          if (prev.includes(permission.value as any)) {
+                            return prev.filter(p => p !== permission.value);
+                          } else {
+                            return [...prev, permission.value as any];
+                          }
+                        });
+                      }, 0);
                     }}
                   >
                     <div className={`w-5 h-5 rounded border-2 flex items-center justify-center mr-3 ${
@@ -527,7 +534,7 @@ export default function SitePermissions() {
                     {/* Site Header - Clickable */}
                     <div 
                       className="flex items-center gap-4 p-6 cursor-pointer hover:bg-white/70 transition-all duration-200"
-                      onClick={() => toggleSiteExpansion(siteSlug)}
+                      onClick={() => setTimeout(() => toggleSiteExpansion(siteSlug), 0)}
                     >
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
                         <Globe className="w-6 h-6 text-blue-600" />
