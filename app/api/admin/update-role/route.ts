@@ -44,29 +44,23 @@ export async function POST(request: NextRequest) {
 
     const serviceClient = createServiceRoleClient()
 
-    const { error: deleteError } = await serviceClient
-      .from('user_roles')
-      .delete()
-      .eq('user_id', userId)
-
-    if (deleteError) {
-      console.warn('Error deleting existing role:', deleteError)
+    const row = {
+      user_id: userId,
+      role,
+      notes: notes ?? null,
+      assigned_by: user.id,
+      assigned_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
 
-    const { error: insertError } = await serviceClient
+    const { error: upsertError } = await serviceClient
       .from('user_roles')
-      .insert({
-        user_id: userId,
-        role,
-        notes: notes ?? null,
-        assigned_by: user.id,
-        assigned_at: new Date().toISOString(),
-      } as never)
+      .upsert(row as never, { onConflict: 'user_id' })
 
-    if (insertError) {
-      console.error('Error inserting role:', insertError)
+    if (upsertError) {
+      console.error('Error upserting role:', upsertError)
       return NextResponse.json(
-        { error: 'Rol güncellenemedi: ' + insertError.message },
+        { error: 'Rol güncellenemedi: ' + upsertError.message },
         { status: 500 }
       )
     }

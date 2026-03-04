@@ -20,7 +20,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { UserRole, roleDescriptions, roleColors } from '@/lib/auth/roles';
-import { Users, Shield, Edit, Search, Trash2, Key } from 'lucide-react';
+import { Users, Shield, Edit, Search, Trash2, Key, CheckCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface User {
@@ -52,6 +52,7 @@ export default function UserManagement() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [approvingUserId, setApprovingUserId] = useState<string | null>(null);
 
   const supabase = createClient();
 
@@ -81,6 +82,7 @@ export default function UserManagement() {
       const res = await fetch('/api/admin/update-role', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           userId: editingUser.id,
           role: newRole,
@@ -93,15 +95,47 @@ export default function UserManagement() {
         throw new Error(data.error || 'Rol güncellenemedi');
       }
 
-      await fetchUsers();
+      const updatedUserId = editingUser.id;
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === updatedUserId
+            ? { ...u, role: newRole, role_notes: roleNotes || u.role_notes || '' }
+            : u
+        )
+      );
       setEditDialogOpen(false);
       setEditingUser(null);
       setRoleNotes('');
+      await fetchUsers();
     } catch (error) {
       console.error('Error updating role:', error);
       alert((error instanceof Error ? error.message : 'Rol güncellenemedi'));
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleApproveAccount = async (user: User) => {
+    if (user.role !== 'pending') return;
+    setApprovingUserId(user.id);
+    try {
+      const res = await fetch('/api/admin/update-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ userId: user.id, role: 'approved', notes: user.role_notes || undefined }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Hesap onaylanamadı');
+      setUsers((prev) =>
+        prev.map((u) => (u.id === user.id ? { ...u, role: 'approved' as const } : u))
+      );
+      await fetchUsers();
+    } catch (error) {
+      console.error('Error approving account:', error);
+      alert(error instanceof Error ? error.message : 'Hesap onaylanamadı');
+    } finally {
+      setApprovingUserId(null);
     }
   };
 
@@ -384,6 +418,28 @@ export default function UserManagement() {
                       <Edit className="w-4 h-4 mr-2" />
                       Düzenle
                     </Button>
+
+                    {user.role === 'pending' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleApproveAccount(user)}
+                        disabled={approvingUserId === user.id}
+                        className="bg-white/50 backdrop-blur-sm border-green-200 hover:bg-green-50 hover:border-green-300 text-green-700 hover:text-green-800 transition-all duration-200"
+                      >
+                        {approvingUserId === user.id ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-green-600 border-t-transparent mr-2" />
+                            Onaylanıyor...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Hesabı Onayla
+                          </>
+                        )}
+                      </Button>
+                    )}
 
                     <Button
                       variant="outline"
