@@ -6,9 +6,12 @@ const IDLE_TIMEOUT_MS = 80
 
 /**
  * Syncs the `inert` attribute with `aria-hidden` on the same element.
- * When Radix (e.g. Dialog) sets aria-hidden on a container, that container
+ * When Radix (e.g. Dialog, Select) sets aria-hidden on a container, that container
  * must not contain focusable elements; setting `inert` makes descendants
  * non-focusable and satisfies the accessibility rule.
+ * When they close, Radix often removes the aria-hidden attribute instead of setting
+ * it to "false", so we also clear inert from any element that has inert but does
+ * not have aria-hidden="true".
  * Work is deferred with requestIdleCallback (fallback setTimeout) so the
  * main thread is free for the next paint and INP is not blocked.
  */
@@ -20,6 +23,11 @@ function syncInert() {
   })
   document.querySelectorAll('[aria-hidden="false"]').forEach((el) => {
     if (el instanceof HTMLElement) {
+      el.removeAttribute('inert')
+    }
+  })
+  document.querySelectorAll('[inert]').forEach((el) => {
+    if (el instanceof HTMLElement && el.getAttribute('aria-hidden') !== 'true') {
       el.removeAttribute('inert')
     }
   })

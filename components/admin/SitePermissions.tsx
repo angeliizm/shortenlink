@@ -314,7 +314,7 @@ export default function SitePermissions() {
             {/* Site Selection */}
             <div>
               <Label htmlFor="site-select" className="text-sm font-medium text-gray-700 mb-2 block">Site Seç</Label>
-              <Select value={selectedSite} onValueChange={(v) => deferSetState(setSelectedSite, v)}>
+              <Select value={selectedSite} onValueChange={setSelectedSite}>
                 <SelectTrigger className="h-12 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
                   <SelectValue placeholder="İzin verilecek siteyi seçin..." />
                 </SelectTrigger>
