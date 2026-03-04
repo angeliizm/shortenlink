@@ -118,7 +118,7 @@ export default function SitePermissions() {
       // Batch all unique user IDs into a single email lookup
       const ownerIds = sitesData.map((s: any) => s.owner_id);
       const permissionUserIds = permissionsData.map((p: any) => p.user_id);
-      const allUserIds = [...new Set([...ownerIds, ...permissionUserIds])];
+      const allUserIds = Array.from(new Set([...ownerIds, ...permissionUserIds]));
 
       let emailMap = new Map<string, string>();
       if (allUserIds.length > 0) {

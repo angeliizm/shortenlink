@@ -20,7 +20,7 @@ export default function AdminPage() {
 
   function handleTabChange(value: string) {
     setActiveTab(value);
-    setVisited(prev => new Set([...prev, value]));
+    setVisited(prev => new Set([...Array.from(prev), value]));
   }
 
   return (
