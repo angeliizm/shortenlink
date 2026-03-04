@@ -102,6 +102,7 @@ export default function UserManagement() {
       if (insertError) throw insertError;
 
       await fetchUsers();
+      setEditDialogOpen(false);
       setEditingUser(null);
       setRoleNotes('');
     } catch (error) {
