@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
               preset: button.preset || 'default',
               sort_order: nextSortOrder,
               is_enabled: button.is_enabled !== false,
-            }) as { error: any }
+            } as never) as { error: any }
 
           if (insertError) {
             results.failed++
