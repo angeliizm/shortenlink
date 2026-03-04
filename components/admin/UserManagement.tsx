@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { UserRole, roleDescriptions, roleColors } from '@/lib/auth/roles';
 import { Users, Shield, Edit, Search, Trash2, Key } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -40,6 +40,9 @@ export default function UserManagement() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isResetting, setIsResetting] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const supabase = createClient();
 
@@ -105,6 +108,7 @@ export default function UserManagement() {
     // Admin hesapları silinemez
     if (deletingUser.role === 'admin') {
       alert('Admin hesapları silinemez!');
+      setDeleteDialogOpen(false);
       setDeletingUser(null);
       return;
     }
@@ -128,6 +132,7 @@ export default function UserManagement() {
       }
 
       await fetchUsers();
+      setDeleteDialogOpen(false);
       setDeletingUser(null);
       alert('Kullanıcı başarıyla silindi!');
     } catch (error) {
@@ -170,6 +175,7 @@ export default function UserManagement() {
         throw new Error(result.error || 'Şifre sıfırlanırken hata oluştu');
       }
 
+      setPasswordDialogOpen(false);
       setResettingPassword(null);
       setNewPassword('');
       setConfirmPassword('');
@@ -356,237 +362,58 @@ export default function UserManagement() {
                   </div>
                 
                   <div className="flex items-center gap-2">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setEditingUser(user);
-                            setNewRole(user.role);
-                            setRoleNotes(user.role_notes || '');
-                          }}
-                          className="bg-white/50 backdrop-blur-sm border-white/30 hover:bg-white/70 hover:border-white/50 transition-all duration-200"
-                        >
-                          <Edit className="w-4 h-4 mr-2" />
-                          Düzenle
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="bg-white/95 backdrop-blur-md border-white/30 shadow-2xl">
-                        <DialogHeader>
-                          <DialogTitle className="text-xl font-semibold text-gray-900">Kullanıcı Rolü Düzenle</DialogTitle>
-                          <DialogDescription className="text-gray-600">
-                            {user.email} kullanıcısının rolünü ve notlarını güncelleyin
-                          </DialogDescription>
-                        </DialogHeader>
-                      
-                        <div className="space-y-6">
-                          <div>
-                            <Label htmlFor="role" className="text-sm font-medium text-gray-700 mb-2 block">Yeni Rol</Label>
-                            <Select value={newRole} onValueChange={(value) => setNewRole(value as UserRole)}>
-                              <SelectTrigger className="h-11 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent className="bg-white/95 backdrop-blur-sm border-white/20">
-                                <SelectItem value="admin">Admin</SelectItem>
-                                <SelectItem value="moderator">Moderatör</SelectItem>
-                                <SelectItem value="approved">Onaylı</SelectItem>
-                                <SelectItem value="pending">Beklemede</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <div className="mt-2 p-3 bg-blue-50/50 rounded-lg border border-blue-200/50">
-                              <p className="text-sm text-blue-700">
-                                <strong>Açıklama:</strong> {roleDescriptions[newRole]}
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <Label htmlFor="notes" className="text-sm font-medium text-gray-700 mb-2 block">Notlar</Label>
-                            <Textarea
-                              id="notes"
-                              placeholder="Rol atama sebebi veya notlar..."
-                              value={roleNotes}
-                              onChange={(e) => setRoleNotes(e.target.value)}
-                              className="bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 min-h-[100px]"
-                            />
-                          </div>
-                        </div>
-                        
-                        <DialogFooter className="pt-4">
-                          <Button
-                            onClick={handleRoleUpdate}
-                            disabled={isSubmitting}
-                            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
-                          >
-                            {isSubmitting ? (
-                              <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                Güncelleniyor...
-                              </>
-                            ) : (
-                              'Güncelle'
-                            )}
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const u = user;
+                        setTimeout(() => {
+                          setEditingUser(u);
+                          setNewRole(u.role);
+                          setRoleNotes(u.role_notes || '');
+                          setEditDialogOpen(true);
+                        }, 0);
+                      }}
+                      className="bg-white/50 backdrop-blur-sm border-white/30 hover:bg-white/70 hover:border-white/50 transition-all duration-200"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Düzenle
+                    </Button>
 
-                    {/* Şifre Sıfırlama Butonu */}
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setResettingPassword(user);
-                            setNewPassword('');
-                            setConfirmPassword('');
-                          }}
-                          className="bg-white/50 backdrop-blur-sm border-orange-200 hover:bg-orange-50 hover:border-orange-300 text-orange-600 hover:text-orange-700 transition-all duration-200"
-                        >
-                          <Key className="w-4 h-4 mr-2" />
-                          Şifre
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="bg-white/95 backdrop-blur-md border-white/30 shadow-2xl">
-                        <DialogHeader>
-                          <DialogTitle className="text-xl font-semibold text-orange-600">Şifre Sıfırla</DialogTitle>
-                          <DialogDescription className="text-gray-600">
-                            <strong>{user.email}</strong> kullanıcısının şifresini sıfırlayın
-                          </DialogDescription>
-                        </DialogHeader>
-                      
-                        <div className="space-y-6">
-                          <div>
-                            <Label htmlFor="new-password" className="text-sm font-medium text-gray-700 mb-2 block">Yeni Şifre</Label>
-                            <Input
-                              id="new-password"
-                              type="password"
-                              placeholder="En az 6 karakter"
-                              value={newPassword}
-                              onChange={(e) => setNewPassword(e.target.value)}
-                              className="h-11 bg-white/50 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
-                            />
-                          </div>
-                          
-                          <div>
-                            <Label htmlFor="confirm-password" className="text-sm font-medium text-gray-700 mb-2 block">Şifre Tekrar</Label>
-                            <Input
-                              id="confirm-password"
-                              type="password"
-                              placeholder="Şifreyi tekrar girin"
-                              value={confirmPassword}
-                              onChange={(e) => setConfirmPassword(e.target.value)}
-                              className="h-11 bg-white/50 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
-                            />
-                          </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const u = user;
+                        setTimeout(() => {
+                          setResettingPassword(u);
+                          setNewPassword('');
+                          setConfirmPassword('');
+                          setPasswordDialogOpen(true);
+                        }, 0);
+                      }}
+                      className="bg-white/50 backdrop-blur-sm border-orange-200 hover:bg-orange-50 hover:border-orange-300 text-orange-600 hover:text-orange-700 transition-all duration-200"
+                    >
+                      <Key className="w-4 h-4 mr-2" />
+                      Şifre
+                    </Button>
 
-                          <div className="bg-orange-50/50 border border-orange-200/50 rounded-lg p-4">
-                            <h4 className="font-semibold text-orange-800 mb-2">Güvenlik Uyarısı:</h4>
-                            <ul className="text-sm text-orange-700 space-y-1">
-                              <li>• Kullanıcı mevcut oturumundan çıkış yapacak</li>
-                              <li>• Yeni şifre ile tekrar giriş yapması gerekecek</li>
-                              <li>• Bu işlem geri alınamaz</li>
-                            </ul>
-                          </div>
-                        </div>
-                        
-                        <DialogFooter className="pt-4">
-                          <Button
-                            variant="outline"
-                            onClick={() => {
-                              setResettingPassword(null);
-                              setNewPassword('');
-                              setConfirmPassword('');
-                            }}
-                            className="border-gray-300 hover:bg-gray-50"
-                          >
-                            İptal
-                          </Button>
-                          <Button
-                            onClick={handleResetPassword}
-                            disabled={isResetting || !newPassword || !confirmPassword}
-                            className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
-                          >
-                            {isResetting ? (
-                              <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                Sıfırlanıyor...
-                              </>
-                            ) : (
-                              <>
-                                <Key className="w-4 h-4 mr-2" />
-                                Şifreyi Sıfırla
-                              </>
-                            )}
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-
-                    {/* Silme Butonu - Admin hesapları hariç */}
                     {user.role !== 'admin' && (
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setDeletingUser(user)}
-                            className="bg-white/50 backdrop-blur-sm border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600 hover:text-red-700 transition-all duration-200"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Sil
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="bg-white/95 backdrop-blur-md border-white/30 shadow-2xl">
-                          <DialogHeader>
-                            <DialogTitle className="text-xl font-semibold text-red-600">Kullanıcıyı Sil</DialogTitle>
-                            <DialogDescription className="text-gray-600">
-                              <strong>{user.email}</strong> kullanıcısını silmek istediğinizden emin misiniz?
-                              <br />
-                              <span className="text-red-600 font-medium">Bu işlem geri alınamaz!</span>
-                            </DialogDescription>
-                          </DialogHeader>
-                          
-                          <div className="bg-red-50/50 border border-red-200/50 rounded-lg p-4">
-                            <h4 className="font-semibold text-red-800 mb-2">Silinecek Veriler:</h4>
-                            <ul className="text-sm text-red-700 space-y-1">
-                              <li>• Kullanıcı hesabı (auth.users)</li>
-                              <li>• Kullanıcı rolü (user_roles)</li>
-                              <li>• Sahip olduğu siteler ({user.owned_sites_count} adet)</li>
-                              <li>• Verilen izinler ({user.granted_permissions_count} adet)</li>
-                            </ul>
-                          </div>
-                          
-                          <DialogFooter className="pt-4">
-                            <Button
-                              variant="outline"
-                              onClick={() => setDeletingUser(null)}
-                              className="border-gray-300 hover:bg-gray-50"
-                            >
-                              İptal
-                            </Button>
-                            <Button
-                              onClick={handleDeleteUser}
-                              disabled={isDeleting}
-                              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
-                            >
-                              {isDeleting ? (
-                                <>
-                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                  Siliniyor...
-                                </>
-                              ) : (
-                                <>
-                                  <Trash2 className="w-4 h-4 mr-2" />
-                                  Kullanıcıyı Sil
-                                </>
-                              )}
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const u = user;
+                          setTimeout(() => {
+                            setDeletingUser(u);
+                            setDeleteDialogOpen(true);
+                          }, 0);
+                        }}
+                        className="bg-white/50 backdrop-blur-sm border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600 hover:text-red-700 transition-all duration-200"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Sil
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -603,6 +430,196 @@ export default function UserManagement() {
               </div>
             )}
           </div>
+
+          {/* Edit role dialog (controlled, deferred open for INP) */}
+          <Dialog open={editDialogOpen} onOpenChange={(open) => { setEditDialogOpen(open); if (!open) setEditingUser(null); }}>
+            <DialogContent className="bg-white/95 backdrop-blur-md border-white/30 shadow-2xl">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-semibold text-gray-900">Kullanıcı Rolü Düzenle</DialogTitle>
+                <DialogDescription className="text-gray-600">
+                  {editingUser?.email} kullanıcısının rolünü ve notlarını güncelleyin
+                </DialogDescription>
+              </DialogHeader>
+              {editingUser && (
+                <>
+                  <div className="space-y-6">
+                    <div>
+                      <Label htmlFor="role" className="text-sm font-medium text-gray-700 mb-2 block">Yeni Rol</Label>
+                      <Select value={newRole} onValueChange={(value) => setNewRole(value as UserRole)}>
+                        <SelectTrigger className="h-11 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white/95 backdrop-blur-sm border-white/20">
+                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="moderator">Moderatör</SelectItem>
+                          <SelectItem value="approved">Onaylı</SelectItem>
+                          <SelectItem value="pending">Beklemede</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="mt-2 p-3 bg-blue-50/50 rounded-lg border border-blue-200/50">
+                        <p className="text-sm text-blue-700">
+                          <strong>Açıklama:</strong> {roleDescriptions[newRole]}
+                        </p>
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="notes" className="text-sm font-medium text-gray-700 mb-2 block">Notlar</Label>
+                      <Textarea
+                        id="notes"
+                        placeholder="Rol atama sebebi veya notlar..."
+                        value={roleNotes}
+                        onChange={(e) => setRoleNotes(e.target.value)}
+                        className="bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 min-h-[100px]"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter className="pt-4">
+                    <Button
+                      onClick={handleRoleUpdate}
+                      disabled={isSubmitting}
+                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Güncelleniyor...
+                        </>
+                      ) : (
+                        'Güncelle'
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
+
+          {/* Reset password dialog (controlled, deferred open for INP) */}
+          <Dialog open={passwordDialogOpen} onOpenChange={(open) => { setPasswordDialogOpen(open); if (!open) { setResettingPassword(null); setNewPassword(''); setConfirmPassword(''); } }}>
+            <DialogContent className="bg-white/95 backdrop-blur-md border-white/30 shadow-2xl">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-semibold text-orange-600">Şifre Sıfırla</DialogTitle>
+                <DialogDescription className="text-gray-600">
+                  <strong>{resettingPassword?.email}</strong> kullanıcısının şifresini sıfırlayın
+                </DialogDescription>
+              </DialogHeader>
+              {resettingPassword && (
+                <>
+                  <div className="space-y-6">
+                    <div>
+                      <Label htmlFor="new-password" className="text-sm font-medium text-gray-700 mb-2 block">Yeni Şifre</Label>
+                      <Input
+                        id="new-password"
+                        type="password"
+                        placeholder="En az 6 karakter"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="h-11 bg-white/50 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="confirm-password" className="text-sm font-medium text-gray-700 mb-2 block">Şifre Tekrar</Label>
+                      <Input
+                        id="confirm-password"
+                        type="password"
+                        placeholder="Şifreyi tekrar girin"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="h-11 bg-white/50 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
+                      />
+                    </div>
+                    <div className="bg-orange-50/50 border border-orange-200/50 rounded-lg p-4">
+                      <h4 className="font-semibold text-orange-800 mb-2">Güvenlik Uyarısı:</h4>
+                      <ul className="text-sm text-orange-700 space-y-1">
+                        <li>• Kullanıcı mevcut oturumundan çıkış yapacak</li>
+                        <li>• Yeni şifre ile tekrar giriş yapması gerekecek</li>
+                        <li>• Bu işlem geri alınamaz</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <DialogFooter className="pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => { setPasswordDialogOpen(false); setResettingPassword(null); setNewPassword(''); setConfirmPassword(''); }}
+                      className="border-gray-300 hover:bg-gray-50"
+                    >
+                      İptal
+                    </Button>
+                    <Button
+                      onClick={handleResetPassword}
+                      disabled={isResetting || !newPassword || !confirmPassword}
+                      className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
+                    >
+                      {isResetting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Sıfırlanıyor...
+                        </>
+                      ) : (
+                        <>
+                          <Key className="w-4 h-4 mr-2" />
+                          Şifreyi Sıfırla
+                        </>
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
+
+          {/* Delete user dialog (controlled, deferred open for INP) */}
+          <Dialog open={deleteDialogOpen} onOpenChange={(open) => { setDeleteDialogOpen(open); if (!open) setDeletingUser(null); }}>
+            <DialogContent className="bg-white/95 backdrop-blur-md border-white/30 shadow-2xl">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-semibold text-red-600">Kullanıcıyı Sil</DialogTitle>
+                <DialogDescription className="text-gray-600">
+                  <strong>{deletingUser?.email}</strong> kullanıcısını silmek istediğinizden emin misiniz?
+                  <br />
+                  <span className="text-red-600 font-medium">Bu işlem geri alınamaz!</span>
+                </DialogDescription>
+              </DialogHeader>
+              {deletingUser && (
+                <>
+                  <div className="bg-red-50/50 border border-red-200/50 rounded-lg p-4">
+                    <h4 className="font-semibold text-red-800 mb-2">Silinecek Veriler:</h4>
+                    <ul className="text-sm text-red-700 space-y-1">
+                      <li>• Kullanıcı hesabı (auth.users)</li>
+                      <li>• Kullanıcı rolü (user_roles)</li>
+                      <li>• Sahip olduğu siteler ({deletingUser.owned_sites_count} adet)</li>
+                      <li>• Verilen izinler ({deletingUser.granted_permissions_count} adet)</li>
+                    </ul>
+                  </div>
+                  <DialogFooter className="pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => { setDeleteDialogOpen(false); setDeletingUser(null); }}
+                      className="border-gray-300 hover:bg-gray-50"
+                    >
+                      İptal
+                    </Button>
+                    <Button
+                      onClick={handleDeleteUser}
+                      disabled={isDeleting}
+                      className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
+                    >
+                      {isDeleting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Siliniyor...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Kullanıcıyı Sil
+                        </>
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
     </div>

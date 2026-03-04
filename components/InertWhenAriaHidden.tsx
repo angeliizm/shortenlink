@@ -7,19 +7,29 @@ import { useEffect } from 'react'
  * When Radix (e.g. Dialog) sets aria-hidden on a container, that container
  * must not contain focusable elements; setting `inert` makes descendants
  * non-focusable and satisfies the accessibility rule.
+ * Work is deferred (requestAnimationFrame) so it does not block INP.
  */
+function syncInert() {
+  document.querySelectorAll('[aria-hidden="true"]').forEach((el) => {
+    if (el instanceof HTMLElement && !el.hasAttribute('inert')) {
+      el.setAttribute('inert', '')
+    }
+  })
+  document.querySelectorAll('[aria-hidden="false"]').forEach((el) => {
+    if (el instanceof HTMLElement) {
+      el.removeAttribute('inert')
+    }
+  })
+}
+
 export default function InertWhenAriaHidden() {
   useEffect(() => {
+    let rafId: number
+
     const observer = new MutationObserver(() => {
-      document.querySelectorAll('[aria-hidden="true"]').forEach((el) => {
-        if (el instanceof HTMLElement && !el.hasAttribute('inert')) {
-          el.setAttribute('inert', '')
-        }
-      })
-      document.querySelectorAll('[aria-hidden="false"]').forEach((el) => {
-        if (el instanceof HTMLElement) {
-          el.removeAttribute('inert')
-        }
+      cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        syncInert()
       })
     })
 
@@ -29,14 +39,15 @@ export default function InertWhenAriaHidden() {
       attributeFilter: ['aria-hidden'],
     })
 
-    // Initial pass
-    document.querySelectorAll('[aria-hidden="true"]').forEach((el) => {
-      if (el instanceof HTMLElement) {
-        el.setAttribute('inert', '')
-      }
+    // Initial pass (deferred so it doesn't block first paint)
+    rafId = requestAnimationFrame(() => {
+      syncInert()
     })
 
-    return () => observer.disconnect()
+    return () => {
+      cancelAnimationFrame(rafId)
+      observer.disconnect()
+    }
   }, [])
 
   return null
