@@ -328,6 +328,17 @@ export const buttonPresets: ButtonPreset[] = [
     bannerImage: '/images/anubis_site_tasarm.png'
   },
   {
+    id: 'betroy-banner',
+    name: 'Betroy Banner',
+    styles: {
+      backgroundColor: 'transparent',
+      color: '#FFFFFF',
+      borderWidth: '0px',
+      borderRadius: '12px',
+    },
+    bannerImage: '/images/betroy_site_tasarm_png.png'
+  },
+  {
     id: 'arkin-banner',
     name: 'Arkın Banner',
     styles: {
